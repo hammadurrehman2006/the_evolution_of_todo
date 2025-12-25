@@ -1,0 +1,14 @@
+[project]
+name = "todo-console-app"
+version = "0.1.0"
+description = "A simple in-memory todo console application"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
+
+[project.scripts]
+todo-app = "src.cli.main:main"
+
+[build-system]
+requires = ["setuptools>=64.0", "wheel"]
+build-backend = "setuptools.build_meta"

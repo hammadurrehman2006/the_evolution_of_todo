@@ -1,0 +1,40 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Simple Task",
+      "description": "This is a short description",
+      "completed": false,
+      "created_at": "2025-12-25T19:18:44.826248"
+    },
+    {
+      "id": 2,
+      "title": "Task with a very long title that exceeds column width",
+      "description": "Long description that should be truncated",
+      "completed": false,
+      "created_at": "2025-12-25T19:18:44.829829"
+    },
+    {
+      "id": 3,
+      "title": "Short",
+      "description": "",
+      "completed": false,
+      "created_at": "2025-12-25T19:18:44.830656"
+    },
+    {
+      "id": 4,
+      "title": "Complete Task",
+      "description": "Another description",
+      "completed": true,
+      "created_at": "2025-12-25T19:18:44.831402"
+    },
+    {
+      "id": 5,
+      "title": "Test CLI task",
+      "description": "Test description for CLI",
+      "completed": false,
+      "created_at": "2025-12-25T19:19:49.680111"
+    }
+  ],
+  "next_id": 6
+}

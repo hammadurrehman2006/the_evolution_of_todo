@@ -1,0 +1,2 @@
+[console_scripts]
+todo-app = src.cli.main:main
