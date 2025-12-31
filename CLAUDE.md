@@ -212,6 +212,8 @@ See `.specify/memory/constitution.md` for code quality, testing, performance, se
 ## Active Technologies
 - Python 3.13+ + None required beyond standard library for initial implementation (001-todo-console-app)
 - In-memory only (no persistent storage) (001-todo-console-app)
+- TypeScript 5.7+, React 19, Next.js 16.0.3 (002-productivity-suite)
+- Client-side localStorage (not for sensitive data), Cookies (theme persistence), Server API (task data) (002-productivity-suite)
 
 ## Recent Changes
 - 001-todo-console-app: Added Python 3.13+ + None required beyond standard library for initial implementation
