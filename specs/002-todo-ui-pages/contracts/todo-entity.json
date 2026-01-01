@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Todo Entity",
+  "description": "Represents a single task in the todo list. Used in the Todo UI Pages feature for local state management.",
+  "type": "object",
+  "required": ["id", "title", "completed", "createdAt"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier (UUID v4)",
+      "format": "uuid",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "title": {
+      "type": "string",
+      "description": "Task title (1-200 characters)",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "description": {
+      "type": "string",
+      "description": "Optional description (up to 1000 characters)",
+      "maxLength": 1000
+    },
+    "completed": {
+      "type": "boolean",
+      "description": "Completion status"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Creation timestamp"
+    },
+    "updatedAt": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "Last update timestamp"
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "title": "Buy groceries",
+      "description": "Milk, bread, eggs",
+      "completed": false,
+      "createdAt": "2026-01-01T12:00:00Z",
+      "updatedAt": null
+    },
+    {
+      "id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+      "title": "Complete project documentation",
+      "completed": true,
+      "createdAt": "2026-01-01T10:00:00Z",
+      "updatedAt": "2026-01-01T14:30:00Z"
+    }
+  ]
+}
