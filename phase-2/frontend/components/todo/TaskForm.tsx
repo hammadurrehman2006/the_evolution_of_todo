@@ -1,6 +1,16 @@
 "use client"
 
 import { useState, useEffect } from 'react'
+
+// Helper function to convert Date to datetime-local input format (local timezone)
+function formatDateForInput(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  return `${year}-${month}-${day}T${hours}:${minutes}`
+}
 import {
   Dialog,
   DialogContent,
@@ -57,7 +67,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, editingTodo, onUpdate }: T
       setDescription(editingTodo.description || "")
       setPriority(editingTodo.priority)
       setTags(editingTodo.tags)
-      setDueDate(editingTodo.dueDate ? new Date(editingTodo.dueDate).toISOString().slice(0, 16) : "")
+      setDueDate(editingTodo.dueDate ? formatDateForInput(new Date(editingTodo.dueDate)) : "")
       setRecurringEnabled(editingTodo.recurring?.enabled || false)
       setRecurringFrequency(editingTodo.recurring?.frequency || 'weekly')
       setRecurringInterval(editingTodo.recurring?.interval || 1)

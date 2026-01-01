@@ -39,6 +39,19 @@ export function useMockTodos() {
     }
   }, [todos])
 
+  // Request notification permission on mount (separate effect to run immediately)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      if (Notification.permission === 'default') {
+        Notification.requestPermission().then((permission) => {
+          console.log('Notification permission:', permission)
+        })
+      } else {
+        console.log('Notification permission already set to:', Notification.permission)
+      }
+    }
+  }, [])
+
   // Check for recurring tasks and due date notifications
   useEffect(() => {
     const checkRecurringTasks = () => {
@@ -93,11 +106,6 @@ export function useMockTodos() {
       checkRecurringTasks()
       checkNotifications()
     }, 60000) // Check every minute
-
-    // Request notification permission on mount
-    if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission()
-    }
 
     return () => clearInterval(interval)
   }, [todos])
