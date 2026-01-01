@@ -3,8 +3,41 @@
 import { useState, useCallback, useEffect } from 'react'
 import type { Todo, Priority } from '@/lib/types'
 
+const STORAGE_KEY = 'taskflow-todos'
+
 export function useMockTodos() {
-  const [todos, setTodos] = useState<Todo[]>([])
+  const [todos, setTodos] = useState<Todo[]>(() => {
+    // Load todos from localStorage on mount
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY)
+        if (stored) {
+          const parsed = JSON.parse(stored)
+          // Convert date strings back to Date objects
+          return parsed.map((todo: any) => ({
+            ...todo,
+            createdAt: new Date(todo.createdAt),
+            updatedAt: todo.updatedAt ? new Date(todo.updatedAt) : undefined,
+            dueDate: todo.dueDate ? new Date(todo.dueDate) : undefined,
+          }))
+        }
+      } catch (error) {
+        console.error('Failed to load todos from localStorage:', error)
+      }
+    }
+    return []
+  })
+
+  // Save todos to localStorage whenever they change
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
+      } catch (error) {
+        console.error('Failed to save todos to localStorage:', error)
+      }
+    }
+  }, [todos])
 
   // Check for recurring tasks and due date notifications
   useEffect(() => {
