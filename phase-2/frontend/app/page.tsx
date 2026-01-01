@@ -1,116 +1,188 @@
-'use client'
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import {
+  CheckCircle2,
+  Tag,
+  Filter,
+  Calendar,
+  Repeat,
+  Bell,
+  ArrowRight,
+  Sparkles,
+  Zap,
+  Target,
+} from "lucide-react"
 
-import Link from 'next/link'
-import { Button } from 'flowbite-react'
-import { ArrowRight, CheckCircle, Zap, Shield, BarChart } from 'lucide-react'
-
-export default function LandingPage() {
+export default function Home() {
   const features = [
     {
-      icon: <CheckCircle className="w-12 h-12 text-blue-600" />,
-      title: 'Task Management',
-      description: 'Create, organize, and complete tasks with intelligent prioritization'
+      icon: CheckCircle2,
+      title: "Task Management",
+      description: "Create, edit, and organize tasks with ease. Mark tasks as complete and track your progress effortlessly.",
     },
     {
-      icon: <Zap className="w-12 h-12 text-blue-600" />,
-      title: 'Smart Reminders',
-      description: 'Never miss a deadline with automated notifications'
+      icon: Target,
+      title: "Priority Levels",
+      description: "Assign high, medium, or low priority to your tasks. Focus on what matters most and stay productive.",
     },
     {
-      icon: <Shield className="w-12 h-12 text-blue-600" />,
-      title: 'Secure Storage',
-      description: 'Your data stays safe with advanced encryption'
+      icon: Tag,
+      title: "Tags & Categories",
+      description: "Organize tasks with custom tags. Group related items and find what you need instantly.",
     },
     {
-      icon: <BarChart className="w-12 h-12 text-blue-600" />,
-      title: 'Analytics',
-      description: 'Track your productivity with detailed insights'
-    }
+      icon: Filter,
+      title: "Smart Filtering",
+      description: "Filter tasks by status, priority, tags, or search keywords. Find exactly what you're looking for.",
+    },
+    {
+      icon: Calendar,
+      title: "Due Dates & Reminders",
+      description: "Set deadlines with date and time. Receive browser notifications when tasks are due soon.",
+    },
+    {
+      icon: Repeat,
+      title: "Recurring Tasks",
+      description: "Automate repeating tasks with daily, weekly, or monthly schedules. Never forget routine work.",
+    },
   ]
 
   return (
-    <div className="min-h-screen">
+    <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700">
-        <div className="container mx-auto px-4 py-20">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="mb-6 text-5xl md:text-7xl font-bold text-white">
-              Master Your Productivity
+      <section className="relative overflow-hidden bg-gradient-to-b from-background to-muted/20 px-4 py-20 sm:py-32">
+        <div className="mx-auto max-w-7xl">
+          <div className="text-center space-y-6">
+            <Badge variant="secondary" className="mb-4">
+              <Sparkles className="mr-2 h-3 w-3" />
+              Professional Task Management
+            </Badge>
+            <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
+              Welcome to <span className="text-primary">TaskFlow</span>
             </h1>
-
-            <p className="mb-8 text-xl md:text-2xl text-blue-100">
-              A professional task management solution designed for efficiency and clarity.
+            <p className="mx-auto max-w-2xl text-lg text-muted-foreground sm:text-xl">
+              Streamline your workflow with intelligent task management.
+              Organize, prioritize, and accomplish more every day with powerful features designed for professionals.
             </p>
-
-            <div>
-              <Link href="/dashboard">
-                <Button
-                  size="xl"
-                  className="bg-white text-blue-600 hover:bg-blue-50 font-semibold text-lg px-8 py-4"
-                >
-                  Get Started Free
-                  <ArrowRight className="ml-2 w-5 h-5" />
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6">
+              <Link href="/todos">
+                <Button size="lg" className="text-lg group">
+                  Get Started
+                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </Button>
+              </Link>
+              <Link href="/todos">
+                <Button size="lg" variant="outline" className="text-lg">
+                  View Dashboard
                 </Button>
               </Link>
             </div>
           </div>
         </div>
-
-        {/* Decorative Elements */}
-        <div className="absolute top-20 right-10 w-64 h-64 rounded-full bg-white opacity-5 blur-3xl" />
-        <div className="absolute bottom-10 left-10 w-48 h-48 rounded-full bg-white opacity-5 blur-3xl" />
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-white dark:bg-gray-900">
-        <div className="container mx-auto px-4">
-          <h2 className="mb-16 text-center text-4xl font-bold text-gray-900 dark:text-white">
-            Everything You Need
-          </h2>
+      <section className="px-4 py-20 sm:py-24">
+        <div className="mx-auto max-w-7xl">
+          <div className="text-center space-y-4 mb-16">
+            <Badge variant="secondary">Features</Badge>
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+              Everything you need to stay organized
+            </h2>
+            <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+              Powerful features designed to help you manage tasks efficiently and boost your productivity.
+            </p>
+          </div>
 
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-            {features.map((feature, index) => (
-              <div
-                key={index}
-                className="feature-card rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow"
-              >
-                <div className="mb-4 flex items-start gap-4">
-                  {feature.icon}
-                </div>
-                <h3 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400">
-                  {feature.description}
-                </p>
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {features.map((feature) => {
+              const Icon = feature.icon
+              return (
+                <Card key={feature.title} className="transition-all hover:shadow-lg">
+                  <CardHeader>
+                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                      <Icon className="h-6 w-6 text-primary" />
+                    </div>
+                    <CardTitle className="text-xl">{feature.title}</CardTitle>
+                    <CardDescription className="text-base">
+                      {feature.description}
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits Section */}
+      <section className="bg-muted/50 px-4 py-20 sm:py-24">
+        <div className="mx-auto max-w-7xl">
+          <div className="text-center space-y-4 mb-16">
+            <Badge variant="secondary">Benefits</Badge>
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+              Why choose TaskFlow?
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 gap-12 lg:grid-cols-3">
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                <Zap className="h-8 w-8 text-primary" />
               </div>
-            ))}
+              <h3 className="text-xl font-bold">Lightning Fast</h3>
+              <p className="text-muted-foreground">
+                Built with modern technologies for instant responsiveness and smooth interactions.
+              </p>
+            </div>
+
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                <Bell className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-bold">Smart Notifications</h3>
+              <p className="text-muted-foreground">
+                Never miss a deadline with intelligent browser notifications for upcoming tasks.
+              </p>
+            </div>
+
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                <Target className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-bold">Stay Focused</h3>
+              <p className="text-muted-foreground">
+                Priority levels and smart filtering help you focus on what matters most.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gray-50 dark:bg-gray-800">
-        <div className="container mx-auto px-4 text-center">
-          <div
-            className="rounded-2xl bg-white dark:bg-gray-900 p-12 shadow-xl"
-          >
-            <h2 className="mb-4 text-3xl font-bold text-gray-900 dark:text-white">
-              Ready to Get Started?
-            </h2>
-            <p className="mb-8 text-lg text-gray-600 dark:text-gray-400">
-              Join thousands of professionals who have transformed their productivity.
-            </p>
-            <Link href="/dashboard">
-              <Button
-                size="lg"
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4"
-              >
-                Start Managing Tasks Now
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-            </Link>
-          </div>
+      <section className="px-4 py-20 sm:py-24">
+        <div className="mx-auto max-w-4xl">
+          <Card className="border-2">
+            <CardHeader className="text-center space-y-4 pb-8">
+              <CardTitle className="text-3xl sm:text-4xl">
+                Ready to boost your productivity?
+              </CardTitle>
+              <CardDescription className="text-lg">
+                Start organizing your tasks today with TaskFlow's powerful features.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col sm:flex-row items-center justify-center gap-4 pb-8">
+              <Link href="/todos">
+                <Button size="lg" className="text-lg w-full sm:w-auto group">
+                  Start Managing Tasks
+                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
         </div>
       </section>
     </div>

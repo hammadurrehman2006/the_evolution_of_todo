@@ -27,11 +27,11 @@ All paths are relative to `phase-2/frontend/` directory.
 
 **Purpose**: Project initialization, Shadcn UI setup, and next-themes configuration
 
-- [ ] T001 Install Shadcn UI dependencies by running `npx shadcn-ui@latest init` in phase-2/frontend/ directory (select Default style, Slate color, use CSS variables)
-- [ ] T002 Install required Shadcn UI components: button, card, input, dialog, badge, separator, textarea using `npx shadcn-ui@latest add` in phase-2/frontend/
-- [ ] T003 Install next-themes package using `npm install next-themes` in phase-2/frontend/
-- [ ] T004 Create project directory structure: `mkdir -p components/layout components/todo hooks lib` in phase-2/frontend/
-- [ ] T005 Configure Tailwind CSS for dark mode by setting `darkMode: ["class"]` in phase-2/frontend/tailwind.config.ts
+- [X] T001 Install Shadcn UI dependencies by running `npx shadcn-ui@latest init` in phase-2/frontend/ directory (select Default style, Slate color, use CSS variables)
+- [X] T002 Install required Shadcn UI components: button, card, input, dialog, badge, separator, textarea using `npx shadcn-ui@latest add` in phase-2/frontend/
+- [X] T003 Install next-themes package using `npm install next-themes` in phase-2/frontend/
+- [X] T004 Create project directory structure: `mkdir -p components/layout components/todo hooks lib` in phase-2/frontend/
+- [X] T005 Configure Tailwind CSS for dark mode by setting `darkMode: ["class"]` in phase-2/frontend/tailwind.config.ts
 
 ---
 
@@ -41,9 +41,9 @@ All paths are relative to `phase-2/frontend/` directory.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T006 Create TypeScript type definitions file at phase-2/frontend/lib/types.ts with Todo interface (id: string, title: string, description?: string, completed: boolean, createdAt: Date, updatedAt?: Date)
-- [ ] T007 Add global CSS theme variables to phase-2/frontend/app/globals.css with light and dark mode color definitions (--background, --foreground, --primary, --secondary, --muted, --accent, --destructive, --border, --ring for both :root and .dark)
-- [ ] T008 Wrap root layout with ThemeProvider in phase-2/frontend/app/layout.tsx (import from next-themes, set attribute="class", defaultTheme="system", enableSystem, disableTransitionOnChange, add suppressHydrationWarning to html tag)
+- [X] T006 Create TypeScript type definitions file at phase-2/frontend/lib/types.ts with Todo interface (id: string, title: string, description?: string, completed: boolean, createdAt: Date, updatedAt?: Date)
+- [X] T007 Add global CSS theme variables to phase-2/frontend/app/globals.css with light and dark mode color definitions (--background, --foreground, --primary, --secondary, --muted, --accent, --destructive, --border, --ring for both :root and .dark)
+- [X] T008 Wrap root layout with ThemeProvider in phase-2/frontend/app/layout.tsx (import from next-themes, set attribute="class", defaultTheme="system", enableSystem, disableTransitionOnChange, add suppressHydrationWarning to html tag)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -57,8 +57,8 @@ All paths are relative to `phase-2/frontend/` directory.
 
 ### Implementation for User Story 2
 
-- [ ] T009 [US2] Create Navbar component at phase-2/frontend/components/layout/Navbar.tsx with "use client" directive, navigation links (Home → "/", Todos → "/todos") using next/link, and theme toggle button using useTheme hook from next-themes with sun/moon icons styled with Tailwind CSS
-- [ ] T010 [US2] Style Navbar component with Tailwind CSS: responsive flexbox layout, border-bottom, bg-background, fixed height (h-16), max-width container (max-w-7xl), spacing between items, hover effects on buttons, mobile-responsive with accessible navigation
+- [X] T009 [US2] Create Navbar component at phase-2/frontend/components/layout/Navbar.tsx with "use client" directive, navigation links (Home → "/", Todos → "/todos") using next/link, and theme toggle button using useTheme hook from next-themes with sun/moon icons styled with Tailwind CSS
+- [X] T010 [US2] Style Navbar component with Tailwind CSS: responsive flexbox layout, border-bottom, bg-background, fixed height (h-16), max-width container (max-w-7xl), spacing between items, hover effects on buttons, mobile-responsive with accessible navigation
 
 **Checkpoint**: At this point, Navigation and Theme Toggle should be fully functional across all pages
 
@@ -72,8 +72,8 @@ All paths are relative to `phase-2/frontend/` directory.
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Update Home page at phase-2/frontend/app/page.tsx with centered layout, Shadcn Card component containing welcome title "Welcome to Todo App", description paragraph explaining application purpose, and "Get Started" button using Shadcn Button component linking to /todos, styled with Tailwind CSS for responsive design
-- [ ] T012 [US1] Style Home page with Tailwind CSS: min-h-screen flex layout, centered content (items-center justify-center), bg-background, responsive padding, max-width container (max-w-3xl), proper spacing between elements
+- [X] T011 [US1] Update Home page at phase-2/frontend/app/page.tsx with centered layout, Shadcn Card component containing welcome title "Welcome to Todo App", description paragraph explaining application purpose, and "Get Started" button using Shadcn Button component linking to /todos, styled with Tailwind CSS for responsive design
+- [X] T012 [US1] Style Home page with Tailwind CSS: min-h-screen flex layout, centered content (items-center justify-center), bg-background, responsive padding, max-width container (max-w-3xl), proper spacing between elements
 
 **Checkpoint**: At this point, Landing Page should be fully functional and provide clear entry point to application
 
@@ -87,17 +87,17 @@ All paths are relative to `phase-2/frontend/` directory.
 
 ### Data Layer for User Story 3
 
-- [ ] T013 [P] [US3] Create use-mock-todos hook at phase-2/frontend/hooks/use-mock-todos.ts with "use client" directive, useState for todos array (type Todo[]), initial sample todos, and functions: addTask(title, description?), deleteTask(id), toggleTask(id) using useCallback for performance, generating UUIDs with crypto.randomUUID()
+- [X] T013 [P] [US3] Create use-mock-todos hook at phase-2/frontend/hooks/use-mock-todos.ts with "use client" directive, useState for todos array (type Todo[]), initial sample todos, and functions: addTask(title, description?), deleteTask(id), toggleTask(id) using useCallback for performance, generating UUIDs with crypto.randomUUID()
 
 ### UI Components for User Story 3
 
-- [ ] T014 [P] [US3] Create TaskCard component at phase-2/frontend/components/todo/TaskCard.tsx with "use client" directive, props (todo: Todo, onToggle: (id: string) => void, onDelete: (id: string) => void), Shadcn Card with title/description display, completion Badge (Done/Pending), "Mark Complete/Incomplete" Button and "Delete" Button, styled with Tailwind CSS with hover effects and line-through for completed tasks
-- [ ] T015 [P] [US3] Create TaskList component at phase-2/frontend/components/todo/TaskList.tsx with "use client" directive, props (todos: Todo[], onToggle, onDelete), map over todos array rendering TaskCard components, empty state message when todos.length === 0, styled with Tailwind CSS responsive grid/list layout
-- [ ] T016 [P] [US3] Create TaskForm component at phase-2/frontend/components/todo/TaskForm.tsx with "use client" directive, props (isOpen: boolean, onClose: () => void, onSubmit: (title, description?) => void), Shadcn Dialog with Input for title (maxLength 200 with character counter), Textarea for description (maxLength 1000 with character counter), validation (title required, min 1 char), Cancel and Submit buttons using Shadcn Button, styled with Tailwind CSS form layout
+- [X] T014 [P] [US3] Create TaskCard component at phase-2/frontend/components/todo/TaskCard.tsx with "use client" directive, props (todo: Todo, onToggle: (id: string) => void, onDelete: (id: string) => void), Shadcn Card with title/description display, completion Badge (Done/Pending), "Mark Complete/Incomplete" Button and "Delete" Button, styled with Tailwind CSS with hover effects and line-through for completed tasks
+- [X] T015 [P] [US3] Create TaskList component at phase-2/frontend/components/todo/TaskList.tsx with "use client" directive, props (todos: Todo[], onToggle, onDelete), map over todos array rendering TaskCard components, empty state message when todos.length === 0, styled with Tailwind CSS responsive grid/list layout
+- [X] T016 [P] [US3] Create TaskForm component at phase-2/frontend/components/todo/TaskForm.tsx with "use client" directive, props (isOpen: boolean, onClose: () => void, onSubmit: (title, description?) => void), Shadcn Dialog with Input for title (maxLength 200 with character counter), Textarea for description (maxLength 1000 with character counter), validation (title required, min 1 char), Cancel and Submit buttons using Shadcn Button, styled with Tailwind CSS form layout
 
 ### Page Assembly for User Story 3
 
-- [ ] T017 [US3] Create Todo dashboard page at phase-2/frontend/app/todos/page.tsx with "use client" directive, import and use useMockTodos hook, useState for dialog open state, header showing "My Todos" title and active task count, "Add Todo" button, TaskList component with todos and handlers, TaskForm component with dialog state and submit handler, styled with Tailwind CSS responsive layout (max-w-4xl container, proper spacing)
+- [X] T017 [US3] Create Todo dashboard page at phase-2/frontend/app/todos/page.tsx with "use client" directive, import and use useMockTodos hook, useState for dialog open state, header showing "My Todos" title and active task count, "Add Todo" button, TaskList component with todos and handlers, TaskForm component with dialog state and submit handler, styled with Tailwind CSS responsive layout (max-w-4xl container, proper spacing)
 
 **Checkpoint**: At this point, Todo Dashboard should be fully functional with complete CRUD operations on local todos
 

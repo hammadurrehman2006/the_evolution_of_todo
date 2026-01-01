@@ -1,1 +1,0 @@
-[{"@/types": "nterface DashboardMetricsProps {\n  metrics: TaskMetrics\n  showProgress?: boolean\n  compact?: boolean"}, {"p-4": "p-6"}, {"className=": "ext-sm font-semibold text-gray-900 dark:text-white", "text-blue-600": {"className=": -3, "dark": "bg-gray-700 rounded-full overflow-hidden", "ease-out": "tyle={{ width: `${completionRate"}}]
