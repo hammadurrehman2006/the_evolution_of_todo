@@ -6,7 +6,7 @@ import { TaskForm } from "@/components/todo/TaskForm"
 import { FilterBar } from "@/components/todo/FilterBar"
 import { useMockTodos } from "@/hooks/use-mock-todos"
 import { Button } from "@/components/ui/button"
-import { Plus, Bell } from "lucide-react"
+import { Plus } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import type { FilterOptions, SortOption, Todo } from "@/lib/types"
 
@@ -97,32 +97,6 @@ export default function TodosPage() {
     setEditingTodo(null)
   }
 
-  const testNotification = () => {
-    if ('Notification' in window) {
-      if (Notification.permission === 'granted') {
-        new Notification('TaskFlow - Test Notification', {
-          body: 'Notifications are working! You will be notified when tasks are due within 24 hours.',
-          icon: '/favicon.ico',
-        })
-      } else if (Notification.permission === 'default') {
-        Notification.requestPermission().then((permission) => {
-          if (permission === 'granted') {
-            new Notification('TaskFlow - Test Notification', {
-              body: 'Notifications are working! You will be notified when tasks are due within 24 hours.',
-              icon: '/favicon.ico',
-            })
-          } else {
-            alert('Notification permission denied. Please enable notifications in your browser settings.')
-          }
-        })
-      } else {
-        alert('Notifications are blocked. Please enable them in your browser settings.')
-      }
-    } else {
-      alert('Your browser does not support notifications.')
-    }
-  }
-
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
@@ -154,39 +128,31 @@ export default function TodosPage() {
                 </div>
               )}
             </div>
-            <div className="flex gap-2">
-              <Button
-                onClick={testNotification}
-                variant="outline"
-                size="sm"
-                className="flex items-center space-x-2"
-                title="Test browser notifications"
-              >
-                <Bell className="h-4 w-4" />
-                <span className="hidden sm:inline">Test Notifications</span>
-              </Button>
-              <Button onClick={() => setIsFormOpen(true)} className="flex items-center space-x-2">
-                <Plus className="h-4 w-4" />
-                <span>Add Task</span>
-              </Button>
-            </div>
+            <Button onClick={() => setIsFormOpen(true)} className="flex items-center space-x-2">
+              <Plus className="h-4 w-4" />
+              <span>Add Task</span>
+            </Button>
           </div>
           <Separator />
         </div>
 
-        <FilterBar
-          filters={filters}
-          sortBy={sortBy}
-          onFilterChange={setFilters}
-          onSortChange={setSortBy}
-        />
+        {mounted && (
+          <>
+            <FilterBar
+              filters={filters}
+              sortBy={sortBy}
+              onFilterChange={setFilters}
+              onSortChange={setSortBy}
+            />
 
-        <TaskList
-          todos={filteredAndSortedTodos}
-          onToggle={toggleTask}
-          onDelete={deleteTask}
-          onEdit={handleEdit}
-        />
+            <TaskList
+              todos={filteredAndSortedTodos}
+              onToggle={toggleTask}
+              onDelete={deleteTask}
+              onEdit={handleEdit}
+            />
+          </>
+        )}
 
         <TaskForm
           isOpen={isFormOpen}
