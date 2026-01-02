@@ -216,6 +216,8 @@ See `.specify/memory/constitution.md` for code quality, testing, performance, se
 - Client-side localStorage (not for sensitive data), Cookies (theme persistence), Server API (task data) (002-productivity-suite)
 - TypeScript 5.7+ + Next.js 16.0+ (App Router), React 19, Tailwind CSS, Shadcn UI, next-themes (002-todo-ui-pages)
 - Client-side localStorage (theme preferences) (002-todo-ui-pages)
+- TypeScript 5.7+, React 19, Next.js 16.0.3 (App Router) (003-auth-ui-integration)
+- N/A (client-side only, no backend storage for this phase) (003-auth-ui-integration)
 
 ## Recent Changes
 - 001-todo-console-app: Added Python 3.13+ + None required beyond standard library for initial implementation
