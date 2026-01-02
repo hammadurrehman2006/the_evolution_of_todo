@@ -60,7 +60,9 @@ export function useMockTodos() {
     const checkRecurringTasks = () => {
       setTodos((prev) => {
         const now = new Date()
-        return prev.map((todo) => {
+        let hasChanges = false
+
+        const updated = prev.map((todo) => {
           if (
             todo.recurring?.enabled &&
             todo.completed &&
@@ -70,6 +72,7 @@ export function useMockTodos() {
             const intervalMs = getIntervalMs(todo.recurring.frequency, todo.recurring.interval)
 
             if (timeSinceUpdate >= intervalMs) {
+              hasChanges = true
               // Reset the task and update due date if present
               return {
                 ...todo,
@@ -81,11 +84,16 @@ export function useMockTodos() {
           }
           return todo
         })
+
+        // Only update state if there are actual changes
+        return hasChanges ? updated : prev
       })
     }
 
-    // Check for due date notifications
+    // Check for due date notifications (doesn't modify state)
     const checkNotifications = () => {
+      if (typeof window === 'undefined') return
+
       const now = new Date()
       todos.forEach((todo) => {
         if (todo.dueDate && !todo.completed) {
@@ -112,11 +120,10 @@ export function useMockTodos() {
       })
     }
 
-    // Run checks immediately on mount and when todos change
-    checkRecurringTasks()
+    // Check notifications immediately (but don't check recurring tasks to avoid infinite loop)
     checkNotifications()
 
-    // Then check every minute
+    // Set up interval to check both periodically
     const interval = setInterval(() => {
       checkRecurringTasks()
       checkNotifications()
