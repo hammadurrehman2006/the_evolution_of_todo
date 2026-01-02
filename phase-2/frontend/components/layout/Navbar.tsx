@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
-import { Moon, Sun } from "lucide-react"
+import { Moon, Sun, CheckCircle2 } from "lucide-react"
 
 export function Navbar() {
   const { theme, setTheme } = useTheme()
@@ -16,8 +16,11 @@ export function Navbar() {
     <nav className="border-b bg-background">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center space-x-6">
-          <Link href="/" className="flex items-center space-x-2">
-            <span className="text-xl font-bold">TaskFlow</span>
+          <Link href="/" className="flex items-center space-x-2 group">
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+              <CheckCircle2 className="h-5 w-5 text-primary" />
+            </div>
+            <span className="text-xl font-bold">TaskHive</span>
           </Link>
           <div className="hidden sm:flex items-center space-x-4 ml-6">
             <Link href="/">

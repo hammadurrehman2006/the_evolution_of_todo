@@ -61,7 +61,7 @@ export default function Home() {
               Professional Task Management
             </Badge>
             <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
-              Welcome to <span className="text-primary">TaskFlow</span>
+              Welcome to <span className="text-primary">TaskHive</span>
             </h1>
             <p className="mx-auto max-w-2xl text-lg text-muted-foreground sm:text-xl">
               Streamline your workflow with intelligent task management.
@@ -171,7 +171,7 @@ export default function Home() {
                 Ready to boost your productivity?
               </CardTitle>
               <CardDescription className="text-lg">
-                Start organizing your tasks today with TaskFlow's powerful features.
+                Start organizing your tasks today with TaskHive's powerful features.
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col sm:flex-row items-center justify-center gap-4 pb-8">

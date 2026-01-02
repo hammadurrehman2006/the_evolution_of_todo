@@ -13,9 +13,9 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           {/* Brand Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-bold">TaskFlow</h3>
+            <h3 className="text-lg font-bold">TaskHive</h3>
             <p className="text-sm text-muted-foreground">
-              Professional task management for individuals and teams. Organize, prioritize, and accomplish more.
+              Smart task management for individuals and teams. Organize, prioritize, and accomplish more.
             </p>
           </div>
 
@@ -135,7 +135,7 @@ export function Footer() {
         <Separator className="my-8" />
 
         <div className="flex flex-col items-center justify-between space-y-4 text-sm text-muted-foreground md:flex-row md:space-y-0">
-          <p>&copy; {currentYear} TaskFlow. All rights reserved.</p>
+          <p>&copy; {currentYear} TaskHive. All rights reserved.</p>
           <p className="text-xs">
             Built with Next.js, React, and Tailwind CSS
           </p>

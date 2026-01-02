@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import type { Todo, Priority } from '@/lib/types'
 
-const STORAGE_KEY = 'taskflow-todos'
+const STORAGE_KEY = 'taskhive-todos'
 
 export function useMockTodos() {
   const [todos, setTodos] = useState<Todo[]>(() => {
@@ -109,7 +109,7 @@ export function useMockTodos() {
           if (timeUntilDue > 0 && timeUntilDue <= fiveMinutesMs && !notifiedTasksRef.has(fiveMinKey)) {
             if ('Notification' in window && Notification.permission === 'granted') {
               const minutesLeft = Math.ceil(timeUntilDue / 60000)
-              new Notification('TaskFlow - Task Due Soon', {
+              new Notification('TaskHive - Task Due Soon', {
                 body: `"${todo.title}" is due in ${minutesLeft} minute${minutesLeft !== 1 ? 's' : ''}!`,
                 icon: '/favicon.ico',
               })
@@ -121,7 +121,7 @@ export function useMockTodos() {
           // Notify 1 minute before due time
           if (timeUntilDue > 0 && timeUntilDue <= oneMinuteMs && !notifiedTasksRef.has(oneMinKey)) {
             if ('Notification' in window && Notification.permission === 'granted') {
-              new Notification('TaskFlow - Task Due Very Soon!', {
+              new Notification('TaskHive - Task Due Very Soon!', {
                 body: `"${todo.title}" is due in less than 1 minute!`,
                 icon: '/favicon.ico',
               })

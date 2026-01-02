@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TaskFlow - Professional Task Management",
-  description: "Modern task management platform for professionals and teams",
+  title: "TaskHive - Smart Task Management",
+  description: "Smart task management platform for professionals and teams",
 };
 
 export default function RootLayout({
