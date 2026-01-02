@@ -98,23 +98,42 @@ export function useMockTodos() {
       todos.forEach((todo) => {
         if (todo.dueDate && !todo.completed) {
           const timeUntilDue = new Date(todo.dueDate).getTime() - now.getTime()
-          const oneDayMs = 24 * 60 * 60 * 1000
+          const fiveMinutesMs = 5 * 60 * 1000 // 5 minutes in milliseconds
+          const oneMinuteMs = 1 * 60 * 1000 // 1 minute in milliseconds
 
-          // Notify if due within 24 hours and not already notified
-          if (timeUntilDue > 0 && timeUntilDue <= oneDayMs && !notifiedTasksRef.has(todo.id)) {
+          // Create unique notification keys for 5-min and 1-min warnings
+          const fiveMinKey = `${todo.id}-5min`
+          const oneMinKey = `${todo.id}-1min`
+
+          // Notify 5 minutes before due time
+          if (timeUntilDue > 0 && timeUntilDue <= fiveMinutesMs && !notifiedTasksRef.has(fiveMinKey)) {
             if ('Notification' in window && Notification.permission === 'granted') {
+              const minutesLeft = Math.ceil(timeUntilDue / 60000)
               new Notification('TaskFlow - Task Due Soon', {
-                body: `"${todo.title}" is due soon!`,
+                body: `"${todo.title}" is due in ${minutesLeft} minute${minutesLeft !== 1 ? 's' : ''}!`,
                 icon: '/favicon.ico',
               })
-              notifiedTasksRef.add(todo.id)
-              console.log(`Notification sent for task: ${todo.title}`)
+              notifiedTasksRef.add(fiveMinKey)
+              console.log(`5-minute notification sent for task: ${todo.title}`)
             }
           }
 
-          // Clear notification flag if task is no longer due within 24 hours
-          if (timeUntilDue > oneDayMs || timeUntilDue <= 0) {
-            notifiedTasksRef.delete(todo.id)
+          // Notify 1 minute before due time
+          if (timeUntilDue > 0 && timeUntilDue <= oneMinuteMs && !notifiedTasksRef.has(oneMinKey)) {
+            if ('Notification' in window && Notification.permission === 'granted') {
+              new Notification('TaskFlow - Task Due Very Soon!', {
+                body: `"${todo.title}" is due in less than 1 minute!`,
+                icon: '/favicon.ico',
+              })
+              notifiedTasksRef.add(oneMinKey)
+              console.log(`1-minute notification sent for task: ${todo.title}`)
+            }
+          }
+
+          // Clear notification flags if task is no longer due soon or is overdue
+          if (timeUntilDue > fiveMinutesMs || timeUntilDue <= 0) {
+            notifiedTasksRef.delete(fiveMinKey)
+            notifiedTasksRef.delete(oneMinKey)
           }
         }
       })
@@ -127,7 +146,7 @@ export function useMockTodos() {
     const interval = setInterval(() => {
       checkRecurringTasks()
       checkNotifications()
-    }, 60000) // Check every minute
+    }, 30000) // Check every 30 seconds for more timely notifications
 
     return () => clearInterval(interval)
   }, [todos])
