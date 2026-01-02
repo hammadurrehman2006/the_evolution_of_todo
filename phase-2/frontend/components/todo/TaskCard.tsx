@@ -22,13 +22,19 @@ export function TaskCard({ todo, onToggle, onDelete, onEdit }: TaskCardProps) {
 
   const formatDueDate = (date: Date) => {
     const now = new Date()
-    const diff = date.getTime() - now.getTime()
-    const days = Math.ceil(diff / (1000 * 60 * 60 * 24))
+    const dueDate = new Date(date)
 
-    if (days < 0) return `Overdue by ${Math.abs(days)} days`
-    if (days === 0) return 'Due today'
-    if (days === 1) return 'Due tomorrow'
-    return `Due in ${days} days`
+    // Reset time to midnight for accurate day comparison
+    const nowDay = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    const dueDay = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate())
+
+    const diffTime = dueDay.getTime() - nowDay.getTime()
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24))
+
+    if (diffDays < 0) return `Overdue by ${Math.abs(diffDays)} day${Math.abs(diffDays) !== 1 ? 's' : ''}`
+    if (diffDays === 0) return 'Due today'
+    if (diffDays === 1) return 'Due tomorrow'
+    return `Due in ${diffDays} day${diffDays !== 1 ? 's' : ''}`
   }
 
   const isOverdue = todo.dueDate && !todo.completed && new Date(todo.dueDate) < new Date()

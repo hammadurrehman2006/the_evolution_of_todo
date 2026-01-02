@@ -54,6 +54,9 @@ export function useMockTodos() {
 
   // Check for recurring tasks and due date notifications
   useEffect(() => {
+    // Track which tasks have been notified to avoid spam
+    const notifiedTasksRef: Set<string> = new Set()
+
     const checkRecurringTasks = () => {
       setTodos((prev) => {
         const now = new Date()
@@ -86,22 +89,34 @@ export function useMockTodos() {
       const now = new Date()
       todos.forEach((todo) => {
         if (todo.dueDate && !todo.completed) {
-          const timeUntilDue = todo.dueDate.getTime() - now.getTime()
+          const timeUntilDue = new Date(todo.dueDate).getTime() - now.getTime()
           const oneDayMs = 24 * 60 * 60 * 1000
 
-          // Notify if due within 24 hours
-          if (timeUntilDue > 0 && timeUntilDue <= oneDayMs) {
+          // Notify if due within 24 hours and not already notified
+          if (timeUntilDue > 0 && timeUntilDue <= oneDayMs && !notifiedTasksRef.has(todo.id)) {
             if ('Notification' in window && Notification.permission === 'granted') {
               new Notification('TaskFlow - Task Due Soon', {
                 body: `"${todo.title}" is due soon!`,
                 icon: '/favicon.ico',
               })
+              notifiedTasksRef.add(todo.id)
+              console.log(`Notification sent for task: ${todo.title}`)
             }
+          }
+
+          // Clear notification flag if task is no longer due within 24 hours
+          if (timeUntilDue > oneDayMs || timeUntilDue <= 0) {
+            notifiedTasksRef.delete(todo.id)
           }
         }
       })
     }
 
+    // Run checks immediately on mount and when todos change
+    checkRecurringTasks()
+    checkNotifications()
+
+    // Then check every minute
     const interval = setInterval(() => {
       checkRecurringTasks()
       checkNotifications()
