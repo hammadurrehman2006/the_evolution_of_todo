@@ -5,6 +5,14 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Bell, CheckCircle2, XCircle, AlertCircle, Info } from 'lucide-react'
+import {
+  initNotifications,
+  requestNotificationPermission,
+  showNotification,
+  isNotificationSupported,
+  getNotificationPermission,
+  isNotificationReady
+} from '@/lib/notifications'
 
 export default function TestNotificationsPage() {
   const [logs, setLogs] = useState<Array<{ type: 'success' | 'error' | 'info' | 'warning', message: string }>>([])
@@ -20,37 +28,31 @@ export default function TestNotificationsPage() {
     setLogs(prev => [...prev, { type, message }])
   }
 
-  const checkSupport = () => {
+  const checkSupport = async () => {
     addLog('info', '🔍 Checking browser support...')
 
-    if (typeof window === 'undefined') {
-      addLog('error', '❌ Window is undefined (SSR)')
-      setNotificationSupport(false)
-      return
-    }
+    const supported = isNotificationSupported()
+    setNotificationSupport(supported)
 
-    if (!('Notification' in window)) {
-      addLog('error', '❌ Notification API not in window')
-      setNotificationSupport(false)
-      return
-    }
-
-    if (typeof Notification !== 'function') {
-      addLog('error', '❌ Notification is not a function')
-      setNotificationSupport(false)
-      return
-    }
-
-    if (Notification.requestPermission === undefined) {
-      addLog('error', '❌ requestPermission method not available')
-      setNotificationSupport(false)
+    if (!supported) {
+      addLog('error', '❌ Notification API not supported')
       return
     }
 
     addLog('success', '✅ Notification API is supported!')
-    setNotificationSupport(true)
 
-    const currentPermission = Notification.permission
+    // Initialize service worker
+    addLog('info', '📦 Initializing Service Worker...')
+    const initialized = await initNotifications()
+
+    if (initialized) {
+      addLog('success', '✅ Service Worker initialized!')
+    } else {
+      addLog('error', '❌ Service Worker initialization failed')
+      return
+    }
+
+    const currentPermission = getNotificationPermission()
     setPermission(currentPermission)
     addLog('info', `📋 Current permission: ${currentPermission}`)
   }
@@ -64,7 +66,7 @@ export default function TestNotificationsPage() {
     }
 
     try {
-      const result = await Notification.requestPermission()
+      const result = await requestNotificationPermission()
       setPermission(result)
 
       if (result === 'granted') {
@@ -79,7 +81,7 @@ export default function TestNotificationsPage() {
     }
   }
 
-  const sendTestNotification = () => {
+  const sendTestNotification = async () => {
     addLog('info', '📤 Attempting to send test notification...')
 
     if (!notificationSupport) {
@@ -92,31 +94,24 @@ export default function TestNotificationsPage() {
       return
     }
 
+    if (!isNotificationReady()) {
+      addLog('error', '❌ Notification system not ready - try clicking "Check Browser Support" first')
+      return
+    }
+
     try {
-      const notification = new Notification('TaskHive Test', {
-        body: 'If you see this, notifications are working! 🎉',
-        icon: '/favicon.ico',
+      const success = await showNotification('TaskHive Test', {
+        body: 'If you see this, notifications are working on mobile! 🎉📱',
         tag: 'test-notification',
         requireInteraction: false,
       })
 
-      addLog('success', '✅ Test notification sent successfully!')
-
-      notification.onclick = () => {
-        addLog('info', '👆 Notification clicked!')
-        notification.close()
+      if (success) {
+        addLog('success', '✅ Test notification sent successfully!')
+        addLog('info', '📱 Using Service Worker API (mobile-safe)')
+      } else {
+        addLog('error', '❌ Failed to send notification')
       }
-
-      notification.onerror = (error) => {
-        addLog('error', `❌ Notification error: ${error}`)
-      }
-
-      // Auto-close after 5 seconds
-      setTimeout(() => {
-        notification.close()
-        addLog('info', '🔕 Notification closed automatically')
-      }, 5000)
-
     } catch (error) {
       addLog('error', `❌ Error creating notification: ${error}`)
     }
@@ -135,15 +130,24 @@ export default function TestNotificationsPage() {
       return
     }
 
-    setTimeout(() => {
+    if (!isNotificationReady()) {
+      addLog('error', '❌ Notification system not ready')
+      return
+    }
+
+    setTimeout(async () => {
       try {
-        new Notification('TaskHive - Scheduled Test', {
+        const success = await showNotification('TaskHive - Scheduled Test', {
           body: 'This notification was scheduled 10 seconds ago!',
-          icon: '/favicon.ico',
           tag: 'scheduled-test',
           requireInteraction: false,
         })
-        addLog('success', '✅ Scheduled notification sent!')
+
+        if (success) {
+          addLog('success', '✅ Scheduled notification sent!')
+        } else {
+          addLog('error', '❌ Scheduled notification failed')
+        }
       } catch (error) {
         addLog('error', `❌ Scheduled notification failed: ${error}`)
       }

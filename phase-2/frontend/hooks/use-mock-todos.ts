@@ -2,6 +2,12 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import type { Todo, Priority } from '@/lib/types'
+import {
+  initNotifications,
+  requestNotificationPermission,
+  showTaskDueNotification,
+  isNotificationReady
+} from '@/lib/notifications'
 
 const STORAGE_KEY = 'taskhive-todos'
 
@@ -39,36 +45,32 @@ export function useMockTodos() {
     }
   }, [todos])
 
-  // Request notification permission on mount (with mobile-safe checks)
+  // Initialize notifications with Service Worker (mobile-safe)
   useEffect(() => {
-    // Comprehensive feature detection for mobile compatibility
-    const isNotificationSupported =
-      typeof window !== 'undefined' &&
-      'Notification' in window &&
-      typeof Notification === 'function' &&
-      Notification.requestPermission !== undefined
-
-    if (isNotificationSupported) {
+    const setupNotifications = async () => {
       try {
-        // Check if permission is already granted or denied
-        if (Notification.permission === 'default') {
-          // Request permission asynchronously with error handling
-          Notification.requestPermission()
-            .then((permission) => {
-              console.log('Notification permission:', permission)
-            })
-            .catch((error) => {
-              console.warn('Failed to request notification permission:', error)
-            })
+        // Initialize service worker for mobile compatibility
+        const initialized = await initNotifications()
+
+        if (initialized) {
+          console.log('[TodoApp] Notification system initialized')
+
+          // Request permission if not already set
+          if (Notification.permission === 'default') {
+            const permission = await requestNotificationPermission()
+            console.log('[TodoApp] Notification permission:', permission)
+          } else {
+            console.log('[TodoApp] Notification permission already set to:', Notification.permission)
+          }
         } else {
-          console.log('Notification permission already set to:', Notification.permission)
+          console.log('[TodoApp] Notifications not supported on this device')
         }
       } catch (error) {
-        console.warn('Notification API not fully supported on this device:', error)
+        console.warn('[TodoApp] Failed to setup notifications:', error)
       }
-    } else {
-      console.log('Notifications are not supported on this device/browser')
     }
+
+    setupNotifications()
   }, [])
 
   // Check for recurring tasks and due date notifications
@@ -109,23 +111,18 @@ export function useMockTodos() {
       })
     }
 
-    // Check for due date notifications (doesn't modify state) - MOBILE-SAFE VERSION
-    const checkNotifications = () => {
+    // Check for due date notifications (Mobile-Safe with Service Worker)
+    const checkNotifications = async () => {
       if (typeof window === 'undefined') return
 
-      // Enhanced feature detection for mobile compatibility
-      const isNotificationSupported =
-        'Notification' in window &&
-        typeof Notification === 'function' &&
-        Notification.permission === 'granted'
-
-      if (!isNotificationSupported) {
-        // Silently skip notifications if not supported
+      // Check if notification system is ready
+      if (!isNotificationReady()) {
         return
       }
 
       const now = new Date()
-      todos.forEach((todo) => {
+
+      for (const todo of todos) {
         if (todo.dueDate && !todo.completed) {
           const timeUntilDue = new Date(todo.dueDate).getTime() - now.getTime()
           const fiveMinutesMs = 5 * 60 * 1000 // 5 minutes in milliseconds
@@ -135,40 +132,32 @@ export function useMockTodos() {
           const fiveMinKey = `${todo.id}-5min`
           const oneMinKey = `${todo.id}-1min`
 
-          // Notify 5 minutes before due time (with error handling)
+          // Notify 5 minutes before due time
           if (timeUntilDue > 0 && timeUntilDue <= fiveMinutesMs && !notifiedTasksRef.has(fiveMinKey)) {
-            try {
-              const minutesLeft = Math.ceil(timeUntilDue / 60000)
-              new Notification('TaskHive - Task Due Soon', {
-                body: `"${todo.title}" is due in ${minutesLeft} minute${minutesLeft !== 1 ? 's' : ''}!`,
-                icon: '/favicon.ico',
-                tag: fiveMinKey, // Prevent duplicate notifications
-                requireInteraction: false, // Mobile-friendly: don't require user action
-              })
+            const minutesLeft = Math.ceil(timeUntilDue / 60000)
+            const success = await showTaskDueNotification(todo.title, minutesLeft)
+
+            if (success) {
               notifiedTasksRef.add(fiveMinKey)
-              console.log(`5-minute notification sent for task: ${todo.title}`)
-            } catch (error) {
-              console.warn('Failed to show 5-minute notification:', error)
-              // Mark as notified even on error to avoid retry spam
+              console.log(`[TodoApp] 5-minute notification sent for task: ${todo.title}`)
+            } else {
+              // Mark as notified even on failure to avoid spam
               notifiedTasksRef.add(fiveMinKey)
+              console.warn(`[TodoApp] Failed to send 5-minute notification for: ${todo.title}`)
             }
           }
 
-          // Notify 1 minute before due time (with error handling)
+          // Notify 1 minute before due time
           if (timeUntilDue > 0 && timeUntilDue <= oneMinuteMs && !notifiedTasksRef.has(oneMinKey)) {
-            try {
-              new Notification('TaskHive - Task Due Very Soon!', {
-                body: `"${todo.title}" is due in less than 1 minute!`,
-                icon: '/favicon.ico',
-                tag: oneMinKey, // Prevent duplicate notifications
-                requireInteraction: false, // Mobile-friendly: don't require user action
-              })
+            const success = await showTaskDueNotification(todo.title, 1)
+
+            if (success) {
               notifiedTasksRef.add(oneMinKey)
-              console.log(`1-minute notification sent for task: ${todo.title}`)
-            } catch (error) {
-              console.warn('Failed to show 1-minute notification:', error)
-              // Mark as notified even on error to avoid retry spam
+              console.log(`[TodoApp] 1-minute notification sent for task: ${todo.title}`)
+            } else {
+              // Mark as notified even on failure to avoid spam
               notifiedTasksRef.add(oneMinKey)
+              console.warn(`[TodoApp] Failed to send 1-minute notification for: ${todo.title}`)
             }
           }
 
@@ -178,7 +167,7 @@ export function useMockTodos() {
             notifiedTasksRef.delete(oneMinKey)
           }
         }
-      })
+      }
     }
 
     // Check notifications immediately (but don't check recurring tasks to avoid infinite loop)
