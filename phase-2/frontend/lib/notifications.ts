@@ -111,7 +111,7 @@ export async function showNotification(
     }
 
     // Use Service Worker API (mobile-safe)
-    await registration.showNotification(title, {
+    const notificationOptions: NotificationOptions & { vibrate?: number[] } = {
       body: options?.body,
       icon: options?.icon || '/favicon.ico',
       tag: options?.tag,
@@ -119,7 +119,9 @@ export async function showNotification(
       data: options?.data,
       badge: '/favicon.ico',
       vibrate: [200, 100, 200], // Mobile vibration pattern
-    })
+    }
+
+    await registration.showNotification(title, notificationOptions)
 
     console.log('[Notifications] Notification shown:', title)
     return true
