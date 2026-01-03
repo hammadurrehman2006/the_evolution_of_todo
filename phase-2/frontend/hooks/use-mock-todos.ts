@@ -39,16 +39,35 @@ export function useMockTodos() {
     }
   }, [todos])
 
-  // Request notification permission on mount (separate effect to run immediately)
+  // Request notification permission on mount (with mobile-safe checks)
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'Notification' in window) {
-      if (Notification.permission === 'default') {
-        Notification.requestPermission().then((permission) => {
-          console.log('Notification permission:', permission)
-        })
-      } else {
-        console.log('Notification permission already set to:', Notification.permission)
+    // Comprehensive feature detection for mobile compatibility
+    const isNotificationSupported =
+      typeof window !== 'undefined' &&
+      'Notification' in window &&
+      typeof Notification === 'function' &&
+      Notification.requestPermission !== undefined
+
+    if (isNotificationSupported) {
+      try {
+        // Check if permission is already granted or denied
+        if (Notification.permission === 'default') {
+          // Request permission asynchronously with error handling
+          Notification.requestPermission()
+            .then((permission) => {
+              console.log('Notification permission:', permission)
+            })
+            .catch((error) => {
+              console.warn('Failed to request notification permission:', error)
+            })
+        } else {
+          console.log('Notification permission already set to:', Notification.permission)
+        }
+      } catch (error) {
+        console.warn('Notification API not fully supported on this device:', error)
       }
+    } else {
+      console.log('Notifications are not supported on this device/browser')
     }
   }, [])
 
@@ -90,9 +109,20 @@ export function useMockTodos() {
       })
     }
 
-    // Check for due date notifications (doesn't modify state)
+    // Check for due date notifications (doesn't modify state) - MOBILE-SAFE VERSION
     const checkNotifications = () => {
       if (typeof window === 'undefined') return
+
+      // Enhanced feature detection for mobile compatibility
+      const isNotificationSupported =
+        'Notification' in window &&
+        typeof Notification === 'function' &&
+        Notification.permission === 'granted'
+
+      if (!isNotificationSupported) {
+        // Silently skip notifications if not supported
+        return
+      }
 
       const now = new Date()
       todos.forEach((todo) => {
@@ -105,28 +135,40 @@ export function useMockTodos() {
           const fiveMinKey = `${todo.id}-5min`
           const oneMinKey = `${todo.id}-1min`
 
-          // Notify 5 minutes before due time
+          // Notify 5 minutes before due time (with error handling)
           if (timeUntilDue > 0 && timeUntilDue <= fiveMinutesMs && !notifiedTasksRef.has(fiveMinKey)) {
-            if ('Notification' in window && Notification.permission === 'granted') {
+            try {
               const minutesLeft = Math.ceil(timeUntilDue / 60000)
               new Notification('TaskHive - Task Due Soon', {
                 body: `"${todo.title}" is due in ${minutesLeft} minute${minutesLeft !== 1 ? 's' : ''}!`,
                 icon: '/favicon.ico',
+                tag: fiveMinKey, // Prevent duplicate notifications
+                requireInteraction: false, // Mobile-friendly: don't require user action
               })
               notifiedTasksRef.add(fiveMinKey)
               console.log(`5-minute notification sent for task: ${todo.title}`)
+            } catch (error) {
+              console.warn('Failed to show 5-minute notification:', error)
+              // Mark as notified even on error to avoid retry spam
+              notifiedTasksRef.add(fiveMinKey)
             }
           }
 
-          // Notify 1 minute before due time
+          // Notify 1 minute before due time (with error handling)
           if (timeUntilDue > 0 && timeUntilDue <= oneMinuteMs && !notifiedTasksRef.has(oneMinKey)) {
-            if ('Notification' in window && Notification.permission === 'granted') {
+            try {
               new Notification('TaskHive - Task Due Very Soon!', {
                 body: `"${todo.title}" is due in less than 1 minute!`,
                 icon: '/favicon.ico',
+                tag: oneMinKey, // Prevent duplicate notifications
+                requireInteraction: false, // Mobile-friendly: don't require user action
               })
               notifiedTasksRef.add(oneMinKey)
               console.log(`1-minute notification sent for task: ${todo.title}`)
+            } catch (error) {
+              console.warn('Failed to show 1-minute notification:', error)
+              // Mark as notified even on error to avoid retry spam
+              notifiedTasksRef.add(oneMinKey)
             }
           }
 
