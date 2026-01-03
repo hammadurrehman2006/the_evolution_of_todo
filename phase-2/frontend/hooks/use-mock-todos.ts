@@ -132,8 +132,8 @@ export function useMockTodos() {
           const fiveMinKey = `${todo.id}-5min`
           const oneMinKey = `${todo.id}-1min`
 
-          // Notify 5 minutes before due time
-          if (timeUntilDue > 0 && timeUntilDue <= fiveMinutesMs && !notifiedTasksRef.has(fiveMinKey)) {
+          // Notify 5 minutes before due time (but not within 1 minute)
+          if (timeUntilDue > oneMinuteMs && timeUntilDue <= fiveMinutesMs && !notifiedTasksRef.has(fiveMinKey)) {
             const minutesLeft = Math.ceil(timeUntilDue / 60000)
             const success = await showTaskDueNotification(todo.title, minutesLeft)
 
@@ -147,7 +147,7 @@ export function useMockTodos() {
             }
           }
 
-          // Notify 1 minute before due time
+          // Notify 1 minute before due time (only within the last minute)
           if (timeUntilDue > 0 && timeUntilDue <= oneMinuteMs && !notifiedTasksRef.has(oneMinKey)) {
             const success = await showTaskDueNotification(todo.title, 1)
 
@@ -177,7 +177,7 @@ export function useMockTodos() {
     const interval = setInterval(() => {
       checkRecurringTasks()
       checkNotifications()
-    }, 30000) // Check every 30 seconds for more timely notifications
+    }, 15000) // Check every 15 seconds to catch 1-minute notifications reliably
 
     return () => clearInterval(interval)
   }, [todos])
