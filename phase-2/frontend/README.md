@@ -16,23 +16,21 @@ Create a `.env.local` file in the project root with the following variables:
 # Backend API URL (production)
 NEXT_PUBLIC_API_URL=https://teot-phase2.vercel.app/
 
-# Better Auth Secret - CRITICAL
-# This MUST match the BETTER_AUTH_SECRET used by the production backend
-# Contact the backend administrator to obtain this value
-BETTER_AUTH_SECRET=your_better_auth_secret_here
-
-# Frontend Application URL
+# Frontend Application URL (local development)
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-### ⚠️ BETTER_AUTH_SECRET Requirement
+### 🔐 Authentication Flow
 
-The `BETTER_AUTH_SECRET` is **critical** for authentication to work correctly:
+**No `BETTER_AUTH_SECRET` needed on frontend!** Here's how JWT authentication works:
 
-1. **Purpose**: Used to sign and verify JWT tokens between the frontend and backend
-2. **Security**: The same secret must be used on both sides for token validation to succeed
-3. **How to obtain**: Contact the backend administrator or check production deployment environment variables
-4. **Validation**: Mismatched secrets will cause 401 Unauthorized errors on all API requests
+1. **User Login**: Frontend calls Better Auth's `signIn.email()` endpoint on backend
+2. **Backend Signs JWT**: Backend uses its configured `BETTER_AUTH_SECRET` to sign the token
+3. **Token Returned**: Backend returns signed JWT to frontend (stored in cookies)
+4. **API Requests**: Frontend retrieves JWT via `authClient.token()` and sends as `Authorization: Bearer <token>`
+5. **Backend Verifies**: Backend uses its secret to verify incoming Bearer tokens
+
+**Key Point**: The frontend never needs the secret - it only receives and uses pre-signed tokens from the backend.
 
 ### Getting Started
 

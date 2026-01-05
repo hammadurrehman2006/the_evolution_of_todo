@@ -69,14 +69,14 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6">
               <Link href="/todos">
-                <Button size="lg" className="text-lg group">
+                <Button size="lg" className="text-lg">
                   Get Started
-                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Link href="/todos">
+              <Link href="/auth/login">
                 <Button size="lg" variant="outline" className="text-lg">
-                  View Dashboard
+                  Sign In
                 </Button>
               </Link>
             </div>

@@ -113,7 +113,7 @@ export default function TodosPage() {
               {error.status === 401 && (
                 <span className="block mt-2 text-sm">
                   Please log in to access your tasks.{' '}
-                  <a href="/login" className="underline font-semibold">
+                  <a href="/auth/login" className="underline font-semibold">
                     Go to login →
                   </a>
                 </span>
