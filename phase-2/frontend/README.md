@@ -1,6 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Task Hive - Todo Application
 
-## Getting Started
+This is a [Next.js](https://nextjs.org) application built with TypeScript, React 19, and Better Auth authentication.
+
+## Hybrid Cloud Integration
+
+This frontend connects to a production backend API deployed at **https://teot-phase2.vercel.app/** for data persistence. All task data is stored in a remote Neon PostgreSQL database.
+
+## Environment Configuration
+
+### Required Environment Variables
+
+Create a `.env.local` file in the project root with the following variables:
+
+```env
+# Backend API URL (production)
+NEXT_PUBLIC_API_URL=https://teot-phase2.vercel.app/
+
+# Better Auth Secret - CRITICAL
+# This MUST match the BETTER_AUTH_SECRET used by the production backend
+# Contact the backend administrator to obtain this value
+BETTER_AUTH_SECRET=your_better_auth_secret_here
+
+# Frontend Application URL
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+### ⚠️ BETTER_AUTH_SECRET Requirement
+
+The `BETTER_AUTH_SECRET` is **critical** for authentication to work correctly:
+
+1. **Purpose**: Used to sign and verify JWT tokens between the frontend and backend
+2. **Security**: The same secret must be used on both sides for token validation to succeed
+3. **How to obtain**: Contact the backend administrator or check production deployment environment variables
+4. **Validation**: Mismatched secrets will cause 401 Unauthorized errors on all API requests
+
+### Getting Started
 
 First, run the development server:
 
