@@ -90,13 +90,13 @@ export class ApiClient {
 
       // Redirect to login page
       if (typeof window !== 'undefined') {
-        window.location.href = '/login?reason=session_expired'
+        window.location.href = '/auth/login?reason=session_expired'
       }
     } catch (error) {
       console.error('Error handling 401:', error)
       // Force redirect anyway
       if (typeof window !== 'undefined') {
-        window.location.href = '/login?reason=session_expired'
+        window.location.href = '/auth/login?reason=session_expired'
       }
     }
   }
