@@ -19,6 +19,28 @@ export interface Todo {
 
 export type Theme = 'light' | 'dark' | 'system'
 
+// API Types
+export interface ApiResponse<T = any> {
+  data?: T
+  error?: {
+    message: string
+    code?: string
+    status?: number
+  }
+}
+
+export class ApiError extends Error {
+  status: number
+  code?: string
+
+  constructor(message: string, status: number = 500, code?: string) {
+    super(message)
+    this.name = 'ApiError'
+    this.status = status
+    this.code = code
+  }
+}
+
 export interface ThemePreference {
   theme: Theme
 }

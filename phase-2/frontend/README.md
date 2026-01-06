@@ -1,6 +1,38 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Task Hive - Todo Application
 
-## Getting Started
+This is a [Next.js](https://nextjs.org) application built with TypeScript, React 19, and Better Auth authentication.
+
+## Hybrid Cloud Integration
+
+This frontend connects to a production backend API deployed at **https://teot-phase2.vercel.app/** for data persistence. All task data is stored in a remote Neon PostgreSQL database.
+
+## Environment Configuration
+
+### Required Environment Variables
+
+Create a `.env.local` file in the project root with the following variables:
+
+```env
+# Backend API URL (production)
+NEXT_PUBLIC_API_URL=https://teot-phase2.vercel.app/
+
+# Frontend Application URL (local development)
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+### 🔐 Authentication Flow
+
+**No `BETTER_AUTH_SECRET` needed on frontend!** Here's how JWT authentication works:
+
+1. **User Login**: Frontend calls Better Auth's `signIn.email()` endpoint on backend
+2. **Backend Signs JWT**: Backend uses its configured `BETTER_AUTH_SECRET` to sign the token
+3. **Token Returned**: Backend returns signed JWT to frontend (stored in cookies)
+4. **API Requests**: Frontend retrieves JWT via `authClient.token()` and sends as `Authorization: Bearer <token>`
+5. **Backend Verifies**: Backend uses its secret to verify incoming Bearer tokens
+
+**Key Point**: The frontend never needs the secret - it only receives and uses pre-signed tokens from the backend.
+
+### Getting Started
 
 First, run the development server:
 

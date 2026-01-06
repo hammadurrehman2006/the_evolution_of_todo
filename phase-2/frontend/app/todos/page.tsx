@@ -4,14 +4,16 @@ import { useState, useMemo, useEffect } from "react"
 import { TaskList } from "@/components/todo/TaskList"
 import { TaskForm } from "@/components/todo/TaskForm"
 import { FilterBar } from "@/components/todo/FilterBar"
-import { useMockTodos } from "@/hooks/use-mock-todos"
+import { useTodos } from "@/hooks/use-todos"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import type { FilterOptions, SortOption, Todo } from "@/lib/types"
+import { ApiError } from "@/lib/types"
 
 export default function TodosPage() {
-  const { todos, addTask, updateTask, deleteTask, toggleTask } = useMockTodos()
+  const { todos, addTask, updateTask, deleteTask, toggleTask, loading, error, fetchTodos } = useTodos()
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null)
   const [filters, setFilters] = useState<FilterOptions>({
@@ -100,8 +102,44 @@ export default function TodosPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-4">
+
+        {/* Error Alert (T022) */}
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Error Loading Tasks</AlertTitle>
+            <AlertDescription>
+              {error.message}
+              {error.status === 401 && (
+                <span className="block mt-2 text-sm">
+                  Please log in to access your tasks.{' '}
+                  <a href="/auth/login" className="underline font-semibold">
+                    Go to login →
+                  </a>
+                </span>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Loading Spinner (T021) */}
+        {loading && !error && (
+          <div className="flex items-center justify-center py-20">
+            <div className="flex flex-col items-center gap-4">
+              <div className="relative">
+                <div className="h-12 w-12 border-4 border-primary/20 rounded-full"></div>
+                <div className="absolute inset-0 h-12 w-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+              </div>
+              <p className="text-sm text-muted-foreground">Loading your tasks...</p>
+            </div>
+          </div>
+        )}
+
+        {/* Main Content */}
+        {!loading && (
+          <>
+            <div className="mb-8">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-4">
             <div>
               <h1 className="text-3xl font-bold">My Tasks</h1>
               {mounted && (
