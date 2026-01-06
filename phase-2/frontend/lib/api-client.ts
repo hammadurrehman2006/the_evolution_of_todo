@@ -137,8 +137,10 @@ export class ApiClient {
 
       // Handle 401 unauthorized
       if (response.status === 401) {
+        const errorData = await response.json().catch(() => ({}))
+        console.error('[ApiClient] 401 Unauthorized:', errorData)
         await this.handle401Error()
-        throw new ApiError('Session expired - redirecting to login', 401)
+        throw new ApiError(errorData.detail || 'Session expired - redirecting to login', 401)
       }
 
       // Handle non-success responses
