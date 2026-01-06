@@ -82,9 +82,15 @@ async def get_current_user(
                                      if token_kid and k.get("kid") and k.get("kid") != token_kid:
                                          continue
                                          
-                                     decoded = jwt.decode(token, key=jwk_obj.key, algorithms=[alg])
+                                     decoded = jwt.decode(
+                                         token, 
+                                         key=jwk_obj.key, 
+                                         algorithms=[alg],
+                                         options={"verify_aud": False, "verify_iss": False}
+                                     )
                                      return decoded
-                                 except Exception:
+                                 except Exception as e:
+                                     # print(f"[Auth Debug] Key in set failed: {e}")
                                      continue
                              return None
 
@@ -97,16 +103,26 @@ async def get_current_user(
                             # Mismatch in JWK content kid
                             return None
                             
-                        return jwt.decode(token, key=jwk_obj.key, algorithms=[alg])
+                        return jwt.decode(
+                            token, 
+                            key=jwk_obj.key, 
+                            algorithms=[alg],
+                            options={"verify_aud": False, "verify_iss": False}
+                        )
                     
                     # Handle PEM format (fallback)
                     # For PEM, we assume the record.id might be the kid
                     if token_kid and record.id != token_kid:
                         return None
                         
-                    return jwt.decode(token, key=public_key_str, algorithms=[alg])
+                    return jwt.decode(
+                        token, 
+                        key=public_key_str, 
+                        algorithms=[alg],
+                        options={"verify_aud": False, "verify_iss": False}
+                    )
                 except Exception as e:
-                    # print(f"[Auth Debug] Verification failed for key {record.id}: {e}")
+                    print(f"[Auth Debug] Verification failed for key {record.id}: {e}")
                     return None
 
             # 1. Try to find precise match by kid if available
