@@ -90,10 +90,11 @@ async def get_current_user(
                 import json
                 if public_key.strip().startswith("{"):
                     # It's likely a JWK JSON string
-                    from jwt.algorithms import RSAAlgorithm
+                    from jwt import PyJWK
                     key_data = json.loads(public_key)
-                    public_key = RSAAlgorithm.from_jwk(json.dumps(key_data))
-                    print("[Auth Debug] Parsed JWK JSON to Public Key")
+                    jwk_obj = PyJWK(key_data)
+                    public_key = jwk_obj.key
+                    print("[Auth Debug] Parsed JWK JSON to Public Key using PyJWK")
             except Exception as e:
                 print(f"[Auth Debug] Key parsing error (ignoring if PEM): {e}")
                 # Assume it's PEM or handled by PyJWT
