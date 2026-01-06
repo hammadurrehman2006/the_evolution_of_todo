@@ -104,3 +104,69 @@ class Task(SQLModel, table=True):
         default_factory=datetime.utcnow,
         description="Timestamp of last modification"
     )
+
+
+class User(SQLModel, table=True):
+    """
+    User model for Better Auth.
+    """
+    __tablename__ = "user"
+
+    id: str = Field(primary_key=True)
+    name: str
+    email: str = Field(unique=True)
+    emailVerified: bool
+    image: Optional[str] = None
+    createdAt: datetime
+    updatedAt: datetime
+
+
+class Session(SQLModel, table=True):
+    """
+    Session model for Better Auth.
+    """
+    __tablename__ = "session"
+
+    id: str = Field(primary_key=True)
+    expiresAt: datetime
+    token: str = Field(unique=True)
+    createdAt: datetime
+    updatedAt: datetime
+    ipAddress: Optional[str] = None
+    userAgent: Optional[str] = None
+    userId: str = Field(foreign_key="user.id", ondelete="CASCADE")
+
+
+class Account(SQLModel, table=True):
+    """
+    Account model for Better Auth.
+    """
+    __tablename__ = "account"
+
+    id: str = Field(primary_key=True)
+    accountId: str
+    providerId: str
+    userId: str = Field(foreign_key="user.id", ondelete="CASCADE")
+    accessToken: Optional[str] = None
+    refreshToken: Optional[str] = None
+    idToken: Optional[str] = None
+    accessTokenExpiresAt: Optional[datetime] = None
+    refreshTokenExpiresAt: Optional[datetime] = None
+    scope: Optional[str] = None
+    password: Optional[str] = None
+    createdAt: datetime
+    updatedAt: datetime
+
+
+class Verification(SQLModel, table=True):
+    """
+    Verification model for Better Auth.
+    """
+    __tablename__ = "verification"
+
+    id: str = Field(primary_key=True)
+    identifier: str
+    value: str
+    expiresAt: datetime
+    createdAt: Optional[datetime] = None
+    updatedAt: Optional[datetime] = None
