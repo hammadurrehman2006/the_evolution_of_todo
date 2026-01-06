@@ -1,6 +1,6 @@
 import { authClient } from './auth-client'
 import { ApiError, ApiResponse } from './types'
-import type { Todo } from './types'
+import type { Todo, TodoInput } from './types'
 
 /**
  * Centralized API Client for all remote communication
@@ -112,9 +112,9 @@ export class ApiClient {
     const token = await this.getToken()
 
     // Build headers with authentication
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...options.headers,
+      ...(options.headers as Record<string, string>),
     }
 
     // Add Authorization header if token available
@@ -218,15 +218,15 @@ export class ApiClient {
 
   /**
    * Create a new todo
-   * POST /api/todos
+   * POST /tasks/
    */
-  async createTodo(todo: Omit<Todo, 'id' | 'createdAt' | 'updatedAt'>): Promise<Todo> {
-    return this.post<Todo>('/api/todos', todo)
+  async createTodo(todo: TodoInput): Promise<Todo> {
+    return this.post<Todo>('/tasks/', todo)
   }
 
   /**
    * Get all todos with optional filters
-   * GET /api/todos?status=active&priority=high
+   * GET /tasks/?status=active&priority=high
    */
   async getTodos(filters?: {
     status?: 'all' | 'active' | 'completed'
@@ -236,51 +236,61 @@ export class ApiClient {
     const queryParams = new URLSearchParams()
 
     if (filters?.status && filters.status !== 'all') {
-      queryParams.append('status', filters.status)
+      queryParams.append('status', filters.status === 'completed' ? 'true' : 'false')
     }
     if (filters?.priority) {
-      queryParams.append('priority', filters.priority)
+      // Map lowercase priority to Title Case for backend
+      const priorityMap: Record<string, string> = {
+        low: 'Low',
+        medium: 'Medium',
+        high: 'High'
+      }
+      if (filters.priority in priorityMap) {
+        queryParams.append('priority', priorityMap[filters.priority])
+      }
     }
     if (filters?.search) {
-      queryParams.append('search', filters.search)
+      queryParams.append('q', filters.search) // Backend uses 'q' for search
     }
 
     const queryString = queryParams.toString()
-    const endpoint = queryString ? `/api/todos?${queryString}` : '/api/todos'
+    const endpoint = queryString ? `/tasks/?${queryString}` : `/tasks/`
 
-    return this.get<Todo[]>(endpoint)
+    // Backend returns { items: [...], total: ... }
+    const response = await this.get<{ items: any[] }>(endpoint)
+    return response.items
   }
 
   /**
    * Get a single todo by ID
-   * GET /api/todos/{id}
+   * GET /tasks/{id}
    */
   async getTodo(id: string): Promise<Todo> {
-    return this.get<Todo>(`/api/todos/${id}`)
+    return this.get<Todo>(`/tasks/${id}`)
   }
 
   /**
    * Update a todo (partial update)
-   * PUT /api/todos/{id}
+   * PUT /tasks/{id}
    */
-  async updateTodo(id: string, updates: Partial<Todo>): Promise<Todo> {
-    return this.put<Todo>(`/api/todos/${id}`, updates)
+  async updateTodo(id: string, updates: Partial<TodoInput>): Promise<Todo> {
+    return this.put<Todo>(`/tasks/${id}`, updates)
   }
 
   /**
    * Delete a todo
-   * DELETE /api/todos/{id}
+   * DELETE /tasks/{id}
    */
   async deleteTodo(id: string): Promise<void> {
-    return this.delete<void>(`/api/todos/${id}`)
+    return this.delete<void>(`/tasks/${id}`)
   }
 
   /**
    * Toggle todo completion status
-   * PATCH /api/todos/{id}/toggle
+   * PATCH /tasks/{id}/toggle
    */
   async toggleTodo(id: string): Promise<Todo> {
-    return this.patch<Todo>(`/api/todos/${id}/toggle`)
+    return this.patch<Todo>(`/tasks/${id}/toggle`)
   }
 }
 
