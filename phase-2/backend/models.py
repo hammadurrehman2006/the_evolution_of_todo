@@ -170,3 +170,15 @@ class Verification(SQLModel, table=True):
     expiresAt: datetime
     createdAt: Optional[datetime] = None
     updatedAt: Optional[datetime] = None
+
+
+class Jwks(SQLModel, table=True):
+    """
+    JWKS model for Better Auth.
+    """
+    __tablename__ = "jwks"
+
+    id: str = Field(primary_key=True)
+    publicKey: str
+    privateKey: str
+    createdAt: datetime
