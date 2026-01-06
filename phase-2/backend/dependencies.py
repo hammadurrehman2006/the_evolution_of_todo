@@ -35,10 +35,12 @@ async def get_current_user(
         # Get unverified header to check algorithm
         header = jwt.get_unverified_header(token)
         alg = header.get("alg")
+        print(f"[Auth Debug] Token Algorithm: {alg}")
         
         payload = None
 
         if alg == settings.jwt_algorithm:
+            print(f"[Auth Debug] Using symmetric verification ({alg})")
             # Handle standard symmetric encryption (e.g. HS256)
             payload = jwt.decode(
                 token,
@@ -46,23 +48,27 @@ async def get_current_user(
                 algorithms=[settings.jwt_algorithm]
             )
         else:
+            print(f"[Auth Debug] Using asymmetric verification ({alg})")
             # Handle asymmetric encryption (e.g. RS256, EdDSA) via JWKS
             # Try to find a matching key in the DB
             statement = select(Jwks)
             # If kid is present, filter by it (assuming id maps to kid or we iterate)
             # Better Auth often uses the 'id' as the Key ID
             if "kid" in header:
+                 print(f"[Auth Debug] Looking for key with kid: {header['kid']}")
                  statement = statement.where(Jwks.id == header["kid"])
             
             # Get the key(s)
             jwk_record = session.exec(statement).first()
             
             if not jwk_record:
+                print("[Auth Debug] No specific key found, falling back to most recent")
                 # Fallback: try to get the most recent key if no kid match
                 # or if kid was missing
                 jwk_record = session.exec(select(Jwks).order_by(Jwks.createdAt.desc())).first()
 
             if not jwk_record:
+                print("[Auth Debug] No keys found in Jwks table")
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="Invalid token: no matching key found"
@@ -73,6 +79,7 @@ async def get_current_user(
             # If it's a JWK JSON string, PyJWT might need conversion.
             # Assuming PEM for now as it's common in SQL storage, but we might need to handle JWK format.
             public_key = jwk_record.publicKey
+            print(f"[Auth Debug] Key found. Format starts with: {public_key[:20]}")
             
             # If the key is a raw JSON string (JWK), PyJWT supports strict JWK via `jwt.PyJWK`
             # But standard `jwt.decode` takes a key. 
@@ -86,7 +93,9 @@ async def get_current_user(
                     from jwt.algorithms import RSAAlgorithm
                     key_data = json.loads(public_key)
                     public_key = RSAAlgorithm.from_jwk(json.dumps(key_data))
-            except Exception:
+                    print("[Auth Debug] Parsed JWK JSON to Public Key")
+            except Exception as e:
+                print(f"[Auth Debug] Key parsing error (ignoring if PEM): {e}")
                 # Assume it's PEM or handled by PyJWT
                 pass
 
@@ -95,6 +104,7 @@ async def get_current_user(
                 key=public_key,
                 algorithms=[alg]
             )
+            print("[Auth Debug] Token decoded successfully")
 
         # Extract user_id from 'sub' or 'user_id' claim
         user_id: str = payload.get("sub") or payload.get("user_id")
