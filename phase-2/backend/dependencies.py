@@ -49,63 +49,97 @@ async def get_current_user(
             )
         else:
             print(f"[Auth Debug] Using asymmetric verification ({alg})")
-            # Handle asymmetric encryption (e.g. RS256, EdDSA) via JWKS
-            # Try to find a matching key in the DB
-            statement = select(Jwks)
-            # If kid is present, filter by it (assuming id maps to kid or we iterate)
-            # Better Auth often uses the 'id' as the Key ID
-            if "kid" in header:
-                 print(f"[Auth Debug] Looking for key with kid: {header['kid']}")
-                 statement = statement.where(Jwks.id == header["kid"])
             
-            # Get the key(s)
-            jwk_record = session.exec(statement).first()
+            # Fetch all available keys from DB
+            all_jwks = session.exec(select(Jwks)).all()
+            print(f"[Auth Debug] Found {len(all_jwks)} keys in Jwks table")
             
-            if not jwk_record:
-                print("[Auth Debug] No specific key found, falling back to most recent")
-                # Fallback: try to get the most recent key if no kid match
-                # or if kid was missing
-                jwk_record = session.exec(select(Jwks).order_by(Jwks.createdAt.desc())).first()
-
-            if not jwk_record:
-                print("[Auth Debug] No keys found in Jwks table")
+            if not all_jwks:
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Invalid token: no matching key found"
+                    detail="Invalid token: no keys available"
                 )
 
-            # PyJWT expects the public key in PEM format or similar
-            # Better Auth stores it as a string, likely PEM or JWK JSON
-            # If it's a JWK JSON string, PyJWT might need conversion.
-            # Assuming PEM for now as it's common in SQL storage, but we might need to handle JWK format.
-            public_key = jwk_record.publicKey
-            print(f"[Auth Debug] Key found. Format starts with: {public_key[:20]}")
-            
-            # If the key is a raw JSON string (JWK), PyJWT supports strict JWK via `jwt.PyJWK`
-            # But standard `jwt.decode` takes a key. 
-            # If better-auth stores standard PEM, this works. 
-            # If it stores a JSON object string, we might need to parse it.
-            
-            try:
-                import json
-                if public_key.strip().startswith("{"):
-                    # It's likely a JWK JSON string
-                    from jwt import PyJWK
-                    key_data = json.loads(public_key)
-                    jwk_obj = PyJWK(key_data)
-                    public_key = jwk_obj.key
-                    print("[Auth Debug] Parsed JWK JSON to Public Key using PyJWK")
-            except Exception as e:
-                print(f"[Auth Debug] Key parsing error (ignoring if PEM): {e}")
-                # Assume it's PEM or handled by PyJWT
-                pass
+            # Helper to parse and verify with a single DB record
+            def try_verify(record, token_kid):
+                try:
+                    public_key_str = record.publicKey
+                    
+                    # Handle JWK JSON format
+                    if public_key_str.strip().startswith("{"):
+                        import json
+                        from jwt import PyJWK
+                        
+                        key_data = json.loads(public_key_str)
+                        
+                        # Handle potential JWKS wrapper {"keys": [...]}
+                        if "keys" in key_data and isinstance(key_data["keys"], list):
+                             # Try all keys in the set
+                             for k in key_data["keys"]:
+                                 try:
+                                     jwk_obj = PyJWK(k)
+                                     # Check kid if present
+                                     if token_kid and k.get("kid") and k.get("kid") != token_kid:
+                                         continue
+                                         
+                                     decoded = jwt.decode(token, key=jwk_obj.key, algorithms=[alg])
+                                     return decoded
+                                 except Exception:
+                                     continue
+                             return None
 
-            payload = jwt.decode(
-                token,
-                key=public_key,
-                algorithms=[alg]
-            )
-            print("[Auth Debug] Token decoded successfully")
+                        # Single JWK
+                        jwk_obj = PyJWK(key_data)
+                        
+                        # Check kid if we have one in the JWK
+                        jwk_kid = key_data.get("kid")
+                        if token_kid and jwk_kid and jwk_kid != token_kid:
+                            # Mismatch in JWK content kid
+                            return None
+                            
+                        return jwt.decode(token, key=jwk_obj.key, algorithms=[alg])
+                    
+                    # Handle PEM format (fallback)
+                    # For PEM, we assume the record.id might be the kid
+                    if token_kid and record.id != token_kid:
+                        return None
+                        
+                    return jwt.decode(token, key=public_key_str, algorithms=[alg])
+                except Exception as e:
+                    # print(f"[Auth Debug] Verification failed for key {record.id}: {e}")
+                    return None
+
+            # 1. Try to find precise match by kid if available
+            token_kid = header.get("kid")
+            if token_kid:
+                print(f"[Auth Debug] looking for kid: {token_kid}")
+                # First try the record with matching ID
+                matching_record = next((r for r in all_jwks if r.id == token_kid), None)
+                if matching_record:
+                    print(f"[Auth Debug] Found record with matching ID: {matching_record.id}")
+                    payload = try_verify(matching_record, token_kid)
+                    if payload:
+                        print("[Auth Debug] Verified with matching record ID")
+            
+            # 2. If no payload yet, try ALL keys (rotation/mismatched IDs support)
+            if not payload:
+                print("[Auth Debug] Trying all available keys...")
+                for record in all_jwks:
+                    # Skip if we already tried it (optimization)
+                    if token_kid and record.id == token_kid:
+                        continue
+                        
+                    payload = try_verify(record, token_kid)
+                    if payload:
+                        print(f"[Auth Debug] Verified with key ID: {record.id}")
+                        break
+
+            if not payload:
+                 raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid token: signature verification failed"
+                )
+
 
         # Extract user_id from 'sub' or 'user_id' claim
         user_id: str = payload.get("sub") or payload.get("user_id")
