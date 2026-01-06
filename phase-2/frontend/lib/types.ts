@@ -17,6 +17,24 @@ export interface Todo {
   updatedAt?: Date
 }
 
+// API input type - uses string for dates (ISO 8601)
+export interface TodoInput {
+  id?: string
+  title: string
+  description?: string
+  completed: boolean
+  priority: Priority
+  tags: string[]
+  dueDate?: string
+  recurring?: {
+    enabled: boolean
+    frequency: 'daily' | 'weekly' | 'monthly'
+    interval: number
+  }
+  createdAt?: string
+  updatedAt?: string
+}
+
 export type Theme = 'light' | 'dark' | 'system'
 
 // API Types
