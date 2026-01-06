@@ -35,24 +35,17 @@ async def get_current_user(
         # Get unverified header to check algorithm
         header = jwt.get_unverified_header(token)
         alg = header.get("alg")
-        print(f"[Auth Debug] Token Algorithm: {alg}")
         
         payload = None
 
         if alg == settings.jwt_algorithm:
-            print(f"[Auth Debug] Using symmetric verification ({alg})")
-            # Handle standard symmetric encryption (e.g. HS256)
             payload = jwt.decode(
                 token,
                 settings.jwt_secret,
                 algorithms=[settings.jwt_algorithm]
             )
         else:
-            print(f"[Auth Debug] Using asymmetric verification ({alg})")
-            
-            # Fetch all available keys from DB
             all_jwks = session.exec(select(Jwks)).all()
-            print(f"[Auth Debug] Found {len(all_jwks)} keys in Jwks table")
             
             if not all_jwks:
                 raise HTTPException(
@@ -89,8 +82,7 @@ async def get_current_user(
                                          options={"verify_aud": False, "verify_iss": False}
                                      )
                                      return decoded
-                                 except Exception as e:
-                                     # print(f"[Auth Debug] Key in set failed: {e}")
+                                 except Exception:
                                      continue
                              return None
 
@@ -121,25 +113,18 @@ async def get_current_user(
                         algorithms=[alg],
                         options={"verify_aud": False, "verify_iss": False}
                     )
-                except Exception as e:
-                    print(f"[Auth Debug] Verification failed for key {record.id}: {e}")
+                except Exception:
                     return None
 
             # 1. Try to find precise match by kid if available
             token_kid = header.get("kid")
             if token_kid:
-                print(f"[Auth Debug] looking for kid: {token_kid}")
                 # First try the record with matching ID
                 matching_record = next((r for r in all_jwks if r.id == token_kid), None)
                 if matching_record:
-                    print(f"[Auth Debug] Found record with matching ID: {matching_record.id}")
-                    payload = try_verify(matching_record, token_kid)
-                    if payload:
-                        print("[Auth Debug] Verified with matching record ID")
             
             # 2. If no payload yet, try ALL keys (rotation/mismatched IDs support)
             if not payload:
-                print("[Auth Debug] Trying all available keys...")
                 for record in all_jwks:
                     # Skip if we already tried it (optimization)
                     if token_kid and record.id == token_kid:
@@ -147,7 +132,6 @@ async def get_current_user(
                         
                     payload = try_verify(record, token_kid)
                     if payload:
-                        print(f"[Auth Debug] Verified with key ID: {record.id}")
                         break
 
             if not payload:
@@ -174,13 +158,11 @@ async def get_current_user(
             detail="Token expired"
         )
     except jwt.InvalidTokenError as e:
-        print(f"Token validation error: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token"
         )
     except Exception as e:
-        print(f"Unexpected auth error: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authentication failed"
