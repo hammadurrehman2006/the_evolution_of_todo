@@ -122,6 +122,7 @@ async def get_current_user(
                 # First try the record with matching ID
                 matching_record = next((r for r in all_jwks if r.id == token_kid), None)
                 if matching_record:
+                    payload = try_verify(matching_record, token_kid)
             
             # 2. If no payload yet, try ALL keys (rotation/mismatched IDs support)
             if not payload:
