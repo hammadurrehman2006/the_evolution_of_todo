@@ -37,7 +37,7 @@ export function UserNav({ user }: UserNavProps) {
 
   // Use DiceBear for a creative avatar fallback if no image is provided
   // We use the email as a seed to ensure the same user gets the same avatar
-  const avatarUrl = user.image || `https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(user.email)}`
+  const avatarUrl = user.image || `https://api.dicebear.com/9.x/bottts/svg?seed=${encodeURIComponent(user.email)}`
 
   return (
     <DropdownMenu>
