@@ -13,16 +13,22 @@ import type { FilterOptions, SortOption, Todo } from "@/lib/types"
 import { ApiError } from "@/lib/types"
 
 export default function TodosPage() {
-  const { todos, addTask, updateTask, deleteTask, toggleTask, loading, error, fetchTodos } = useTodos()
+  const { 
+    todos, 
+    addTask, 
+    updateTask, 
+    deleteTask, 
+    toggleTask, 
+    loading, 
+    error, 
+    filters,
+    sortBy,
+    setFilters,
+    setSortBy
+  } = useTodos()
+  
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null)
-  const [filters, setFilters] = useState<FilterOptions>({
-    search: '',
-    status: 'all',
-    priority: 'all',
-    tags: [],
-  })
-  const [sortBy, setSortBy] = useState<SortOption>('createdAt')
   const [mounted, setMounted] = useState(false)
 
   // Prevent hydration mismatch by only rendering stats after mount
