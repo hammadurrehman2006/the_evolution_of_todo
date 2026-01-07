@@ -12,6 +12,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import type { FilterOptions, SortOption, Todo } from "@/lib/types"
 import { AuthSuccessCard } from "@/components/auth/AuthSuccessCard"
 import { InteractiveLoader } from "@/components/ui/interactive-loader"
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 
 export default function TodosPage() {
   const { 
