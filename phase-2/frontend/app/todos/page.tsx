@@ -10,8 +10,8 @@ import { Plus, AlertCircle } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import type { FilterOptions, SortOption, Todo } from "@/lib/types"
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 import { AuthSuccessCard } from "@/components/auth/AuthSuccessCard"
+import { InteractiveLoader } from "@/components/ui/interactive-loader"
 
 export default function TodosPage() {
   const { 
@@ -133,15 +133,7 @@ export default function TodosPage() {
 
           {/* Loading Spinner (T021) */}
           {loading && !error && (
-            <div className="flex items-center justify-center py-20">
-              <div className="flex flex-col items-center gap-4">
-                <div className="relative">
-                  <div className="h-12 w-12 border-4 border-primary/20 rounded-full"></div>
-                  <div className="absolute inset-0 h-12 w-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-                </div>
-                <p className="text-sm text-muted-foreground">Loading your tasks...</p>
-              </div>
-            </div>
+            <InteractiveLoader />
           )}
 
           {/* Main Content */}
