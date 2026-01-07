@@ -35,7 +35,7 @@ export default function LoginPage() {
 
       if (data) {
         // Successfully logged in
-        router.push('/todos')
+        router.push('/todos?success=true')
       }
     } catch (err) {
       setError('An unexpected error occurred')

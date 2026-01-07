@@ -10,7 +10,8 @@ import { Plus, AlertCircle } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import type { FilterOptions, SortOption, Todo } from "@/lib/types"
-import { ApiError } from "@/lib/types"
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
+import { AuthSuccessCard } from "@/components/auth/AuthSuccessCard"
 
 export default function TodosPage() {
   const { 
@@ -106,108 +107,111 @@ export default function TodosPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+    <ProtectedRoute>
+      <div className="min-h-screen bg-background">
+        <AuthSuccessCard />
+        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
 
-        {/* Error Alert (T022) */}
-        {error && (
-          <Alert variant="destructive" className="mb-6">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Error Loading Tasks</AlertTitle>
-            <AlertDescription>
-              {error.message}
-              {error.status === 401 && (
-                <span className="block mt-2 text-sm">
-                  Please log in to access your tasks.{' '}
-                  <a href="/auth/login" className="underline font-semibold">
-                    Go to login →
-                  </a>
-                </span>
-              )}
-            </AlertDescription>
-          </Alert>
-        )}
+          {/* Error Alert (T022) */}
+          {error && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Error Loading Tasks</AlertTitle>
+              <AlertDescription>
+                {error.message}
+                {error.status === 401 && (
+                  <span className="block mt-2 text-sm">
+                    Please log in to access your tasks.{' '}
+                    <a href="/auth/login" className="underline font-semibold">
+                      Go to login →
+                    </a>
+                  </span>
+                )}
+              </AlertDescription>
+            </Alert>
+          )}
 
-        {/* Loading Spinner (T021) */}
-        {loading && !error && (
-          <div className="flex items-center justify-center py-20">
-            <div className="flex flex-col items-center gap-4">
-              <div className="relative">
-                <div className="h-12 w-12 border-4 border-primary/20 rounded-full"></div>
-                <div className="absolute inset-0 h-12 w-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-              </div>
-              <p className="text-sm text-muted-foreground">Loading your tasks...</p>
-            </div>
-          </div>
-        )}
-
-        {/* Main Content */}
-        {!loading && (
-          <>
-            <div className="mb-8">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-4">
-                <div>
-                  <h1 className="text-3xl font-bold">My Tasks</h1>
-                  {mounted && (
-                    <div className="mt-2 flex flex-wrap gap-4 text-sm text-muted-foreground">
-                      <span>
-                        <span className="font-semibold text-foreground">{activeTasks}</span> active
-                      </span>
-                      <span>•</span>
-                      <span>
-                        <span className="font-semibold text-foreground">{completedTasks}</span> completed
-                      </span>
-                      <span>•</span>
-                      <span>
-                        <span className="font-semibold text-foreground">{todos.length}</span> total
-                      </span>
-                      {highPriorityTasks > 0 && (
-                        <>
-                          <span>•</span>
-                          <span className="text-red-500 font-semibold">
-                            {highPriorityTasks} high priority
-                          </span>
-                        </>
-                      )}
-                    </div>
-                  )}
+          {/* Loading Spinner (T021) */}
+          {loading && !error && (
+            <div className="flex items-center justify-center py-20">
+              <div className="flex flex-col items-center gap-4">
+                <div className="relative">
+                  <div className="h-12 w-12 border-4 border-primary/20 rounded-full"></div>
+                  <div className="absolute inset-0 h-12 w-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                 </div>
-                <Button onClick={() => setIsFormOpen(true)} className="flex items-center space-x-2">
-                  <Plus className="h-4 w-4" />
-                  <span>Add Task</span>
-                </Button>
+                <p className="text-sm text-muted-foreground">Loading your tasks...</p>
               </div>
-              <Separator />
             </div>
+          )}
 
-            {mounted && (
-              <>
-                <FilterBar
-                  filters={filters}
-                  sortBy={sortBy}
-                  onFilterChange={setFilters}
-                  onSortChange={setSortBy}
-                />
+          {/* Main Content */}
+          {!loading && (
+            <>
+              <div className="mb-8">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-4">
+                  <div>
+                    <h1 className="text-3xl font-bold">My Tasks</h1>
+                    {mounted && (
+                      <div className="mt-2 flex flex-wrap gap-4 text-sm text-muted-foreground">
+                        <span>
+                          <span className="font-semibold text-foreground">{activeTasks}</span> active
+                        </span>
+                        <span>•</span>
+                        <span>
+                          <span className="font-semibold text-foreground">{completedTasks}</span> completed
+                        </span>
+                        <span>•</span>
+                        <span>
+                          <span className="font-semibold text-foreground">{todos.length}</span> total
+                        </span>
+                        {highPriorityTasks > 0 && (
+                          <>
+                            <span>•</span>
+                            <span className="text-red-500 font-semibold">
+                              {highPriorityTasks} high priority
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <Button onClick={() => setIsFormOpen(true)} className="flex items-center space-x-2">
+                    <Plus className="h-4 w-4" />
+                    <span>Add Task</span>
+                  </Button>
+                </div>
+                <Separator />
+              </div>
 
-                <TaskList
-                  todos={filteredAndSortedTodos}
-                  onToggle={toggleTask}
-                  onDelete={deleteTask}
-                  onEdit={handleEdit}
-                />
-              </>
-            )}
+              {mounted && (
+                <>
+                  <FilterBar
+                    filters={filters}
+                    sortBy={sortBy}
+                    onFilterChange={setFilters}
+                    onSortChange={setSortBy}
+                  />
 
-            <TaskForm
-              isOpen={isFormOpen}
-              onClose={handleCloseForm}
-              onSubmit={addTask}
-              editingTodo={editingTodo}
-              onUpdate={updateTask}
-            />
-          </>
-        )}
+                  <TaskList
+                    todos={filteredAndSortedTodos}
+                    onToggle={toggleTask}
+                    onDelete={deleteTask}
+                    onEdit={handleEdit}
+                  />
+                </>
+              )}
+
+              <TaskForm
+                isOpen={isFormOpen}
+                onClose={handleCloseForm}
+                onSubmit={addTask}
+                editingTodo={editingTodo}
+                onUpdate={updateTask}
+              />
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </ProtectedRoute>
   )
 }
