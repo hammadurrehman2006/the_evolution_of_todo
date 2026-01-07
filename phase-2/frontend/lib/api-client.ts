@@ -153,6 +153,11 @@ export class ApiClient {
         )
       }
 
+      // Handle 204 No Content
+      if (response.status === 204) {
+        return null as unknown as T
+      }
+
       // Parse JSON response
       return await response.json()
     } catch (error) {

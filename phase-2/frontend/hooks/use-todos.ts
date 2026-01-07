@@ -180,9 +180,26 @@ export function useTodos() {
     dueDate?: Date,
     recurring?: { enabled: boolean; frequency: 'daily' | 'weekly' | 'monthly'; interval: number }
   ) => {
+    const tempId = `temp-${Date.now()}`
+    const tempTodo: Todo = {
+      id: tempId,
+      title: title.trim(),
+      description: description?.trim(),
+      completed: false,
+      priority,
+      tags,
+      dueDate,
+      recurring,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+
     try {
       setError(null)
       
+      // Optimistic update: Add to UI immediately
+      setTodos((prev) => [tempTodo, ...prev])
+
       const input = {
         title: title.trim(),
         description: description?.trim(),
@@ -196,10 +213,15 @@ export function useTodos() {
       const createdTask = await apiClient.createTodo(backendPayload as any)
       const newTodo = mapBackendTaskToTodo(createdTask as any)
 
-      setTodos((prev) => [newTodo, ...prev])
+      // Replace temp task with real task
+      setTodos((prev) => prev.map(t => t.id === tempId ? newTodo : t))
       return newTodo
     } catch (err) {
       console.error('Failed to add todo:', err)
+      
+      // Rollback: Remove the optimistic task
+      setTodos((prev) => prev.filter(t => t.id !== tempId))
+      
       const apiError = err instanceof ApiError ? err : new ApiError('Failed to add todo', 500)
       setError(apiError)
       throw apiError
@@ -244,12 +266,25 @@ export function useTodos() {
   }, [])
 
   const deleteTask = useCallback(async (id: string) => {
+    // Store previous state for rollback
+    let previousTodos: Todo[] = []
+    
     try {
       setError(null)
+      
+      // Optimistic update: Remove from UI immediately
+      setTodos((prev) => {
+        previousTodos = prev
+        return prev.filter((t) => t.id !== id)
+      })
+      
       await apiClient.deleteTodo(id)
-      setTodos((prev) => prev.filter((t) => t.id !== id))
     } catch (err) {
       console.error('Failed to delete todo:', err)
+      
+      // Rollback: Restore previous state
+      setTodos(previousTodos)
+      
       const apiError = err instanceof ApiError ? err : new ApiError('Failed to delete todo', 500)
       setError(apiError)
       throw apiError
