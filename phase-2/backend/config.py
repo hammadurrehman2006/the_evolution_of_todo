@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     jwt_secret: str
     jwt_algorithm: str = "HS256"
     jwt_expiration_hours: int = 24
-    cors_origins: str = '["http://localhost:3000"]'
+    cors_origins: str = '["http://localhost:3000", "https://the-evolution-of-todo-ten.vercel.app"]'
 
     model_config = SettingsConfigDict(
         env_file=".env",
