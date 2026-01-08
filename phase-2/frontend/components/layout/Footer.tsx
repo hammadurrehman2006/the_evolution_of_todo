@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Github, Twitter, Linkedin, Mail } from "lucide-react"
+import { Github, Twitter, Linkedin, Mail, Heart } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 
 export function Footer() {
@@ -136,9 +136,14 @@ export function Footer() {
 
         <div className="flex flex-col items-center justify-between space-y-4 text-sm text-muted-foreground md:flex-row md:space-y-0">
           <p>&copy; {currentYear} TaskHive. All rights reserved.</p>
-          <p className="text-xs">
-            Built with Next.js, React, and Tailwind CSS
-          </p>
+          <div className="flex flex-col items-center md:items-end gap-1">
+            <p className="font-medium flex items-center gap-1">
+              Made with <Heart className="h-3 w-3 fill-red-500 text-red-500" /> by Muhammad Hammad ur Rehman
+            </p>
+            <p className="text-xs">
+              Built with Next.js, React, and Tailwind CSS
+            </p>
+          </div>
         </div>
       </div>
     </footer>
