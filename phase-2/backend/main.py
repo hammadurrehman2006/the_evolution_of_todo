@@ -6,6 +6,7 @@ from fastapi.exceptions import RequestValidationError
 from config import settings
 from database import create_db_and_tables
 from datetime import datetime
+import traceback
 
 # Create FastAPI application
 app = FastAPI(
@@ -17,9 +18,15 @@ app = FastAPI(
 )
 
 # Configure CORS middleware
+origins = settings.cors_origins_list
+# Ensure production Vercel domain is always included
+production_origin = "https://the-evolution-of-todo-ten.vercel.app"
+if production_origin not in origins:
+    origins.append(production_origin)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins_list,
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -54,7 +61,10 @@ async def not_found_handler(request: Request, exc):
 
 @app.exception_handler(500)
 async def internal_error_handler(request: Request, exc):
-    """Handle 500 errors with standardized format."""
+    # PRINT THE ERROR SO VERCEL LOGS IT
+    print(f"CRITICAL ERROR: {exc}") 
+    traceback.print_exc() 
+    
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={
