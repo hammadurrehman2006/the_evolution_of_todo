@@ -35,9 +35,6 @@ export function Navbar() {
             <Link href="/todos">
               <Button variant="ghost">Tasks</Button>
             </Link>
-            <Link href="/analytics">
-              <Button variant="ghost">Analytics</Button>
-            </Link>
           </div>
         </div>
 
@@ -84,9 +81,6 @@ export function Navbar() {
           </Link>
           <Link href="/todos" className="block" onClick={() => setIsMobileMenuOpen(false)}>
             <Button variant="ghost" className="w-full justify-start">Tasks</Button>
-          </Link>
-          <Link href="/analytics" className="block" onClick={() => setIsMobileMenuOpen(false)}>
-            <Button variant="ghost" className="w-full justify-start">Analytics</Button>
           </Link>
         </div>
       )}
