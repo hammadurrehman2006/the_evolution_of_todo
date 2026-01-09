@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useSession } from "@/lib/auth-client"
+import { useSession, authClient } from "@/lib/auth-client"
+import { apiClient } from "@/lib/api-client"
 import { useTheme } from "next-themes"
 import { useRouter } from "next/navigation"
 
@@ -15,7 +16,7 @@ import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Loader2, Moon, Sun, Laptop, User, Bell, Shield, Download, Trash2, ArrowLeft } from "lucide-react"
+import { Loader2, Moon, Sun, Laptop, User, Bell, Shield, Download, Trash2, ArrowLeft, RefreshCcw } from "lucide-react"
 
 export default function SettingsPage() {
   const { data: session, isPending } = useSession()
@@ -26,36 +27,126 @@ export default function SettingsPage() {
   // Form States
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
+  const [image, setImage] = useState("")
   const [notificationsEnabled, setNotificationsEnabled] = useState(false)
+  const [isUpdating, setIsUpdating] = useState(false)
+  const [isExporting, setIsExporting] = useState(false)
 
   useEffect(() => {
     setMounted(true)
     if (session?.user) {
       setName(session.user.name || "")
       setEmail(session.user.email || "")
+      setImage(session.user.image || "")
     }
     
-    // Check notification permission
-    if (typeof window !== "undefined" && "Notification" in window) {
-      setNotificationsEnabled(Notification.permission === "granted")
+    // Check notification permission and local storage preference
+    if (typeof window !== "undefined") {
+        const storedPref = localStorage.getItem("notificationsEnabled")
+        if (storedPref) {
+            setNotificationsEnabled(storedPref === "true")
+        } else if ("Notification" in window) {
+            setNotificationsEnabled(Notification.permission === "granted")
+        }
     }
   }, [session])
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Implementation for profile update would go here
-    // await authClient.updateUser({ name, email })
-    alert("Profile update functionality coming soon!")
+    setIsUpdating(true)
+    try {
+        await authClient.updateUser({ name, image })
+        alert("Profile updated successfully!")
+    } catch (error) {
+        console.error("Failed to update profile", error)
+        alert("Failed to update profile.")
+    } finally {
+        setIsUpdating(false)
+    }
   }
 
-  const requestNotificationPermission = async () => {
-    if (!("Notification" in window)) {
-      alert("This browser does not support desktop notifications")
-      return
+  const handleRandomizeAvatar = async () => {
+    setIsUpdating(true)
+    const randomSeed = Math.random().toString(36).substring(7)
+    const newAvatarUrl = `https://api.dicebear.com/9.x/bottts/svg?seed=${randomSeed}`
+    setImage(newAvatarUrl)
+    
+    try {
+        await authClient.updateUser({ image: newAvatarUrl })
+    } catch (error) {
+        console.error("Failed to update avatar", error)
+        // Revert on failure
+        if (session?.user?.image) setImage(session.user.image)
+    } finally {
+        setIsUpdating(false)
+    }
+  }
+
+  const handleExportData = async () => {
+    setIsExporting(true)
+    try {
+        const todos = await apiClient.getTodos()
+        const data = {
+            user: {
+                name: session?.user?.name,
+                email: session?.user?.email,
+                createdAt: session?.user?.createdAt
+            },
+            todos,
+            exportDate: new Date().toISOString()
+        }
+        
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement("a")
+        a.href = url
+        a.download = `todo-backup-${new Date().toISOString().split('T')[0]}.json`
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+    } catch (error) {
+        console.error("Failed to export data", error)
+        alert("Failed to export data. Please try again.")
+    } finally {
+        setIsExporting(false)
+    }
+  }
+
+  const handleDeleteAccount = async () => {
+    if (!window.confirm("Are you absolutely sure? This action cannot be undone. All your data will be permanently lost.")) {
+        return
     }
     
-    const permission = await Notification.requestPermission()
-    setNotificationsEnabled(permission === "granted")
+    setIsUpdating(true)
+    try {
+        await authClient.deleteUser()
+        router.push("/auth/login")
+    } catch (error) {
+        console.error("Failed to delete account", error)
+        alert("Failed to delete account. Please try again.")
+        setIsUpdating(false)
+    }
+  }
+
+  const toggleNotifications = async (checked: boolean) => {
+    if (checked) {
+        if (!("Notification" in window)) {
+            alert("This browser does not support desktop notifications")
+            return
+        }
+        const permission = await Notification.requestPermission()
+        if (permission === "granted") {
+            setNotificationsEnabled(true)
+            localStorage.setItem("notificationsEnabled", "true")
+        } else {
+            setNotificationsEnabled(false)
+            localStorage.setItem("notificationsEnabled", "false")
+        }
+    } else {
+        setNotificationsEnabled(false)
+        localStorage.setItem("notificationsEnabled", "false")
+    }
   }
 
   if (isPending) {
@@ -67,7 +158,6 @@ export default function SettingsPage() {
   }
 
   if (!session) {
-    // Redirect handled by middleware usually, but fail-safe here
     if (typeof window !== 'undefined') router.push("/auth/login")
     return null
   }
@@ -113,8 +203,8 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex flex-col md:flex-row items-center gap-6">
-                <Avatar className="h-24 w-24">
-                  <AvatarImage src={session.user.image || `https://api.dicebear.com/9.x/bottts/svg?seed=${encodeURIComponent(session.user.email)}`} />
+                <Avatar className="h-24 w-24 border-2 border-border">
+                  <AvatarImage src={image || `https://api.dicebear.com/9.x/bottts/svg?seed=${encodeURIComponent(session.user.email)}`} />
                   <AvatarFallback>
                     {session.user.name ? session.user.name.charAt(0).toUpperCase() : "U"}
                   </AvatarFallback>
@@ -122,7 +212,10 @@ export default function SettingsPage() {
                 <div className="space-y-2 text-center md:text-left">
                   <h3 className="text-lg font-medium">{session.user.name}</h3>
                   <p className="text-sm text-muted-foreground">{session.user.email}</p>
-                  <Button variant="outline" size="sm" disabled>Change Avatar</Button>
+                  <Button variant="outline" size="sm" onClick={handleRandomizeAvatar} disabled={isUpdating}>
+                    {isUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCcw className="mr-2 h-4 w-4" />}
+                    Randomize Avatar
+                  </Button>
                 </div>
               </div>
               
@@ -136,6 +229,7 @@ export default function SettingsPage() {
                     value={name} 
                     onChange={(e) => setName(e.target.value)} 
                     placeholder="Your Name" 
+                    disabled={isUpdating}
                   />
                 </div>
                 <div className="grid gap-2">
@@ -144,7 +238,7 @@ export default function SettingsPage() {
                     id="email" 
                     type="email" 
                     value={email} 
-                    disabled // Often changing email requires re-verification
+                    disabled 
                     className="bg-muted"
                   />
                   <p className="text-[0.8rem] text-muted-foreground">
@@ -152,7 +246,10 @@ export default function SettingsPage() {
                   </p>
                 </div>
                 <div className="flex justify-end">
-                    <Button type="submit">Save Changes</Button>
+                    <Button type="submit" disabled={isUpdating}>
+                        {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Save Changes
+                    </Button>
                 </div>
               </form>
             </CardContent>
@@ -218,11 +315,7 @@ export default function SettingsPage() {
                     </div>
                     <Switch 
                         checked={notificationsEnabled}
-                        onCheckedChange={(checked) => {
-                            if (checked) requestNotificationPermission()
-                            // In a real app we would also save this preference to the backend
-                            setNotificationsEnabled(checked)
-                        }}
+                        onCheckedChange={toggleNotifications}
                     />
                 </div>
                 {!notificationsEnabled && (
@@ -254,8 +347,8 @@ export default function SettingsPage() {
                             Download a JSON copy of all your tasks and settings.
                         </p>
                     </div>
-                    <Button variant="outline">
-                        <Download className="mr-2 h-4 w-4" />
+                    <Button variant="outline" onClick={handleExportData} disabled={isExporting}>
+                        {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
                         Export
                     </Button>
                 </div>
@@ -269,8 +362,8 @@ export default function SettingsPage() {
                             Permanently delete your account and all associated data.
                         </p>
                     </div>
-                    <Button variant="destructive">
-                        <Trash2 className="mr-2 h-4 w-4" />
+                    <Button variant="destructive" onClick={handleDeleteAccount} disabled={isUpdating}>
+                        {isUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
                         Delete Account
                     </Button>
                 </div>
