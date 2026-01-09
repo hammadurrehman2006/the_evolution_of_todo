@@ -33,6 +33,9 @@ export function Navbar() {
             <Link href="/todos">
               <Button variant="ghost">Tasks</Button>
             </Link>
+            <Link href="/analytics">
+              <Button variant="ghost">Analytics</Button>
+            </Link>
           </div>
         </div>
 

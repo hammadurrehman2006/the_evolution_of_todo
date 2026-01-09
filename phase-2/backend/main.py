@@ -98,8 +98,9 @@ def on_startup():
 
 
 # Import and register routers
-from routes import tasks
+from routes import tasks, user
 app.include_router(tasks.router)
+app.include_router(user.router)
 
 
 if __name__ == "__main__":

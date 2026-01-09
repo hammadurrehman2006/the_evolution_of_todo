@@ -16,7 +16,7 @@ import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Loader2, Moon, Sun, Laptop, User, Bell, Shield, Download, Trash2, ArrowLeft, RefreshCcw } from "lucide-react"
+import { Loader2, Moon, Sun, Laptop, User, Bell, Shield, Download, Trash2, ArrowLeft, RefreshCcw, Upload, X } from "lucide-react"
 
 export default function SettingsPage() {
   const { data: session, isPending } = useSession()
@@ -82,6 +82,52 @@ export default function SettingsPage() {
     }
   }
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Limit file size to 1MB
+    if (file.size > 1024 * 1024) {
+      alert("File size must be less than 1MB")
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onloadend = async () => {
+      const base64String = reader.result as string
+      setImage(base64String)
+      setIsUpdating(true)
+      try {
+        await authClient.updateUser({ image: base64String })
+      } catch (error) {
+        console.error("Failed to upload avatar", error)
+        alert("Failed to upload avatar.")
+        // Revert
+        if (session?.user?.image) setImage(session.user.image)
+      } finally {
+        setIsUpdating(false)
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleRemoveAvatar = async () => {
+    if (!window.confirm("Remove custom avatar?")) return
+    
+    setIsUpdating(true)
+    const defaultAvatar = `https://api.dicebear.com/9.x/bottts/svg?seed=${encodeURIComponent(session?.user?.email || 'default')}`
+    setImage(defaultAvatar)
+
+    try {
+      await authClient.updateUser({ image: defaultAvatar }) 
+    } catch (error) {
+      console.error("Failed to remove avatar", error)
+      if (session?.user?.image) setImage(session.user.image)
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
   const handleExportData = async () => {
     setIsExporting(true)
     try {
@@ -114,17 +160,24 @@ export default function SettingsPage() {
   }
 
   const handleDeleteAccount = async () => {
-    if (!window.confirm("Are you absolutely sure? This action cannot be undone. All your data will be permanently lost.")) {
+    if (!window.confirm("Are you absolutely sure? This action cannot be undone. All your data (tasks, settings, and account info) will be permanently deleted.")) {
         return
     }
     
     setIsUpdating(true)
     try {
+        // 1. Delete user data (tasks) from our backend
+        await apiClient.delete('/user/data')
+        
+        // 2. Delete user account from the auth system
+        // This will also cascade delete sessions and accounts in the DB
         await authClient.deleteUser()
-        router.push("/auth/login")
+        
+        // 3. Redirect to landing page
+        router.push("/")
     } catch (error) {
         console.error("Failed to delete account", error)
-        alert("Failed to delete account. Please try again.")
+        alert("An error occurred during account deletion. Please try again.")
         setIsUpdating(false)
     }
   }
@@ -209,13 +262,33 @@ export default function SettingsPage() {
                     {session.user.name ? session.user.name.charAt(0).toUpperCase() : "U"}
                   </AvatarFallback>
                 </Avatar>
-                <div className="space-y-2 text-center md:text-left">
+                <div className="space-y-2 text-center md:text-left flex flex-col gap-2">
                   <h3 className="text-lg font-medium">{session.user.name}</h3>
                   <p className="text-sm text-muted-foreground">{session.user.email}</p>
-                  <Button variant="outline" size="sm" onClick={handleRandomizeAvatar} disabled={isUpdating}>
-                    {isUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCcw className="mr-2 h-4 w-4" />}
-                    Randomize Avatar
-                  </Button>
+                  
+                  <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+                    <Button variant="outline" size="sm" onClick={handleRandomizeAvatar} disabled={isUpdating}>
+                        {isUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCcw className="mr-2 h-4 w-4" />}
+                        Randomize
+                    </Button>
+                    <div className="relative">
+                        <Input 
+                            type="file" 
+                            className="absolute inset-0 opacity-0 cursor-pointer" 
+                            accept="image/*"
+                            onChange={handleFileChange}
+                            disabled={isUpdating}
+                        />
+                        <Button variant="outline" size="sm" disabled={isUpdating} className="pointer-events-none">
+                            <Upload className="mr-2 h-4 w-4" />
+                            Upload
+                        </Button>
+                    </div>
+                    <Button variant="outline" size="sm" onClick={handleRemoveAvatar} disabled={isUpdating}>
+                        <X className="mr-2 h-4 w-4" />
+                        Remove
+                    </Button>
+                  </div>
                 </div>
               </div>
               
