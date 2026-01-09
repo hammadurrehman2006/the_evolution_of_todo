@@ -578,16 +578,16 @@ docker run -p 8000:8000 --env-file .env.production task-api
 
 Before deploying, verify:
 
-- [ ] Health check returns 200 OK: `GET /health`
-- [ ] Swagger docs accessible: http://localhost:8000/docs
-- [ ] Database connection successful (check logs)
-- [ ] JWT authentication working (test with valid token)
-- [ ] User isolation enforced (users can't access others' tasks)
-- [ ] CRUD operations functional (create, read, update, delete)
-- [ ] Search and filtering working (`GET /tasks?q=...`)
-- [ ] Recurring task logic correct (toggle creates new instance)
-- [ ] Error responses follow standard format (400, 401, 404)
-- [ ] Migrations applied successfully (production only)
+- [X] Health check returns 200 OK: `GET /health`
+- [X] Swagger docs accessible: http://localhost:8000/docs
+- [X] Database connection successful (check logs)
+- [X] JWT authentication working (test with valid token)
+- [X] User isolation enforced (users can't access others' tasks)
+- [X] CRUD operations functional (create, read, update, delete)
+- [X] Search and filtering working (`GET /tasks?q=...`)
+- [X] Recurring task logic correct (toggle creates new instance)
+- [X] Error responses follow standard format (400, 401, 404)
+- [X] Migrations applied successfully (production only)
 
 ---
 

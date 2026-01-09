@@ -43,10 +43,10 @@ backend/
 
 **Purpose**: Project initialization and environment setup
 
-- [ ] T001 Create backend directory structure: backend/, backend/routes/, backend/services/, backend/utils/, backend/tests/
-- [ ] T002 Initialize Python project with uv and create requirements.txt with FastAPI, SQLModel, asyncpg, PyJWT, python-dateutil, Pydantic Settings, Alembic dependencies
-- [ ] T003 [P] Create .env file template with DATABASE_URL, JWT_SECRET, JWT_ALGORITHM, CORS_ORIGINS placeholders in backend/.env.example
-- [ ] T004 [P] Create .gitignore file to exclude .env, __pycache__, .venv, *.pyc in backend/.gitignore
+- [X] T001 Create backend directory structure: backend/, backend/routes/, backend/services/, backend/utils/, backend/tests/
+- [X] T002 Initialize Python project with uv and create requirements.txt with FastAPI, SQLModel, asyncpg, PyJWT, python-dateutil, Pydantic Settings, Alembic dependencies
+- [X] T003 [P] Create .env file template with DATABASE_URL, JWT_SECRET, JWT_ALGORITHM, CORS_ORIGINS placeholders in backend/.env.example
+- [X] T004 [P] Create .gitignore file to exclude .env, __pycache__, .venv, *.pyc in backend/.gitignore
 
 ---
 
@@ -56,16 +56,16 @@ backend/
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Use Neon MCP tool (mcp__Neon__get_connection_string) to retrieve database connection string and populate .env file
-- [ ] T006 [P] Implement environment configuration with Pydantic Settings in backend/config.py with fields: database_url, jwt_secret, jwt_algorithm, cors_origins
-- [ ] T007 Implement database engine and session management with SQLModel in backend/database.py with create_db_and_tables() and get_session() functions
-- [ ] T008 [P] Define PriorityEnum (High/Medium/Low) in backend/models.py
-- [ ] T009 Create Task model in backend/models.py with all 13 fields: id (UUID), user_id, title, description, completed, priority, tags (JSONB), due_date, reminder_at, is_recurring, recurrence_rule, created_at, updated_at
-- [ ] T010 Implement JWT authentication dependency in backend/dependencies.py with get_current_user() function that extracts user_id from Bearer token using PyJWT
-- [ ] T011 Create Pydantic schemas in backend/schemas.py for TaskCreate, TaskUpdate, TaskResponse, TaskListResponse with validation rules (title 1-200 chars, description max 2000 chars, reminder_at <= due_date)
-- [ ] T012 Create FastAPI application instance in backend/main.py with CORS middleware configuration and health check endpoint GET /health
-- [ ] T013 Create tasks router in backend/routes/tasks.py with prefix="/tasks" and register it in main.py
-- [ ] T014 Test database connection by running create_db_and_tables() and verifying tasks table exists in Neon PostgreSQL
+- [X] T005 Use Neon MCP tool (mcp__Neon__get_connection_string) to retrieve database connection string and populate .env file
+- [X] T006 [P] Implement environment configuration with Pydantic Settings in backend/config.py with fields: database_url, jwt_secret, jwt_algorithm, cors_origins
+- [X] T007 Implement database engine and session management with SQLModel in backend/database.py with create_db_and_tables() and get_session() functions
+- [X] T008 [P] Define PriorityEnum (High/Medium/Low) in backend/models.py
+- [X] T009 Create Task model in backend/models.py with all 13 fields: id (UUID), user_id, title, description, completed, priority, tags (JSONB), due_date, reminder_at, is_recurring, recurrence_rule, created_at, updated_at
+- [X] T010 Implement JWT authentication dependency in backend/dependencies.py with get_current_user() function that extracts user_id from Bearer token using PyJWT
+- [X] T011 Create Pydantic schemas in backend/schemas.py for TaskCreate, TaskUpdate, TaskResponse, TaskListResponse with validation rules (title 1-200 chars, description max 2000 chars, reminder_at <= due_date)
+- [X] T012 Create FastAPI application instance in backend/main.py with CORS middleware configuration and health check endpoint GET /health
+- [X] T013 Create tasks router in backend/routes/tasks.py with prefix="/tasks" and register it in main.py
+- [X] T014 Test database connection by running create_db_and_tables() and verifying tasks table exists in Neon PostgreSQL
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -79,14 +79,14 @@ backend/
 
 ### Implementation for User Story 1
 
-- [ ] T015 [P] [US1] Implement POST /tasks endpoint in backend/routes/tasks.py to create new task with user_id from JWT, return 201 Created with task data
-- [ ] T016 [P] [US1] Implement GET /tasks endpoint (basic version without filters) in backend/routes/tasks.py to list all tasks for authenticated user, return 200 OK with items array
-- [ ] T017 [P] [US1] Implement GET /tasks/{task_id} endpoint in backend/routes/tasks.py to retrieve single task by ID with user isolation check, return 404 if not found or doesn't belong to user
-- [ ] T018 [US1] Implement PUT /tasks/{task_id} endpoint in backend/routes/tasks.py to update task fields (partial updates supported), enforce user isolation, return 200 OK with updated task
-- [ ] T019 [US1] Implement DELETE /tasks/{task_id} endpoint in backend/routes/tasks.py to permanently delete task with user isolation check, return 204 No Content
-- [ ] T020 [US1] Implement POST /tasks/{task_id}/toggle endpoint (basic version without recurring logic) in backend/routes/tasks.py to toggle completion status, return 200 OK with updated task
-- [ ] T021 [US1] Add custom exception handlers in backend/main.py for 400 Bad Request, 401 Unauthorized, 404 Not Found with standardized JSON error format
-- [ ] T022 [US1] Manual validation: Create JWT test token, create/read/update/delete/toggle tasks via Swagger UI at http://localhost:8000/docs
+- [X] T015 [P] [US1] Implement POST /tasks endpoint in backend/routes/tasks.py to create new task with user_id from JWT, return 201 Created with task data
+- [X] T016 [P] [US1] Implement GET /tasks endpoint (basic version without filters) in backend/routes/tasks.py to list all tasks for authenticated user, return 200 OK with items array
+- [X] T017 [P] [US1] Implement GET /tasks/{task_id} endpoint in backend/routes/tasks.py to retrieve single task by ID with user isolation check, return 404 if not found or doesn't belong to user
+- [X] T018 [US1] Implement PUT /tasks/{task_id} endpoint in backend/routes/tasks.py to update task fields (partial updates supported), enforce user isolation, return 200 OK with updated task
+- [X] T019 [US1] Implement DELETE /tasks/{task_id} endpoint in backend/routes/tasks.py to permanently delete task with user isolation check, return 204 No Content
+- [X] T020 [US1] Implement POST /tasks/{task_id}/toggle endpoint (basic version without recurring logic) in backend/routes/tasks.py to toggle completion status, return 200 OK with updated task
+- [X] T021 [US1] Add custom exception handlers in backend/main.py for 400 Bad Request, 401 Unauthorized, 404 Not Found with standardized JSON error format
+- [X] T022 [US1] Manual validation: Create JWT test token, create/read/update/delete/toggle tasks via Swagger UI at http://localhost:8000/docs
 
 **Checkpoint**: At this point, User Story 1 (Basic CRUD) should be fully functional and testable independently
 
@@ -100,13 +100,13 @@ backend/
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Verify Task model priority field uses PriorityEnum (High/Medium/Low) with case-insensitive validation and default value Medium
-- [ ] T024 [US2] Verify Task model tags field uses JSONB column in PostgreSQL with automatic de-duplication in backend/models.py
-- [ ] T025 [US2] Update TaskCreate schema in backend/schemas.py to accept optional priority (string, case-insensitive) and tags (array of strings)
-- [ ] T026 [US2] Update TaskUpdate schema in backend/schemas.py to allow updating priority and tags fields
-- [ ] T027 [US2] Implement tag de-duplication logic in POST /tasks and PUT /tasks/{task_id} endpoints by converting tags to set before storage
-- [ ] T028 [US2] Create database migration using Alembic to add GIN index on tags column for fast JSONB containment queries in backend/alembic/versions/
-- [ ] T029 [US2] Manual validation: Create tasks with various priorities and tags, verify storage, update priorities/tags, confirm de-duplication works
+- [X] T023 [US2] Verify Task model priority field uses PriorityEnum (High/Medium/Low) with case-insensitive validation and default value Medium
+- [X] T024 [US2] Verify Task model tags field uses JSONB column in PostgreSQL with automatic de-duplication in backend/models.py
+- [X] T025 [US2] Update TaskCreate schema in backend/schemas.py to accept optional priority (string, case-insensitive) and tags (array of strings)
+- [X] T026 [US2] Update TaskUpdate schema in backend/schemas.py to allow updating priority and tags fields
+- [X] T027 [US2] Implement tag de-duplication logic in POST /tasks and PUT /tasks/{task_id} endpoints by converting tags to set before storage
+- [X] T028 [US2] Create database migration using Alembic to add GIN index on tags column for fast JSONB containment queries in backend/alembic/versions/
+- [X] T029 [US2] Manual validation: Create tasks with various priorities and tags, verify storage, update priorities/tags, confirm de-duplication works
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -120,17 +120,17 @@ backend/
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Create TaskQueryParams Pydantic model in backend/schemas.py with fields: q (search), status (bool), priority (str), tags (list), due_date_from/to (datetime), sort_by (enum: due_date/title/priority), sort_order (enum: asc/desc), limit (default 50, max 100), offset (default 0)
-- [ ] T031 [US3] Update GET /tasks endpoint in backend/routes/tasks.py to accept TaskQueryParams using Depends()
-- [ ] T032 [US3] Implement keyword search logic in GET /tasks using SQLModel where() with Task.title.ilike() OR Task.description.ilike() for case-insensitive matching
-- [ ] T033 [US3] Implement status filtering in GET /tasks using where(Task.completed == params.status) when status parameter is provided
-- [ ] T034 [US3] Implement priority filtering in GET /tasks using where(Task.priority == params.priority.capitalize()) when priority parameter is provided
-- [ ] T035 [US3] Implement tags filtering in GET /tasks using PostgreSQL JSONB @> operator: Task.tags.op('@>')(params.tags)
-- [ ] T036 [US3] Implement date range filtering in GET /tasks using where(Task.due_date >= params.due_date_from) AND where(Task.due_date <= params.due_date_to)
-- [ ] T037 [US3] Implement sorting logic in GET /tasks with order_by() for due_date (ascending/descending), title (alphabetical), priority (High=1, Medium=2, Low=3 using case())
-- [ ] T038 [US3] Implement pagination in GET /tasks using limit() and offset(), return total count in TaskListResponse
-- [ ] T039 [US3] Update TaskListResponse schema in backend/schemas.py to include items, total, limit, offset fields
-- [ ] T040 [US3] Manual validation: Create 20+ tasks with varied attributes, test all filter combinations, verify search accuracy, confirm sorting and pagination work correctly
+- [X] T030 [US3] Create TaskQueryParams Pydantic model in backend/schemas.py with fields: q (search), status (bool), priority (str), tags (list), due_date_from/to (datetime), sort_by (enum: due_date/title/priority), sort_order (enum: asc/desc), limit (default 50, max 100), offset (default 0)
+- [X] T031 [US3] Update GET /tasks endpoint in backend/routes/tasks.py to accept TaskQueryParams using Depends()
+- [X] T032 [US3] Implement keyword search logic in GET /tasks using SQLModel where() with Task.title.ilike() OR Task.description.ilike() for case-insensitive matching
+- [X] T033 [US3] Implement status filtering in GET /tasks using where(Task.completed == params.status) when status parameter is provided
+- [X] T034 [US3] Implement priority filtering in GET /tasks using where(Task.priority == params.priority.capitalize()) when priority parameter is provided
+- [X] T035 [US3] Implement tags filtering in GET /tasks using PostgreSQL JSONB @> operator: Task.tags.op('@>')(params.tags)
+- [X] T036 [US3] Implement date range filtering in GET /tasks using where(Task.due_date >= params.due_date_from) AND where(Task.due_date <= params.due_date_to)
+- [X] T037 [US3] Implement sorting logic in GET /tasks with order_by() for due_date (ascending/descending), title (alphabetical), priority (High=1, Medium=2, Low=3 using case())
+- [X] T038 [US3] Implement pagination in GET /tasks using limit() and offset(), return total count in TaskListResponse
+- [X] T039 [US3] Update TaskListResponse schema in backend/schemas.py to include items, total, limit, offset fields
+- [X] T040 [US3] Manual validation: Create 20+ tasks with varied attributes, test all filter combinations, verify search accuracy, confirm sorting and pagination work correctly
 
 **Checkpoint**: All search, filter, and sort functionality should now work independently
 
@@ -144,13 +144,13 @@ backend/
 
 ### Implementation for User Story 4
 
-- [ ] T041 [US4] Verify Task model due_date and reminder_at fields accept optional datetime values in ISO 8601 format in backend/models.py
-- [ ] T042 [US4] Add Pydantic validator to TaskCreate schema in backend/schemas.py to enforce reminder_at <= due_date constraint, raise 400 Bad Request if violated
-- [ ] T043 [US4] Add Pydantic validator to TaskUpdate schema in backend/schemas.py to enforce reminder_at <= due_date constraint when either field is updated
-- [ ] T044 [US4] Update POST /tasks endpoint to validate due_date and reminder_at fields using TaskCreate schema
-- [ ] T045 [US4] Update PUT /tasks/{task_id} endpoint to validate due_date and reminder_at fields using TaskUpdate schema
-- [ ] T046 [US4] Create database migration using Alembic to add partial index on due_date column (WHERE due_date IS NOT NULL) in backend/alembic/versions/
-- [ ] T047 [US4] Manual validation: Create tasks with due dates and reminders, verify dates are stored in UTC, test date range filtering from US3, confirm validation rejects reminder_at > due_date
+- [X] T041 [US4] Verify Task model due_date and reminder_at fields accept optional datetime values in ISO 8601 format in backend/models.py
+- [X] T042 [US4] Add Pydantic validator to TaskCreate schema in backend/schemas.py to enforce reminder_at <= due_date constraint, raise 400 Bad Request if violated
+- [X] T043 [US4] Add Pydantic validator to TaskUpdate schema in backend/schemas.py to enforce reminder_at <= due_date constraint when either field is updated
+- [X] T044 [US4] Update POST /tasks endpoint to validate due_date and reminder_at fields using TaskCreate schema
+- [X] T045 [US4] Update PUT /tasks/{task_id} endpoint to validate due_date and reminder_at fields using TaskUpdate schema
+- [X] T046 [US4] Create database migration using Alembic to add partial index on due_date column (WHERE due_date IS NOT NULL) in backend/alembic/versions/
+- [X] T047 [US4] Manual validation: Create tasks with due dates and reminders, verify dates are stored in UTC, test date range filtering from US3, confirm validation rejects reminder_at > due_date
 
 **Checkpoint**: Due date and reminder functionality should now be complete
 
@@ -164,16 +164,16 @@ backend/
 
 ### Implementation for User Story 5
 
-- [ ] T048 [P] [US5] Implement RRULE parsing utility in backend/utils/recurrence.py with calculate_next_occurrence(current_due_date: datetime, rrule_string: str) -> datetime function using python-dateutil.rrule.rrulestr()
-- [ ] T049 [P] [US5] Implement RRULE validation utility in backend/utils/recurrence.py with validate_rrule(rrule_string: str) -> bool function that attempts parsing and catches exceptions
-- [ ] T050 [US5] Add Pydantic validator to TaskCreate schema in backend/schemas.py to validate recurrence_rule format using validate_rrule() when is_recurring=True
-- [ ] T051 [US5] Add Pydantic validator to TaskCreate schema to enforce recurrence_rule is required when is_recurring=True, raise 400 Bad Request if missing
-- [ ] T052 [US5] Create TaskService class in backend/services/task_service.py with create_recurring_instance(original_task: Task, session: Session) -> Task method
-- [ ] T053 [US5] Implement create_recurring_instance() logic: parse RRULE, calculate next due_date, create new Task with same title/description/priority/tags, set completed=False, preserve is_recurring and recurrence_rule
-- [ ] T054 [US5] Update POST /tasks/{task_id}/toggle endpoint in backend/routes/tasks.py to detect recurring tasks (is_recurring=True) and call TaskService.create_recurring_instance() when marking complete
-- [ ] T055 [US5] Update toggle endpoint response format to return both original task (now completed) and new_task (next instance) in JSON: {"task": {...}, "new_task": {...}}
-- [ ] T056 [US5] Handle edge case where reminder_at needs to be advanced for new recurring instance by same interval as due_date
-- [ ] T057 [US5] Manual validation: Create recurring tasks with various RRULE formats (FREQ=DAILY, FREQ=WEEKLY, FREQ=MONTHLY), toggle completion, verify new instances are created with correct due_dates
+- [X] T048 [P] [US5] Implement RRULE parsing utility in backend/utils/recurrence.py with calculate_next_occurrence(current_due_date: datetime, rrule_string: str) -> datetime function using python-dateutil.rrule.rrulestr()
+- [X] T049 [P] [US5] Implement RRULE validation utility in backend/utils/recurrence.py with validate_rrule(rrule_string: str) -> bool function that attempts parsing and catches exceptions
+- [X] T050 [US5] Add Pydantic validator to TaskCreate schema in backend/schemas.py to validate recurrence_rule format using validate_rrule() when is_recurring=True
+- [X] T051 [US5] Add Pydantic validator to TaskCreate schema to enforce recurrence_rule is required when is_recurring=True, raise 400 Bad Request if missing
+- [X] T052 [US5] Create TaskService class in backend/services/task_service.py with create_recurring_instance(original_task: Task, session: Session) -> Task method
+- [X] T053 [US5] Implement create_recurring_instance() logic: parse RRULE, calculate next due_date, create new Task with same title/description/priority/tags, set completed=False, preserve is_recurring and recurrence_rule
+- [X] T054 [US5] Update POST /tasks/{task_id}/toggle endpoint in backend/routes/tasks.py to detect recurring tasks (is_recurring=True) and call TaskService.create_recurring_instance() when marking complete
+- [X] T055 [US5] Update toggle endpoint response format to return both original task (now completed) and new_task (next instance) in JSON: {"task": {...}, "new_task": {...}}
+- [X] T056 [US5] Handle edge case where reminder_at needs to be advanced for new recurring instance by same interval as due_date
+- [X] T057 [US5] Manual validation: Create recurring tasks with various RRULE formats (FREQ=DAILY, FREQ=WEEKLY, FREQ=MONTHLY), toggle completion, verify new instances are created with correct due_dates
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -183,13 +183,13 @@ backend/
 
 **Purpose**: Prepare database schema and production configuration
 
-- [ ] T058 Initialize Alembic in backend/ directory with alembic init alembic command
-- [ ] T059 Configure Alembic env.py to use settings.database_url and Task model metadata from backend/models.py
-- [ ] T060 Generate initial migration with alembic revision --autogenerate -m "Initial schema with Task table and indexes"
-- [ ] T061 [P] Review generated migration in backend/alembic/versions/ and verify all indexes, constraints, and fields are correct
-- [ ] T062 Apply migration to Neon PostgreSQL with alembic upgrade head command
-- [ ] T063 [P] Add database migration instructions to quickstart.md for production deployment
-- [ ] T064 [P] Update main.py to remove create_db_and_tables() from startup event and add comment to use Alembic migrations instead
+- [X] T058 Initialize Alembic in backend/ directory with alembic init alembic command
+- [X] T059 Configure Alembic env.py to use settings.database_url and Task model metadata from backend/models.py
+- [X] T060 Generate initial migration with alembic revision --autogenerate -m "Initial schema with Task table and indexes"
+- [X] T061 [P] Review generated migration in backend/alembic/versions/ and verify all indexes, constraints, and fields are correct
+- [X] T062 Apply migration to Neon PostgreSQL with alembic upgrade head command
+- [X] T063 [P] Add database migration instructions to quickstart.md for production deployment
+- [X] T064 [P] Update main.py to remove create_db_and_tables() from startup event and add comment to use Alembic migrations instead
 
 ---
 
@@ -197,19 +197,19 @@ backend/
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T065 [P] Add structured logging with Python logging module in backend/main.py for all API requests (user_id, endpoint, status_code)
-- [ ] T066 [P] Add error logging in exception handlers in backend/main.py to capture stack traces for 500 errors
-- [ ] T067 [P] Update TaskResponse schema to ensure all datetime fields are serialized as ISO 8601 strings with timezone (UTC)
-- [ ] T068 [P] Add request ID middleware in backend/main.py to generate unique request IDs for tracing
-- [ ] T069 Verify all endpoints enforce user isolation: every database query filters by user_id from JWT token
-- [ ] T070 Security audit: Verify no SQL injection vulnerabilities (SQLModel uses parameterized queries), no JWT secret in code (loaded from .env), HTTPS enforcement in production docs
-- [ ] T071 Performance verification: Test GET /tasks with 1000+ tasks, confirm response time <2s, pagination limits prevent large result sets
-- [ ] T072 [P] Update README.md with API overview, setup instructions, and link to quickstart.md
-- [ ] T073 [P] Update quickstart.md with actual file paths and correct commands based on implementation
-- [ ] T074 Run complete validation: Follow quickstart.md from scratch, verify all endpoints work, check Swagger docs at http://localhost:8000/docs
-- [ ] T075 Create Dockerfile for containerized deployment with Python 3.11-slim base image, gunicorn + uvicorn workers
-- [ ] T076 [P] Create docker-compose.yml for local development with backend service and Neon PostgreSQL connection
-- [ ] T077 Final manual test: Create JWT token, test all 7 endpoints (health, create, list, get, update, delete, toggle) with various scenarios from spec.md acceptance criteria
+- [X] T065 [P] Add structured logging with Python logging module in backend/main.py for all API requests (user_id, endpoint, status_code)
+- [X] T066 [P] Add error logging in exception handlers in backend/main.py to capture stack traces for 500 errors
+- [X] T067 [P] Update TaskResponse schema to ensure all datetime fields are serialized as ISO 8601 strings with timezone (UTC)
+- [X] T068 [P] Add request ID middleware in backend/main.py to generate unique request IDs for tracing
+- [X] T069 Verify all endpoints enforce user isolation: every database query filters by user_id from JWT token
+- [X] T070 Security audit: Verify no SQL injection vulnerabilities (SQLModel uses parameterized queries), no JWT secret in code (loaded from .env), HTTPS enforcement in production docs
+- [X] T071 Performance verification: Test GET /tasks with 1000+ tasks, confirm response time <2s, pagination limits prevent large result sets
+- [X] T072 [P] Update README.md with API overview, setup instructions, and link to quickstart.md
+- [X] T073 [P] Update quickstart.md with actual file paths and correct commands based on implementation
+- [X] T074 Run complete validation: Follow quickstart.md from scratch, verify all endpoints work, check Swagger docs at http://localhost:8000/docs
+- [X] T075 Create Dockerfile for containerized deployment with Python 3.11-slim base image, gunicorn + uvicorn workers
+- [X] T076 [P] Create docker-compose.yml for local development with backend service and Neon PostgreSQL connection
+- [X] T077 Final manual test: Create JWT token, test all 7 endpoints (health, create, list, get, update, delete, toggle) with various scenarios from spec.md acceptance criteria
 
 ---
 

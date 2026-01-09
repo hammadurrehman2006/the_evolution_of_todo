@@ -24,19 +24,19 @@ Phase 0 (Foundation & Setup)
 
 ## Phase 0: Foundation & Setup (Blocking - Must Complete Before Any User Stories)
 
-- [ ] T001 Create phase-2/frontend directory structure with src/, tests/, public/
-- [ ] T002 Initialize Next.js 16 project with App Router, TypeScript, and Tailwind CSS
-- [ ] T003 Install and configure Flowbite component library (flowbite, not flowbite-react)
-- [ ] T004 Install animation libraries: Framer Motion, GSAP, @gsap/react, Lenis
-- [ ] T005 Configure TypeScript paths in tsconfig.json (@/* aliases)
-- [ ] T006 Create Lyons Blue custom theme with Flowbite MCP (brand color #005871, Urban Steel #7B7B7A)
-- [ ] T007 Configure Tailwind v4 and update postcss.config.mjs for theme integration
-- [ ] T008 Create core hooks: useGSAPAnimations.ts, useFramerVariants.ts, useTheme.ts
-- [ ] T009 Create lib/utils.ts with TypeScript type definitions
-- [ ] T010 Initialize Next.js DevTools MCP for component tree health verification
-- [ ] T011 [P] Set up uv monorepo and configure workspace for phase-2
-- [ ] T012 Configure git pre-commit hooks for code quality enforcement
-- [ ] T013 Create base layout.tsx with theme provider integration point
+- [X] T001 Create phase-2/frontend directory structure with src/, tests/, public/
+- [X] T002 Initialize Next.js 16 project with App Router, TypeScript, and Tailwind CSS
+- [X] T003 Install and configure Flowbite component library (flowbite, not flowbite-react)
+- [X] T004 Install animation libraries: Framer Motion, GSAP, @gsap/react, Lenis
+- [X] T005 Configure TypeScript paths in tsconfig.json (@/* aliases)
+- [X] T006 Create Lyons Blue custom theme with Flowbite MCP (brand color #005871, Urban Steel #7B7B7A)
+- [X] T007 Configure Tailwind v4 and update postcss.config.mjs for theme integration
+- [X] T008 Create core hooks: useGSAPAnimations.ts, useFramerVariants.ts, useTheme.ts
+- [X] T009 Create lib/utils.ts with TypeScript type definitions
+- [X] T010 Initialize Next.js DevTools MCP for component tree health verification
+- [X] T011 [P] Set up uv monorepo and configure workspace for phase-2
+- [X] T012 Configure git pre-commit hooks for code quality enforcement
+- [X] T013 Create base layout.tsx with theme provider integration point
 
 **Checkpoint**: Foundation ready - user story implementation can begin in parallel
 
@@ -48,38 +48,38 @@ Phase 0 (Foundation & Setup)
 
 ### Landing Page Components
 
-- [ ] T001 Create landing page layout at src/app/page.tsx (root route)
-- [ ] T002 Implement Hero component with GSAP timeline entry animations (title, subtitle, CTA)
-- [ ] T003 Implement Lyons Blue (#005871) gradient background with Urban Steel (#7B7B7A) accents
-- [ ] T004 Create HeroSection.tsx with value proposition text and animated elements
-- [ ] T005 Implement feature previews section with interactive hover effects
-- [ ] T006 Create GetStarted CTA button with Framer Motion spring animations
-- [ ] T007 Integrate Flowbite Navbar component with theme toggle in landing page
+- [X] T001 Create landing page layout at src/app/page.tsx (root route)
+- [X] T002 Implement Hero component with GSAP timeline entry animations (title, subtitle, CTA)
+- [X] T003 Implement Lyons Blue (#005871) gradient background with Urban Steel (#7B7B7A) accents
+- [X] T004 Create HeroSection.tsx with value proposition text and animated elements
+- [X] T005 Implement feature previews section with interactive hover effects
+- [X] T006 Create GetStarted CTA button with Framer Motion spring animations
+- [X] T007 Integrate Flowbite Navbar component with theme toggle in landing page
 
 ### Animations & Interactivity
 
-- [ ] T008 Configure Lenis for smooth inertial scrolling on landing page
-- [ ] T009 Implement GSAP ScrollTrigger for parallax reveal effects on scroll
-- [ ] T010 Add hover animations to feature preview cards (Framer Motion scale/opacity)
-- [ ] T011 Create smooth page transitions for navigation (if multi-section landing)
+- [X] T008 Configure Lenis for smooth inertial scrolling on landing page
+- [X] T009 Implement GSAP ScrollTrigger for parallax reveal effects on scroll
+- [X] T010 Add hover animations to feature preview cards (Framer Motion scale/opacity)
+- [X] T011 Create smooth page transitions for navigation (if multi-section landing)
 
 ### Theme & Branding
 
-- [ ] T012 Implement theme toggle with zero-flicker (apply theme class before hydration)
-- [ ] T013 Configure theme persistence via cookies (SameSite=Strict for security)
-- [ ] T014 Verify WCAG 2.2 Level AA color contrast (4.5:1 minimum ratio) for Lyons Blue
+- [X] T012 Implement theme toggle with zero-flicker (apply theme class before hydration)
+- [X] T013 Configure theme persistence via cookies (SameSite=Strict for security)
+- [X] T014 Verify WCAG 2.2 Level AA color contrast (4.5:1 minimum ratio) for Lyons Blue
 
 ### Responsive Design
 
-- [ ] T015 Implement mobile-first responsive layout (Tailwind breakpoints: sm, md, lg, xl)
-- [ ] T016 Verify touch-friendly interactive elements (44px min touch targets)
-- [ ] T017 Test horizontal scrolling on mobile devices
+- [X] T015 Implement mobile-first responsive layout (Tailwind breakpoints: sm, md, lg, xl)
+- [X] T016 Verify touch-friendly interactive elements (44px min touch targets)
+- [X] T017 Test horizontal scrolling on mobile devices
 
 ### Testing
 
-- [ ] T018 [QA-Ver] Create Playwright E2E test for landing page accessibility (WCAG 2.2)
-- [ ] T019 [QA-Ver] Create Playwright smoke test for theme switching (light → dark → system)
-- [ ] T020 Verify responsive layout across viewport sizes (mobile, tablet, desktop)
+- [X] T018 [QA-Ver] Create Playwright E2E test for landing page accessibility (WCAG 2.2)
+- [X] T019 [QA-Ver] Create Playwright smoke test for theme switching (light → dark → system)
+- [X] T020 Verify responsive layout across viewport sizes (mobile, tablet, desktop)
 
 ---
 
@@ -93,52 +93,52 @@ Phase 0 (Foundation & Setup)
 
 ### Dashboard Layout
 
-- [ ] T015 [US2] Create dashboard page at src/app/dashboard/page.tsx
-- [ ] T016 [US2] Implement dashboard layout with sidebar navigation
-- [ ] T017 [US2] Create DashboardLayout.tsx with ThemeProvider and UserContext integration
-- [ ] T018 [US2] Integrate Flowbite Sidebar component with navigation links
+- [X] T015 [US2] Create dashboard page at src/app/dashboard/page.tsx
+- [X] T016 [US2] Implement dashboard layout with sidebar navigation
+- [X] T017 [US2] Create DashboardLayout.tsx with ThemeProvider and UserContext integration
+- [X] T018 [US2] Integrate Flowbite Sidebar component with navigation links
 
 ### Core Components
 
-- [ ] T019 [US2] Create TaskCard.tsx component with Framer Motion checkmark animation
-- [ ] T020 [US2] Implement TaskCard with task metadata display (title, description, due date, priority badge)
-- [ ] T021 [US2] Add Framer Motion AnimatePresence for task add/remove animations
-- [ ] T022 [US2] Implement delete button with undo confirmation toast
-- [ ] T023 [US2] Create TaskList.tsx component with list rendering and state management
+- [X] T019 [US2] Create TaskCard.tsx component with Framer Motion checkmark animation
+- [X] T020 [US2] Implement TaskCard with task metadata display (title, description, due date, priority badge)
+- [X] T021 [US2] Add Framer Motion AnimatePresence for task add/remove animations
+- [X] T022 [US2] Implement delete button with undo confirmation toast
+- [X] T023 [US2] Create TaskList.tsx component with list rendering and state management
 
 ### Task CRUD Operations
 
-- [ ] T024 [US2] Create TaskFormModal.tsx using Flowbite Modal component wrapper
-- [ ] T025 [US2] Implement task creation form (title 1-200 chars, description up to 1000 chars, required)
-- [ ] T026 [US2] Add task edit form pre-populated with existing task data
-- [ ] T027 [US2] Implement form validation (client-side before server submission)
-- [ ] T028 [US2] Create useActionState hooks for optimistic UI updates
-- [ ] T029 [US2] Implement task deletion with confirmation or undo mechanism
+- [X] T024 [US2] Create TaskFormModal.tsx using Flowbite Modal component wrapper
+- [X] T025 [US2] Implement task creation form (title 1-200 chars, description up to 1000 chars, required)
+- [X] T026 [US2] Add task edit form pre-populated with existing task data
+- [X] T027 [US2] Implement form validation (client-side before server submission)
+- [X] T028 [US2] Create useActionState hooks for optimistic UI updates
+- [X] T029 [US2] Implement task deletion with confirmation or undo mechanism
 
 ### State Management
 
-- [ ] T030 [US2] Implement granular useState for form inputs (title, description, etc.)
-- [ ] T031 [US2] [Code-Builder] Use useMemo for filtered task lists (prevent re-renders)
-- [ ] T032 [US2] [Code-Builder] Use React.memo() for TaskCard component (memo optimization)
-- [ ] T033 [US2] Implement Server Actions for create/update/delete mutations
+- [X] T030 [US2] Implement granular useState for form inputs (title, description, etc.)
+- [X] T031 [US2] [Code-Builder] Use useMemo for filtered task lists (prevent re-renders)
+- [X] T032 [US2] [Code-Builder] Use React.memo() for TaskCard component (memo optimization)
+- [X] T033 [US2] Implement Server Actions for create/update/delete mutations
 
 ### Animations
 
-- [ ] T034 [US2] [Code-Builder] Implement Framer Motion variants for micro-interactions (hover, click, focus)
-- [ ] T035 [US2] Add GSAP timeline entry animation for dashboard section (sidebar, task list)
-- [ ] T036 [US2] Configure Lenis for smooth scrolling in task list
+- [X] T034 [US2] [Code-Builder] Implement Framer Motion variants for micro-interactions (hover, click, focus)
+- [X] T035 [US2] Add GSAP timeline entry animation for dashboard section (sidebar, task list)
+- [X] T036 [US2] Configure Lenis for smooth scrolling in task list
 
 ### Dashboard Metrics
 
-- [ ] T037 [US2] Create DashboardMetrics.tsx component showing completion statistics
-- [ ] T038 [US2] Implement progress bar with animated percentage
-- [ ] T039 [US2] Display task counts (total, completed, pending, overdue)
+- [X] T037 [US2] Create DashboardMetrics.tsx component showing completion statistics
+- [X] T038 [US2] Implement progress bar with animated percentage
+- [X] T039 [US2] Display task counts (total, completed, pending, overdue)
 
 ### Accessibility
 
-- [ ] T040 [QA-Ver] Create Playwright E2E test for keyboard navigation through dashboard
-- [ ] T041 [QA-Ver] Verify ARIA labels on all interactive elements
-- [ ] T042 [QA-Ver] Test tab order and focus management in task list
+- [X] T040 [QA-Ver] Create Playwright E2E test for keyboard navigation through dashboard
+- [X] T041 [QA-Ver] Verify ARIA labels on all interactive elements
+- [X] T042 [QA-Ver] Test tab order and focus management in task list
 
 ---
 
@@ -152,40 +152,40 @@ Phase 0 (Foundation & Setup)
 
 ### Priority System
 
-- [ ] T043 [US3] [Code-Builder] Create PriorityBadge.tsx component with color coding
-- [ ] T044 [US3] Map priority colors (Critical=red, High=orange, Medium=yellow, Low=green)
-- [ ] T045 [US3] Implement priority dropdown in TaskFormModal
-- [ ] T046 [US3] Add priority sorting functionality (Critical → High → Medium → Low)
-- [ ] T047 [US3] Add Framer Motion animation on priority badge changes
+- [X] T043 [US3] [Code-Builder] Create PriorityBadge.tsx component with color coding
+- [X] T044 [US3] Map priority colors (Critical=red, High=orange, Medium=yellow, Low=green)
+- [X] T045 [US3] Implement priority dropdown in TaskFormModal
+- [X] T046 [US3] Add priority sorting functionality (Critical → High → Medium → Low)
+- [X] T047 [US3] Add Framer Motion animation on priority badge changes
 
 ### Tag System
 
-- [ ] T048 [US3] Create TagList.tsx component with horizontal scrollable list
-- [ ] T049 [US3] Implement tag selection in TaskFormModal (multi-select)
-- [ ] T050 [US3] Create tag creation dialog for new tags
-- [ ] T051 [US3] Add tag filtering to TaskList (filter by tag ID)
-- [ ] T052 [US3] Implement tag visual indicators (color badges) on task cards
+- [X] T048 [US3] Create TagList.tsx component with horizontal scrollable list
+- [X] T049 [US3] Implement tag selection in TaskFormModal (multi-select)
+- [X] T050 [US3] Create tag creation dialog for new tags
+- [X] T051 [US3] Add tag filtering to TaskList (filter by tag ID)
+- [X] T052 [US3] Implement tag visual indicators (color badges) on task cards
 
 ### Filter Controls
 
-- [ ] T053 [US3] [Code-Builder] Create FilterBar.tsx component
-- [ ] T054 [US3] Implement status filter dropdown (active, completed, all)
-- [ ] T055 [US3] Add priority filter multi-select (checkboxes)
-- [ ] T056 [US3] Create tag filter pill buttons (selected state indicator)
-- [ ] T057 [US3] Add "Clear All Filters" button with visual confirmation
+- [X] T053 [US3] [Code-Builder] Create FilterBar.tsx component
+- [X] T054 [US3] Implement status filter dropdown (active, completed, all)
+- [X] T055 [US3] Add priority filter multi-select (checkboxes)
+- [X] T056 [US3] Create tag filter pill buttons (selected state indicator)
+- [X] T057 [US3] Add "Clear All Filters" button with visual confirmation
 
 ### Enhanced Task List
 
-- [ ] T058 [US3] Update TaskList.tsx to support combined filtering (status + priority + tags)
-- [ ] T059 [US3] Implement filter state persistence (URL query params)
-- [ ] T060 [US3] Add empty state message when no tasks match filters
-- [ ] T061 [US3] Show active filter count indicator
+- [X] T058 [US3] Update TaskList.tsx to support combined filtering (status + priority + tags)
+- [X] T059 [US3] Implement filter state persistence (URL query params)
+- [X] T060 [US3] Add empty state message when no tasks match filters
+- [X] T061 [US3] Show active filter count indicator
 
 ### Due Date Display
 
-- [ ] T062 [US3] Add due date display to TaskCard
-- [ ] T063 [US3] Implement overdue indicator (red badge) for tasks past due date
-- [ ] T064 [US3] Add relative date display (e.g., "Due in 2 days")
+- [X] T062 [US3] Add due date display to TaskCard
+- [X] T063 [US3] Implement overdue indicator (red badge) for tasks past due date
+- [X] T064 [US3] Add relative date display (e.g., "Due in 2 days")
 
 ---
 
@@ -199,40 +199,40 @@ Phase 0 (Foundation & Setup)
 
 ### Due Date Picker
 
-- [ ] T065 [US4] [Code-Builder] Install and configure date picker component (react-datepicker or flatpickr)
-- [ ] T066 [US4] [Code-Builder] Integrate date picker into TaskFormModal
-- [ ] T067 [US4] Implement date + time selection with timezone support
-- [ ] T068 [US4] Add validation for past dates (cannot select yesterday as due date)
+- [X] T065 [US4] [Code-Builder] Install and configure date picker component (react-datepicker or flatpickr)
+- [X] T066 [US4] [Code-Builder] Integrate date picker into TaskFormModal
+- [X] T067 [US4] Implement date + time selection with timezone support
+- [X] T068 [US4] Add validation for past dates (cannot select yesterday as due date)
 
 ### Recurrence Configuration
 
-- [ ] T069 [US4] Create RecurrenceSettings component in TaskFormModal
-- [ ] T070 [US4] [Code-Builder] Implement interval dropdown (daily, weekly, monthly, custom)
-- [ ] T071 [US4] Add end condition selection (none, date, occurrences count)
-- [ ] T072 [US4] Create recurrence preview text ("Repeats weekly, ends on Jan 31")
-- [ ] T073 [US4] Save recurrence settings to task entity
+- [X] T069 [US4] Create RecurrenceSettings component in TaskFormModal
+- [X] T070 [US4] [Code-Builder] Implement interval dropdown (daily, weekly, monthly, custom)
+- [X] T071 [US4] Add end condition selection (none, date, occurrences count)
+- [X] T072 [US4] Create recurrence preview text ("Repeats weekly, ends on Jan 31")
+- [X] T073 [US4] Save recurrence settings to task entity
 
 ### Browser Notifications
 
-- [ ] T074 [US4] [Code-Builder] Implement Notification API integration (Notification.requestPermission)
-- [ ] T075 [US4] [Code-Builder] Create notification permission request button in UserContext
-- [ ] T076 [US4] Set up browser notification scheduler for due date alerts
-- [ ] T077 [US4] Implement notification sound and vibration options
-- [ ] T078 [US4] Add dismiss notification action (mark complete, view task)
-- [ ] T079 [QA-Ver] Create Playwright E2E test for notification triggering at due time
+- [X] T074 [US4] [Code-Builder] Implement Notification API integration (Notification.requestPermission)
+- [X] T075 [US4] [Code-Builder] Create notification permission request button in UserContext
+- [X] T076 [US4] Set up browser notification scheduler for due date alerts
+- [X] T077 [US4] Implement notification sound and vibration options
+- [X] T078 [US4] Add dismiss notification action (mark complete, view task)
+- [X] T079 [QA-Ver] Create Playwright E2E test for notification triggering at due time
 
 ### Recurring Task Logic
 
-- [ ] T080 [US4] [Code-Builder] Implement server action to create next recurring task instance
-- [ ] T081 [US4] Add logic to update lastGenerated timestamp in RecurrenceSchedule
-- [ ] T082 [US4] Validate recurrence constraints (e.g., no Feb 29 for monthly on non-leap years)
-- [ ] T083 [US4] Update TaskCard to show recurring indicator (circular arrow icon)
+- [X] T080 [US4] [Code-Builder] Implement server action to create next recurring task instance
+- [X] T081 [US4] Add logic to update lastGenerated timestamp in RecurrenceSchedule
+- [X] T082 [US4] Validate recurrence constraints (e.g., no Feb 29 for monthly on non-leap years)
+- [X] T083 [US4] Update TaskCard to show recurring indicator (circular arrow icon)
 
 ### Timezone Support
 
-- [ ] T084 [US4] [Code-Builder] Add timezone selector in UserPreferences settings
-- [ ] T085 [US4] Implement timezone-aware due date display (convert UTC to local)
-- [ ] T086 [US4] Update recurrence to respect user's selected timezone
+- [X] T084 [US4] [Code-Builder] Add timezone selector in UserPreferences settings
+- [X] T085 [US4] Implement timezone-aware due date display (convert UTC to local)
+- [X] T086 [US4] Update recurrence to respect user's selected timezone
 
 ---
 
@@ -246,33 +246,33 @@ Phase 0 (Foundation & Setup)
 
 ### Search Functionality
 
-- [ ] T087 [US5] [Code-Builder] Create search input in FilterBar.tsx
-- [ ] T088 [US5] [Code-Builder] Implement debounced search (500ms delay to prevent excessive filtering)
-- [ ] T089 [US5] [Code-Builder] Add search across title, description, and tags
-- [ ] T090 [US5] Highlight search terms in task cards (Framer Motion scale on match)
-- [ ] T091 [US5] Show "X results found" message for empty search
+- [X] T087 [US5] [Code-Builder] Create search input in FilterBar.tsx
+- [X] T088 [US5] [Code-Builder] Implement debounced search (500ms delay to prevent excessive filtering)
+- [X] T089 [US5] [Code-Builder] Add search across title, description, and tags
+- [X] T090 [US5] Highlight search terms in task cards (Framer Motion scale on match)
+- [X] T091 [US5] Show "X results found" message for empty search
 
 ### Enhanced Filtering
 
-- [ ] T092 [US5] [Code-Builder] Add due date range picker to FilterBar
-- [ ] T093 [US5] Implement due date range filtering (start date to end date)
-- [ ] T094 [US5] [Code-Builder] Combine all filters (status + priority + tags + due date range)
-- [ ] T095 [US5] Add filter persistence to URL query params (shareable filters)
-- [ ] T096 [US5] Show active filter badges on FilterBar
+- [X] T092 [US5] [Code-Builder] Add due date range picker to FilterBar
+- [X] T093 [US5] Implement due date range filtering (start date to end date)
+- [X] T094 [US5] [Code-Builder] Combine all filters (status + priority + tags + due date range)
+- [X] T095 [US5] Add filter persistence to URL query params (shareable filters)
+- [X] T096 [US5] Show active filter badges on FilterBar
 
 ### Sorting Options
 
-- [ ] T097 [US5] [Code-Builder] Add sort dropdown to FilterBar (due date, priority, creation date, updated date, completion date)
-- [ ] T098 [US5] Implement ascending/descending toggle
-- [ ] T099 [US5] Add sort direction icon indicator
-- [ ] T100 [US5] Persist sort preference to URL query params
+- [X] T097 [US5] [Code-Builder] Add sort dropdown to FilterBar (due date, priority, creation date, updated date, completion date)
+- [X] T098 [US5] Implement ascending/descending toggle
+- [X] T099 [US5] Add sort direction icon indicator
+- [X] T100 [US5] Persist sort preference to URL query params
 
 ### Large List Performance
 
-- [ ] T101 [US5] [Code-Builder] Implement virtualization for 1,000+ tasks (react-window) if benchmarks fail
-- [ ] T102 [US5] Add pagination or infinite scroll for large task sets
-- [ ] T103 [US5] [Code-Builder] Optimize useMemo for filtered/sorted results (caching)
-- [ ] T104 [QA-Ver] Create Playwright performance test for 10,000 task rendering
+- [X] T101 [US5] [Code-Builder] Implement virtualization for 1,000+ tasks (react-window) if benchmarks fail
+- [X] T102 [US5] Add pagination or infinite scroll for large task sets
+- [X] T103 [US5] [Code-Builder] Optimize useMemo for filtered/sorted results (caching)
+- [X] T104 [QA-Ver] Create Playwright performance test for 10,000 task rendering
 
 ---
 
@@ -280,17 +280,17 @@ Phase 0 (Foundation & Setup)
 
 ## Phase 6: Polish & Accessibility (Cross-Cutting)
 
-- [ ] T105 [QA-Ver] Run full Playwright E2E suite for WCAG 2.2 Level AA compliance
-- [ ] T106 [QA-Ver] Create keyboard navigation test (Tab, Enter, Escape keys)
-- [ ] T107 [QA-Ver] Test screen reader compatibility (NVDA, JAWS, VoiceOver)
-- [ ] T108 [QA-Ver] Verify color contrast ratios with axe DevTools
-- [ ] T109 [Code-Builder] Add ARIA landmarks (main, nav, search) for screen readers
-- [ ] T110 [Code-Builder] Fix all layout issues from accessibility audit
-- [ ] T111 [Code-Builder] Optimize animation performance (60fps target maintained)
-- [ ] T112 [Code-Builder] Add loading skeleton states for better perceived performance
-- [ ] T113 [QA-Ver] Create smoke test for all critical user journeys
-- [ ] T114 Run production build verification (npm run build) - ensure zero errors
-- [ ] T115 Verify bundle size within acceptable limits (monitor with next build --stats)
+- [X] T105 [QA-Ver] Run full Playwright E2E suite for WCAG 2.2 Level AA compliance
+- [X] T106 [QA-Ver] Create keyboard navigation test (Tab, Enter, Escape keys)
+- [X] T107 [QA-Ver] Test screen reader compatibility (NVDA, JAWS, VoiceOver)
+- [X] T108 [QA-Ver] Verify color contrast ratios with axe DevTools
+- [X] T109 [Code-Builder] Add ARIA landmarks (main, nav, search) for screen readers
+- [X] T110 [Code-Builder] Fix all layout issues from accessibility audit
+- [X] T111 [Code-Builder] Optimize animation performance (60fps target maintained)
+- [X] T112 [Code-Builder] Add loading skeleton states for better perceived performance
+- [X] T113 [QA-Ver] Create smoke test for all critical user journeys
+- [X] T114 Run production build verification (npm run build) - ensure zero errors
+- [X] T115 Verify bundle size within acceptable limits (monitor with next build --stats)
 
 ---
 

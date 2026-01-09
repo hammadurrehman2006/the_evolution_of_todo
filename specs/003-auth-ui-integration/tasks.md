@@ -26,10 +26,10 @@
 **Purpose**: Install dependencies and configure testing infrastructure
 
 - [x] T001 Install better-auth package in phase-2/frontend/ using npm
-- [ ] T002 [P] Install Vitest and testing dependencies (@testing-library/react, @testing-library/user-event, @testing-library/jest-dom, jsdom, @vitest/ui) in phase-2/frontend/
+- [X] T002 [P] Install Vitest and testing dependencies (@testing-library/react, @testing-library/user-event, @testing-library/jest-dom, jsdom, @vitest/ui) in phase-2/frontend/
 - [x] T003 [P] Add Shadcn Avatar component using `npx shadcn@latest add avatar` in phase-2/frontend/
-- [ ] T004 [P] Create vitest.config.ts in phase-2/frontend/ with jsdom environment and path aliases
-- [ ] T005 [P] Add test scripts to phase-2/frontend/package.json (test, test:ui, test:coverage, test:watch)
+- [X] T004 [P] Create vitest.config.ts in phase-2/frontend/ with jsdom environment and path aliases
+- [X] T005 [P] Add test scripts to phase-2/frontend/package.json (test, test:ui, test:coverage, test:watch)
 
 ---
 
@@ -42,8 +42,8 @@
 - [x] T006 Create phase-2/frontend/lib/auth-client.ts with createAuthClient() configuration
 - [x] T007 Add error suppression handler in auth-client.ts for expected 404 responses
 - [x] T008 Export useSession hook from auth-client.ts for component consumption
-- [ ] T009 [P] Create phase-2/frontend/__tests__/setup.ts with global test configuration
-- [ ] T010 [P] Create phase-2/frontend/__tests__/fixtures/auth-mocks.ts with mock session data (logged in with/without image, logged out, loading, error states)
+- [X] T009 [P] Create phase-2/frontend/__tests__/setup.ts with global test configuration
+- [X] T010 [P] Create phase-2/frontend/__tests__/fixtures/auth-mocks.ts with mock session data (logged in with/without image, logged out, loading, error states)
 
 **Checkpoint**: Auth client and testing foundation ready - user story implementation can now begin in parallel
 
@@ -94,12 +94,12 @@
 
 ### Implementation for User Story 2
 
-- [ ] T023 [P] [US2] Add loading skeleton component in Navbar.tsx for isPending state
-- [ ] T024 [P] [US2] Implement error state handling in Navbar.tsx (error → show LoginButton)
-- [ ] T025 [US2] Add CSS transitions to Navbar.tsx for smooth auth state changes (<200ms)
-- [ ] T026 [US2] Prevent layout shifts by reserving space for auth components in Navbar.tsx
-- [ ] T027 [US2] Add debouncing logic if session state changes rapidly (prevent flickering)
-- [ ] T028 [US2] Verify session state persists across page navigation in Next.js App Router
+- [X] T023 [P] [US2] Add loading skeleton component in Navbar.tsx for isPending state
+- [X] T024 [P] [US2] Implement error state handling in Navbar.tsx (error → show LoginButton)
+- [X] T025 [US2] Add CSS transitions to Navbar.tsx for smooth auth state changes (<200ms)
+- [X] T026 [US2] Prevent layout shifts by reserving space for auth components in Navbar.tsx
+- [X] T027 [US2] Add debouncing logic if session state changes rapidly (prevent flickering)
+- [X] T028 [US2] Verify session state persists across page navigation in Next.js App Router
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work - navbar handles all loading/error states gracefully
 
@@ -120,16 +120,16 @@
 
 ### Implementation for User Story 3
 
-- [ ] T029 [P] [US3] Handle image loading errors in UserNav.tsx with onError handler
-- [ ] T030 [P] [US3] Implement initials generation for special characters (José García → JG)
-- [ ] T031 [P] [US3] Implement initials generation for Chinese characters (李明 → 李明)
-- [ ] T032 [P] [US3] Implement initials generation for emojis (🎨 Artist → 🎨A)
-- [ ] T033 [P] [US3] Implement initials generation for hyphenated names (Jean-Paul Sartre → JS)
-- [ ] T034 [P] [US3] Implement initials generation for three or more names (Mary Jane Watson → MW)
-- [ ] T035 [P] [US3] Handle single character names (A → A)
-- [ ] T036 [P] [US3] Handle extra whitespace in names (trim before processing)
-- [ ] T037 [US3] Add memoization to getInitials() function to avoid recalculation
-- [ ] T038 [US3] Test avatar fallback chain: profile picture → initials → default icon
+- [X] T029 [P] [US3] Handle image loading errors in UserNav.tsx with onError handler
+- [X] T030 [P] [US3] Implement initials generation for special characters (José García → JG)
+- [X] T031 [P] [US3] Implement initials generation for Chinese characters (李明 → 李明)
+- [X] T032 [P] [US3] Implement initials generation for emojis (🎨 Artist → 🎨A)
+- [X] T033 [P] [US3] Implement initials generation for hyphenated names (Jean-Paul Sartre → JS)
+- [X] T034 [P] [US3] Implement initials generation for three or more names (Mary Jane Watson → MW)
+- [X] T035 [P] [US3] Handle single character names (A → A)
+- [X] T036 [P] [US3] Handle extra whitespace in names (trim before processing)
+- [X] T037 [US3] Add memoization to getInitials() function to avoid recalculation
+- [X] T038 [US3] Test avatar fallback chain: profile picture → initials → default icon
 
 **Checkpoint**: All user stories should now be independently functional - avatar handles all edge cases
 
@@ -139,20 +139,20 @@
 
 **Purpose**: Component tests to validate UI behavior (tests were identified in research but not mandated by spec)
 
-- [ ] T039 [P] Create phase-2/frontend/__tests__/components/auth/LoginButton.test.tsx
-- [ ] T040 [P] Test LoginButton renders Sign In and Sign Up buttons
-- [ ] T041 [P] Test LoginButton logs to console when Sign In clicked
-- [ ] T042 [P] Test LoginButton logs to console when Sign Up clicked
-- [ ] T043 [P] Create phase-2/frontend/__tests__/components/auth/UserNav.test.tsx
-- [ ] T044 [P] Test UserNav displays initials when no image
-- [ ] T045 [P] Test UserNav displays profile picture when available
-- [ ] T046 [P] Test UserNav displays default icon when no name
-- [ ] T047 [P] Test UserNav handles image load errors with fallback
-- [ ] T048 [P] Create phase-2/frontend/__tests__/components/layout/Navbar.test.tsx
-- [ ] T049 [P] Test Navbar conditional rendering (session → UserNav, no session → LoginButton)
-- [ ] T050 [P] Test Navbar loading state (isPending → skeleton)
-- [ ] T051 [P] Test Navbar error state (error → LoginButton)
-- [ ] T052 Run npm test to validate all component tests pass
+- [X] T039 [P] Create phase-2/frontend/__tests__/components/auth/LoginButton.test.tsx
+- [X] T040 [P] Test LoginButton renders Sign In and Sign Up buttons
+- [X] T041 [P] Test LoginButton logs to console when Sign In clicked
+- [X] T042 [P] Test LoginButton logs to console when Sign Up clicked
+- [X] T043 [P] Create phase-2/frontend/__tests__/components/auth/UserNav.test.tsx
+- [X] T044 [P] Test UserNav displays initials when no image
+- [X] T045 [P] Test UserNav displays profile picture when available
+- [X] T046 [P] Test UserNav displays default icon when no name
+- [X] T047 [P] Test UserNav handles image load errors with fallback
+- [X] T048 [P] Create phase-2/frontend/__tests__/components/layout/Navbar.test.tsx
+- [X] T049 [P] Test Navbar conditional rendering (session → UserNav, no session → LoginButton)
+- [X] T050 [P] Test Navbar loading state (isPending → skeleton)
+- [X] T051 [P] Test Navbar error state (error → LoginButton)
+- [X] T052 Run npm test to validate all component tests pass
 
 ---
 
@@ -160,17 +160,17 @@
 
 **Purpose**: Final improvements and documentation
 
-- [ ] T053 [P] Verify no console errors except expected 404 from /api/auth/get-session
-- [ ] T054 [P] Validate navbar displays correctly on mobile viewport
-- [ ] T055 [P] Check keyboard accessibility for LoginButton (Tab, Enter, Space)
-- [ ] T056 [P] Check keyboard accessibility for UserNav dropdown
-- [ ] T057 [P] Add aria-label attributes to auth components
-- [ ] T058 [P] Verify theme toggle still works after navbar modifications
-- [ ] T059 Verify Success Criteria SC-001: Navbar displays auth state within 500ms
-- [ ] T060 Verify Success Criteria SC-004: State transitions within 200ms with no flickering
-- [ ] T061 Run npm run build to ensure TypeScript compiles without errors
-- [ ] T062 Follow quickstart.md validation checklist
-- [ ] T063 Document expected behavior in code comments (placeholder buttons, null session default)
+- [X] T053 [P] Verify no console errors except expected 404 from /api/auth/get-session
+- [X] T054 [P] Validate navbar displays correctly on mobile viewport
+- [X] T055 [P] Check keyboard accessibility for LoginButton (Tab, Enter, Space)
+- [X] T056 [P] Check keyboard accessibility for UserNav dropdown
+- [X] T057 [P] Add aria-label attributes to auth components
+- [X] T058 [P] Verify theme toggle still works after navbar modifications
+- [X] T059 Verify Success Criteria SC-001: Navbar displays auth state within 500ms
+- [X] T060 Verify Success Criteria SC-004: State transitions within 200ms with no flickering
+- [X] T061 Run npm run build to ensure TypeScript compiles without errors
+- [X] T062 Follow quickstart.md validation checklist
+- [X] T063 Document expected behavior in code comments (placeholder buttons, null session default)
 
 ---
 

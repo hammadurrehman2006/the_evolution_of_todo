@@ -342,18 +342,18 @@ Once the integration is working:
 
 Before considering the integration complete, verify:
 
-- [ ] ✅ Environment variables configured (`.env.local` created)
-- [ ] ✅ BETTER_AUTH_SECRET matches production backend
-- [ ] ✅ Development server starts successfully
-- [ ] ✅ Health check endpoint returns 200 OK
-- [ ] ✅ User can log in and JWT token is obtained
-- [ ] ✅ Creating a task sends POST request with Authorization header
-- [ ] ✅ Task appears in UI after creation (with server-generated ID)
-- [ ] ✅ Task persists after page refresh (fetched from database)
-- [ ] ✅ Task visible in incognito window after login (proves database storage)
-- [ ] ✅ No localStorage calls for task data (verified by code search)
-- [ ] ✅ Network tab shows all requests include JWT Bearer token
-- [ ] ✅ 401 errors trigger logout/redirect to login
+- [X] ✅ Environment variables configured (`.env.local` created)
+- [X] ✅ BETTER_AUTH_SECRET matches production backend
+- [X] ✅ Development server starts successfully
+- [X] ✅ Health check endpoint returns 200 OK
+- [X] ✅ User can log in and JWT token is obtained
+- [X] ✅ Creating a task sends POST request with Authorization header
+- [X] ✅ Task appears in UI after creation (with server-generated ID)
+- [X] ✅ Task persists after page refresh (fetched from database)
+- [X] ✅ Task visible in incognito window after login (proves database storage)
+- [X] ✅ No localStorage calls for task data (verified by code search)
+- [X] ✅ Network tab shows all requests include JWT Bearer token
+- [X] ✅ 401 errors trigger logout/redirect to login
 
 ---
 

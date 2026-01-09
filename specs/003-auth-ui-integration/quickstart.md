@@ -472,16 +472,16 @@ phase-2/frontend/
 
 Before considering this feature complete, verify:
 
-- [ ] `npm run dev` starts without errors
-- [ ] Navbar displays "Sign In" and "Sign Up" buttons
-- [ ] Clicking buttons logs to browser console
-- [ ] No console errors (except expected 404 from `/api/auth/get-session`)
-- [ ] `npm test` passes all tests
-- [ ] UserNav component displays initials correctly (test with mock data)
-- [ ] Avatar component has proper fallback behavior
-- [ ] Theme toggle still works (not broken by changes)
-- [ ] Navbar layout doesn't shift when loading
-- [ ] All TypeScript types resolve correctly (`npm run build` succeeds)
+- [X] `npm run dev` starts without errors
+- [X] Navbar displays "Sign In" and "Sign Up" buttons
+- [X] Clicking buttons logs to browser console
+- [X] No console errors (except expected 404 from `/api/auth/get-session`)
+- [X] `npm test` passes all tests
+- [X] UserNav component displays initials correctly (test with mock data)
+- [X] Avatar component has proper fallback behavior
+- [X] Theme toggle still works (not broken by changes)
+- [X] Navbar layout doesn't shift when loading
+- [X] All TypeScript types resolve correctly (`npm run build` succeeds)
 
 ---
 

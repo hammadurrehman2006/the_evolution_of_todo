@@ -2,10 +2,9 @@
 
 import { useEffect, useState, useMemo } from "react"
 import { useSession } from "@/lib/auth-client"
-import { apiClient } from "@/lib/api-client"
 import { useRouter } from "next/navigation"
 import { 
-  Loader2, TrendingUp, CheckCircle2, Calendar as CalendarIcon, 
+  TrendingUp, CheckCircle2, Calendar as CalendarIcon, 
   Award, AlertCircle, Clock, Activity, ListChecks, PieChart as PieChartIcon 
 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -22,17 +21,16 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import { format, subDays, startOfDay, endOfDay, isWithinInterval } from "date-fns"
-import type { Todo } from "@/lib/types"
 import { DateRange } from "react-day-picker"
+import { useTodoStore } from "@/lib/store"
+import { InteractiveLoader } from "@/components/ui/interactive-loader"
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"]
 
 export default function AnalyticsPage() {
   const { data: session, isPending } = useSession()
   const router = useRouter()
-  const [todos, setTodos] = useState<Todo[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { todos, fetchTodos, loading: storeLoading } = useTodoStore()
   
   // Date range state
   const [date, setDate] = useState<DateRange | undefined>({
@@ -41,19 +39,10 @@ export default function AnalyticsPage() {
   })
 
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const data = await apiClient.getTodos()
-        setTodos(data)
-      } catch (err) {
-        console.error("Failed to load analytics data", err)
-        setError("Failed to load data")
-      } finally {
-        setLoading(false)
-      }
-    }
     if (session) {
-      loadData()
+      // Fetch if we don't have data, or just refresh in background
+      // If we have data, we don't wait (immediate display)
+      fetchTodos() 
     } else if (!isPending) {
       router.push("/auth/login")
     }
@@ -134,12 +123,12 @@ export default function AnalyticsPage() {
     return { total, completed, active, completionRate, byPriority, trendData, streak, recentActivities }
   }, [filteredTodos, todos, date])
 
-  if (isPending || loading) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    )
+  // Only show loader if we have NO data and are loading/pending
+  // This satisfies "displayed immediately" if data exists in store
+  const shouldShowLoader = isPending || (storeLoading && todos.length === 0)
+
+  if (shouldShowLoader) {
+    return <InteractiveLoader />
   }
 
   return (

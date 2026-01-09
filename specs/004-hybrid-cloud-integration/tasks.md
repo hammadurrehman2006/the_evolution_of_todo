@@ -27,10 +27,10 @@ All paths relative to `phase-2/frontend/` directory:
 
 **Purpose**: Configure environment and verify backend connectivity
 
-- [ ] T001 Create `.env.example` template in `phase-2/frontend/.env.example`
-- [ ] T002 Create `.env.local` with NEXT_PUBLIC_API_URL and BETTER_AUTH_SECRET in `phase-2/frontend/.env.local`
-- [ ] T003 Verify backend API health endpoint at https://teot-phase2.vercel.app/api/health
-- [ ] T004 Document BETTER_AUTH_SECRET requirement in `phase-2/frontend/README.md`
+- [X] T001 Create `.env.example` template in `phase-2/frontend/.env.example`
+- [X] T002 Create `.env.local` with NEXT_PUBLIC_API_URL and BETTER_AUTH_SECRET in `phase-2/frontend/.env.local`
+- [X] T003 Verify backend API health endpoint at https://teot-phase2.vercel.app/api/health
+- [X] T004 Document BETTER_AUTH_SECRET requirement in `phase-2/frontend/README.md`
 
 ---
 
@@ -46,14 +46,14 @@ All paths relative to `phase-2/frontend/` directory:
 
 **Independent Test**: Inspect network requests in browser DevTools to verify Authorization header contains valid Bearer token; attempt API calls without token to confirm 401 responses
 
-- [ ] T005 [P] [US2] Add ApiError class and ApiResponse types to `phase-2/frontend/lib/types.ts`
-- [ ] T006 [P] [US2] Create centralized ApiClient class in `phase-2/frontend/lib/api-client.ts` with base URL configuration
-- [ ] T007 [US2] Implement JWT token retrieval from Better Auth session in ApiClient
-- [ ] T008 [US2] Implement fetch wrapper with automatic Authorization header injection in ApiClient
-- [ ] T009 [US2] Add error handling for 401/403/404/500 responses in ApiClient
-- [ ] T010 [US2] Add 10-second timeout configuration for API requests in ApiClient
-- [ ] T011 [US2] Implement 401 error handler that triggers logout/redirect in ApiClient
-- [ ] T012 [US2] Verify Better Auth JWT Plugin is enabled in `phase-2/frontend/lib/auth-client.ts`
+- [X] T005 [P] [US2] Add ApiError class and ApiResponse types to `phase-2/frontend/lib/types.ts`
+- [X] T006 [P] [US2] Create centralized ApiClient class in `phase-2/frontend/lib/api-client.ts` with base URL configuration
+- [X] T007 [US2] Implement JWT token retrieval from Better Auth session in ApiClient
+- [X] T008 [US2] Implement fetch wrapper with automatic Authorization header injection in ApiClient
+- [X] T009 [US2] Add error handling for 401/403/404/500 responses in ApiClient
+- [X] T010 [US2] Add 10-second timeout configuration for API requests in ApiClient
+- [X] T011 [US2] Implement 401 error handler that triggers logout/redirect in ApiClient
+- [X] T012 [US2] Verify Better Auth JWT Plugin is enabled in `phase-2/frontend/lib/auth-client.ts`
 
 **Checkpoint**: Foundation ready - API client can make authenticated requests with automatic JWT injection
 
@@ -67,16 +67,16 @@ All paths relative to `phase-2/frontend/` directory:
 
 ### Implementation for User Story 1
 
-- [ ] T013 [P] [US1] Implement `createTodo(data)` method in `phase-2/frontend/lib/api-client.ts`
-- [ ] T014 [P] [US1] Implement `getTodos(filters?)` method in `phase-2/frontend/lib/api-client.ts`
-- [ ] T015 [P] [US1] Implement `getTodo(id)` method in `phase-2/frontend/lib/api-client.ts`
-- [ ] T016 [US1] Create `useTodos()` hook in `phase-2/frontend/hooks/use-todos.ts` with loading/error states
-- [ ] T017 [US1] Implement `addTask()` function in useTodos hook calling ApiClient.createTodo()
-- [ ] T018 [US1] Implement `getTasks()` function in useTodos hook calling ApiClient.getTodos()
-- [ ] T019 [US1] Add ISO 8601 date conversion (string → Date) in useTodos hook
-- [ ] T020 [US1] Update `phase-2/frontend/app/todos/page.tsx` to use useTodos() instead of useMockTodos()
-- [ ] T021 [US1] Add loading spinner UI in `phase-2/frontend/app/todos/page.tsx`
-- [ ] T022 [US1] Add error message display UI in `phase-2/frontend/app/todos/page.tsx`
+- [X] T013 [P] [US1] Implement `createTodo(data)` method in `phase-2/frontend/lib/api-client.ts`
+- [X] T014 [P] [US1] Implement `getTodos(filters?)` method in `phase-2/frontend/lib/api-client.ts`
+- [X] T015 [P] [US1] Implement `getTodo(id)` method in `phase-2/frontend/lib/api-client.ts`
+- [X] T016 [US1] Create `useTodos()` hook in `phase-2/frontend/hooks/use-todos.ts` with loading/error states
+- [X] T017 [US1] Implement `addTask()` function in useTodos hook calling ApiClient.createTodo()
+- [X] T018 [US1] Implement `getTasks()` function in useTodos hook calling ApiClient.getTodos()
+- [X] T019 [US1] Add ISO 8601 date conversion (string → Date) in useTodos hook
+- [X] T020 [US1] Update `phase-2/frontend/app/todos/page.tsx` to use useTodos() instead of useMockTodos()
+- [X] T021 [US1] Add loading spinner UI in `phase-2/frontend/app/todos/page.tsx`
+- [X] T022 [US1] Add error message display UI in `phase-2/frontend/app/todos/page.tsx`
 
 **Checkpoint**: User Story 1 complete - users can create and view tasks that persist to remote database
 
@@ -90,14 +90,14 @@ All paths relative to `phase-2/frontend/` directory:
 
 ### Implementation for User Story 1 Extended
 
-- [ ] T023 [P] [US1] Implement `updateTodo(id, data)` method in `phase-2/frontend/lib/api-client.ts`
-- [ ] T024 [P] [US1] Implement `deleteTodo(id)` method in `phase-2/frontend/lib/api-client.ts`
-- [ ] T025 [P] [US1] Implement `toggleTodo(id)` method in `phase-2/frontend/lib/api-client.ts`
-- [ ] T026 [US1] Implement `updateTask(id, updates)` function in useTodos hook
-- [ ] T027 [US1] Implement `deleteTask(id)` function in useTodos hook
-- [ ] T028 [US1] Implement `toggleTask(id)` function in useTodos hook
-- [ ] T029 [US1] Verify TaskForm component correctly calls useTodos.updateTask() for edits
-- [ ] T030 [US1] Verify TaskCard component correctly calls useTodos.deleteTask() and useTodos.toggleTask()
+- [X] T023 [P] [US1] Implement `updateTodo(id, data)` method in `phase-2/frontend/lib/api-client.ts`
+- [X] T024 [P] [US1] Implement `deleteTodo(id)` method in `phase-2/frontend/lib/api-client.ts`
+- [X] T025 [P] [US1] Implement `toggleTodo(id)` method in `phase-2/frontend/lib/api-client.ts`
+- [X] T026 [US1] Implement `updateTask(id, updates)` function in useTodos hook
+- [X] T027 [US1] Implement `deleteTask(id)` function in useTodos hook
+- [X] T028 [US1] Implement `toggleTask(id)` function in useTodos hook
+- [X] T029 [US1] Verify TaskForm component correctly calls useTodos.updateTask() for edits
+- [X] T030 [US1] Verify TaskCard component correctly calls useTodos.deleteTask() and useTodos.toggleTask()
 
 **Checkpoint**: User Story 1 fully complete - all CRUD operations work with remote API
 
@@ -111,11 +111,11 @@ All paths relative to `phase-2/frontend/` directory:
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Remove `phase-2/frontend/hooks/use-mock-todos.ts` file
-- [ ] T032 [US3] Search for and remove any remaining localStorage calls for todos in codebase
-- [ ] T033 [US3] Verify no localStorage STORAGE_KEY references remain in `phase-2/frontend/` directory
-- [ ] T034 [US3] Update imports in `phase-2/frontend/app/todos/page.tsx` to remove useMockTodos references
-- [ ] T035 [US3] Add comment in useTodos hook documenting API-only data flow
+- [X] T031 [US3] Remove `phase-2/frontend/hooks/use-mock-todos.ts` file
+- [X] T032 [US3] Search for and remove any remaining localStorage calls for todos in codebase
+- [X] T033 [US3] Verify no localStorage STORAGE_KEY references remain in `phase-2/frontend/` directory
+- [X] T034 [US3] Update imports in `phase-2/frontend/app/todos/page.tsx` to remove useMockTodos references
+- [X] T035 [US3] Add comment in useTodos hook documenting API-only data flow
 
 **Checkpoint**: User Story 3 complete - zero local mock data remains; all operations use remote API
 
@@ -129,11 +129,11 @@ All paths relative to `phase-2/frontend/` directory:
 
 ### Implementation for User Story 4
 
-- [ ] T036 [US4] Add JWT token expiration check before API requests in ApiClient
-- [ ] T037 [US4] Implement token refresh attempt logic in ApiClient
-- [ ] T038 [US4] Add graceful error message for session expiration in ApiClient
-- [ ] T039 [US4] Test token expiration scenario with short-lived JWT
-- [ ] T040 [US4] Verify redirect to login page with clear expiration message
+- [X] T036 [US4] Add JWT token expiration check before API requests in ApiClient
+- [X] T037 [US4] Implement token refresh attempt logic in ApiClient
+- [X] T038 [US4] Add graceful error message for session expiration in ApiClient
+- [X] T039 [US4] Test token expiration scenario with short-lived JWT
+- [X] T040 [US4] Verify redirect to login page with clear expiration message
 
 **Checkpoint**: User Story 4 complete - token expiration handled gracefully
 
@@ -145,29 +145,29 @@ All paths relative to `phase-2/frontend/` directory:
 
 ### Manual Verification (T-205 equivalent)
 
-- [ ] T041 Verify environment variables are correctly configured in `.env.local`
-- [ ] T042 Verify backend API health check returns 200 OK
-- [ ] T043 Verify user can log in and JWT token is obtained
-- [ ] T044 Verify creating a task sends POST request with Authorization header
-- [ ] T045 Verify created task appears in UI with server-generated ID
-- [ ] T046 Verify task persists after page refresh (fetched from API)
-- [ ] T047 Verify updating a task sends PUT request and updates UI
-- [ ] T048 Verify deleting a task sends DELETE request and removes from UI
-- [ ] T049 Verify toggling completion sends PATCH request and updates status
-- [ ] T050 Verify 401 error triggers logout and redirect to login
-- [ ] T051 Verify no localStorage calls for task data (code search)
-- [ ] T052 Verify network tab shows all requests include JWT Bearer token
-- [ ] T053 Verify task created on localhost is visible in remote Neon database
+- [X] T041 Verify environment variables are correctly configured in `.env.local`
+- [X] T042 Verify backend API health check returns 200 OK
+- [X] T043 Verify user can log in and JWT token is obtained
+- [X] T044 Verify creating a task sends POST request with Authorization header
+- [X] T045 Verify created task appears in UI with server-generated ID
+- [X] T046 Verify task persists after page refresh (fetched from API)
+- [X] T047 Verify updating a task sends PUT request and updates UI
+- [X] T048 Verify deleting a task sends DELETE request and removes from UI
+- [X] T049 Verify toggling completion sends PATCH request and updates status
+- [X] T050 Verify 401 error triggers logout and redirect to login
+- [X] T051 Verify no localStorage calls for task data (code search)
+- [X] T052 Verify network tab shows all requests include JWT Bearer token
+- [X] T053 Verify task created on localhost is visible in remote Neon database
 
 ### Documentation & Polish
 
-- [ ] T054 [P] Update `phase-2/frontend/README.md` with setup instructions from quickstart.md
-- [ ] T055 [P] Document troubleshooting steps for common issues in README
-- [ ] T056 [P] Add API client usage examples to documentation
-- [ ] T057 Code cleanup: Remove console.logs and debug code
-- [ ] T058 Run TypeScript type checking: `npm run type-check`
-- [ ] T059 Run linter: `npm run lint`
-- [ ] T060 Final smoke test: Complete end-to-end user journey
+- [X] T054 [P] Update `phase-2/frontend/README.md` with setup instructions from quickstart.md
+- [X] T055 [P] Document troubleshooting steps for common issues in README
+- [X] T056 [P] Add API client usage examples to documentation
+- [X] T057 Code cleanup: Remove console.logs and debug code
+- [X] T058 Run TypeScript type checking: `npm run type-check`
+- [X] T059 Run linter: `npm run lint`
+- [X] T060 Final smoke test: Complete end-to-end user journey
 
 ---
 
