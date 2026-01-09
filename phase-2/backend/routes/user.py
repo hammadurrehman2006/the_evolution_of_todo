@@ -2,13 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select, delete
 from database import get_session
 from models import Task
-from dependencies import get_current_user_id
+from dependencies import get_current_user
 
 router = APIRouter(prefix="/user", tags=["user"])
 
 @router.delete("/data", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user_data(
-    current_user_id: str = Depends(get_current_user_id),
+    current_user_id: str = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
     """
