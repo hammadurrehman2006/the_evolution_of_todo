@@ -24,7 +24,6 @@ const FUNNY_QUOTES = [
 
 export function InteractiveLoader() {
   const [progress, setProgress] = useState(0)
-  const [quoteIndex, setQuoteIndex] = useState(0)
   // Store two stable random quotes for this session
   const [sessionQuotes] = useState<number[]>(() => {
     const idx1 = Math.floor(Math.random() * FUNNY_QUOTES.length)
