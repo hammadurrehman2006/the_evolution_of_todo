@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select, delete
-from ..database import get_session
-from ..models import Task
-from ..dependencies import get_current_user_id
+from database import get_session
+from models import Task
+from dependencies import get_current_user_id
 
 router = APIRouter(prefix="/user", tags=["user"])
 
