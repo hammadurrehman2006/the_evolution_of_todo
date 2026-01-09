@@ -5,13 +5,13 @@ from typing import List
 from datetime import datetime
 import uuid
 
-from models import Task, PriorityEnum
-from schemas import (
+from ..models import Task, PriorityEnum
+from ..schemas import (
     TaskCreate, TaskUpdate, TaskResponse, TaskListResponse,
     TaskQueryParams, ToggleResponse, SortField, SortOrder
 )
-from database import get_session
-from dependencies import get_current_user
+from ..database import get_session
+from ..dependencies import get_current_user
 
 # Create router for tasks endpoints
 router = APIRouter(prefix="/tasks", tags=["tasks"])
