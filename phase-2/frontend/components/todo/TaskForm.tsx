@@ -61,6 +61,18 @@ export function TaskForm({ isOpen, onClose, onSubmit, editingTodo, onUpdate }: T
   const [recurringFrequency, setRecurringFrequency] = useState<'daily' | 'weekly' | 'monthly'>('weekly')
   const [recurringInterval, setRecurringInterval] = useState(1)
 
+  const resetForm = () => {
+    setTitle("")
+    setDescription("")
+    setPriority("medium")
+    setTags([])
+    setTagInput("")
+    setDueDate("")
+    setRecurringEnabled(false)
+    setRecurringFrequency('weekly')
+    setRecurringInterval(1)
+  }
+
   useEffect(() => {
     if (editingTodo) {
       setTitle(editingTodo.title)
@@ -75,18 +87,6 @@ export function TaskForm({ isOpen, onClose, onSubmit, editingTodo, onUpdate }: T
       resetForm()
     }
   }, [editingTodo, isOpen])
-
-  const resetForm = () => {
-    setTitle("")
-    setDescription("")
-    setPriority("medium")
-    setTags([])
-    setTagInput("")
-    setDueDate("")
-    setRecurringEnabled(false)
-    setRecurringFrequency('weekly')
-    setRecurringInterval(1)
-  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()

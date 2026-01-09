@@ -25,10 +25,20 @@ const FUNNY_QUOTES = [
 export function InteractiveLoader() {
   const [progress, setProgress] = useState(0)
   const [quoteIndex, setQuoteIndex] = useState(0)
+  // Store two stable random quotes for this session
+  const [sessionQuotes] = useState<number[]>(() => {
+    const idx1 = Math.floor(Math.random() * FUNNY_QUOTES.length)
+    let idx2 = Math.floor(Math.random() * FUNNY_QUOTES.length)
+    while (idx2 === idx1) {
+      idx2 = Math.floor(Math.random() * FUNNY_QUOTES.length)
+    }
+    return [idx1, idx2]
+  })
+  
+  const [quoteIndex, setQuoteIndex] = useState(sessionQuotes[0])
 
   useEffect(() => {
-    // Pick a random start quote
-    setQuoteIndex(Math.floor(Math.random() * FUNNY_QUOTES.length))
+    const [_, idx2] = sessionQuotes
 
     const interval = setInterval(() => {
       setProgress((prev) => {
@@ -38,19 +48,21 @@ export function InteractiveLoader() {
         }
         // Random increment between 1 and 5
         const diff = Math.random() * 4 + 1
-        return Math.min(prev + diff, 100)
+        const newProgress = Math.min(prev + diff, 100)
+        
+        // Switch to second quote at 50%
+        if (newProgress > 50) {
+            setQuoteIndex(idx2)
+        }
+        
+        return newProgress
       })
     }, 50)
 
-    const quoteInterval = setInterval(() => {
-      setQuoteIndex((prev) => (prev + 1) % FUNNY_QUOTES.length)
-    }, 800) // Change quote every 800ms
-
     return () => {
       clearInterval(interval)
-      clearInterval(quoteInterval)
     }
-  }, [])
+  }, [sessionQuotes])
 
   return (
     <div className="flex min-h-[50vh] flex-col items-center justify-center space-y-8 p-8">

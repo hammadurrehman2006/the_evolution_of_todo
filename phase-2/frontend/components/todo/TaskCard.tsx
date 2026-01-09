@@ -31,10 +31,18 @@ export function TaskCard({ todo, onToggle, onDelete, onEdit }: TaskCardProps) {
     const diffTime = dueDay.getTime() - nowDay.getTime()
     const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24))
 
-    if (diffDays < 0) return `Overdue by ${Math.abs(diffDays)} day${Math.abs(diffDays) !== 1 ? 's' : ''}`
-    if (diffDays === 0) return 'Due today'
-    if (diffDays === 1) return 'Due tomorrow'
-    return `Due in ${diffDays} day${diffDays !== 1 ? 's' : ''}`
+    const timeStr = dueDate.toLocaleTimeString(undefined, { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    })
+
+    let relativeDay = ''
+    if (diffDays < 0) relativeDay = `Overdue by ${Math.abs(diffDays)} day${Math.abs(diffDays) !== 1 ? 's' : ''}`
+    else if (diffDays === 0) relativeDay = 'Due today'
+    else if (diffDays === 1) relativeDay = 'Due tomorrow'
+    else relativeDay = `Due in ${diffDays} day${diffDays !== 1 ? 's' : ''}`
+
+    return `${relativeDay} at ${timeStr}`
   }
 
   const isOverdue = todo.dueDate && !todo.completed && new Date(todo.dueDate) < new Date()

@@ -1,7 +1,7 @@
 """Pydantic schemas for request/response validation."""
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, field_serializer
 from typing import Optional, List
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 import uuid
 
@@ -111,6 +111,15 @@ class TaskResponse(BaseModel):
     recurrence_rule: Optional[str]
     created_at: datetime
     updated_at: datetime
+
+    @field_serializer('due_date', 'reminder_at', 'created_at', 'updated_at')
+    def serialize_datetime(self, dt: Optional[datetime], _info):
+        """Ensure datetimes are serialized with UTC timezone."""
+        if dt is None:
+            return None
+        if dt.tzinfo is None:
+            return dt.replace(tzinfo=timezone.utc)
+        return dt
 
     class Config:
         from_attributes = True
