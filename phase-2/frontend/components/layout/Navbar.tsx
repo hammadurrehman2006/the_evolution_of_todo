@@ -3,14 +3,16 @@
 import Link from "next/link"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
-import { Moon, Sun, CheckCircle2 } from "lucide-react"
+import { Moon, Sun, CheckCircle2, Menu, X } from "lucide-react"
 import { useSession } from "@/lib/auth-client"
 import { LoginButton } from "@/components/auth/LoginButton"
 import { UserNav } from "@/components/auth/UserNav"
+import { useState } from "react"
 
 export function Navbar() {
   const { theme, setTheme } = useTheme()
   const { data: session, isPending } = useSession()
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark")
@@ -56,8 +58,38 @@ export function Navbar() {
             <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             <span className="sr-only">Toggle theme</span>
           </Button>
+          
+          {/* Mobile Menu Toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="sm:hidden"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle mobile menu"
+          >
+            {isMobileMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
+          </Button>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="sm:hidden border-t px-4 py-4 space-y-2 bg-background">
+          <Link href="/" className="block" onClick={() => setIsMobileMenuOpen(false)}>
+            <Button variant="ghost" className="w-full justify-start">Home</Button>
+          </Link>
+          <Link href="/todos" className="block" onClick={() => setIsMobileMenuOpen(false)}>
+            <Button variant="ghost" className="w-full justify-start">Tasks</Button>
+          </Link>
+          <Link href="/analytics" className="block" onClick={() => setIsMobileMenuOpen(false)}>
+            <Button variant="ghost" className="w-full justify-start">Analytics</Button>
+          </Link>
+        </div>
+      )}
     </nav>
   )
 }
