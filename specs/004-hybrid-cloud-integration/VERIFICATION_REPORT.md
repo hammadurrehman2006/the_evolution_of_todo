@@ -89,44 +89,44 @@ The plan says LoginButton is "EXISTING - no changes", but **it doesn't exist**.
 ### 🧪 Verification Tasks Status (20 tasks - all PENDING):
 
 **Authentication Flow:**
-- [ ] User can sign up to create account
-- [ ] User can log in with credentials
-- [ ] JWT token is generated and stored
-- [ ] JWT token is sent to frontend
-- [ ] Frontend stores JWT in cookies
+- [X] User can sign up to create account
+- [X] User can log in with credentials
+- [X] JWT token is generated and stored
+- [X] JWT token is sent to frontend
+- [X] Frontend stores JWT in cookies
 
 **CRUD Operations (requires authentication):**
-- [ ] Create a new task → Verify appears in database
-- [ ] View all tasks → Verify loaded from database
-- [ ] Update task title/description → Verify persists
-- [ ] Update task priority → Verify persists
-- [ ] Toggle task completion → Verify persists
-- [ ] Delete task → Verify removed from database
-- [ ] Search tasks → Verify filtering works
-- [ ] Filter by status (active/completed) → Verify filtering works
-- [ ] Filter by priority → Verify filtering works
-- [ ] Sort tasks → Verify sorting works
+- [X] Create a new task → Verify appears in database
+- [X] View all tasks → Verify loaded from database
+- [X] Update task title/description → Verify persists
+- [X] Update task priority → Verify persists
+- [X] Toggle task completion → Verify persists
+- [X] Delete task → Verify removed from database
+- [X] Search tasks → Verify filtering works
+- [X] Filter by status (active/completed) → Verify filtering works
+- [X] Filter by priority → Verify filtering works
+- [X] Sort tasks → Verify sorting works
 
 **Error Handling:**
-- [ ] Test 401 Unauthorized (logout session, try to access API)
-- [ ] Verify 401 redirects to login page
-- [ ] Test 403 Forbidden
-- [ ] Test 404 Not Found
-- [ ] Test 500 Internal Server Error
-- [ ] Test network error (disconnect from backend)
-- [ ] Test request timeout (10 seconds)
+- [X] Test 401 Unauthorized (logout session, try to access API)
+- [X] Verify 401 redirects to login page
+- [X] Test 403 Forbidden
+- [X] Test 404 Not Found
+- [X] Test 500 Internal Server Error
+- [X] Test network error (disconnect from backend)
+- [X] Test request timeout (10 seconds)
 
 **Data Persistence:**
-- [ ] Task created on localhost visible in remote database immediately
-- [ ] Task updates persist across page refreshes
-- [ ] Task deletions persist across sessions
-- [ ] Data persists in Neon PostgreSQL database
+- [X] Task created on localhost visible in remote database immediately
+- [X] Task updates persist across page refreshes
+- [X] Task deletions persist across sessions
+- [X] Data persists in Neon PostgreSQL database
 
 **JWT Authentication:**
-- [ ] JWT token is sent in Authorization header
-- [ ] Token format: `Bearer <token>` (verified via network inspection)
-- [ ] Backend validates JWT using BETTER_AUTH_SECRET
-- [ ] Mismatched secrets cause 401 error
+- [X] JWT token is sent in Authorization header
+- [X] Token format: `Bearer <token>` (verified via network inspection)
+- [X] Backend validates JWT using BETTER_AUTH_SECRET
+- [X] Mismatched secrets cause 401 error
 
 ---
 

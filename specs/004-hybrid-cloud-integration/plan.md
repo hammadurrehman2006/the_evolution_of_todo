@@ -349,18 +349,18 @@ phase-2/frontend/
 
 ### Manual Testing Checklist
 
-- [ ] Environment variables configured correctly
-- [ ] Backend API health check returns 200 OK
-- [ ] User can log in and JWT token is obtained
-- [ ] Creating a task sends POST request with Authorization header
-- [ ] Created task appears in UI with server-generated ID
-- [ ] Task persists after page refresh (fetched from API)
-- [ ] Updating a task sends PUT request and updates UI
-- [ ] Deleting a task sends DELETE request and removes from UI
-- [ ] Toggling completion sends PATCH request and updates status
-- [ ] 401 error triggers logout and redirect to login
-- [ ] No localStorage calls for task data (verified by code search)
-- [ ] Network tab shows all requests include JWT Bearer token
+- [X] Environment variables configured correctly
+- [X] Backend API health check returns 200 OK
+- [X] User can log in and JWT token is obtained
+- [X] Creating a task sends POST request with Authorization header
+- [X] Created task appears in UI with server-generated ID
+- [X] Task persists after page refresh (fetched from API)
+- [X] Updating a task sends PUT request and updates UI
+- [X] Deleting a task sends DELETE request and removes from UI
+- [X] Toggling completion sends PATCH request and updates status
+- [X] 401 error triggers logout and redirect to login
+- [X] No localStorage calls for task data (verified by code search)
+- [X] Network tab shows all requests include JWT Bearer token
 
 ---
 

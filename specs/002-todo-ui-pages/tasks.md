@@ -107,13 +107,13 @@ All paths are relative to `phase-2/frontend/` directory.
 
 **Purpose**: Final refinements, accessibility improvements, and responsive design verification
 
-- [ ] T018 [P] Add ARIA labels to theme toggle button and all icon-only buttons for screen reader accessibility
-- [ ] T019 [P] Verify keyboard navigation works for all interactive elements (Tab, Enter, Escape)
-- [ ] T020 [P] Test responsive design at mobile breakpoint (≤ 768px) and verify navigation remains accessible
-- [ ] T021 [P] Add loading states and smooth transitions where appropriate with Tailwind CSS transition utilities
-- [ ] T022 Verify all Tailwind CSS color combinations meet WCAG 2.2 AA contrast ratio requirements (4.5:1 for text)
-- [ ] T023 Test theme toggle performance (< 200ms) and verify no visual jarring or layout shifts occur
-- [ ] T024 Add favicon and update metadata in phase-2/frontend/app/layout.tsx
+- [X] T018 [P] Add ARIA labels to theme toggle button and all icon-only buttons for screen reader accessibility
+- [X] T019 [P] Verify keyboard navigation works for all interactive elements (Tab, Enter, Escape)
+- [X] T020 [P] Test responsive design at mobile breakpoint (≤ 768px) and verify navigation remains accessible
+- [X] T021 [P] Add loading states and smooth transitions where appropriate with Tailwind CSS transition utilities
+- [X] T022 Verify all Tailwind CSS color combinations meet WCAG 2.2 AA contrast ratio requirements (4.5:1 for text)
+- [X] T023 Test theme toggle performance (< 200ms) and verify no visual jarring or layout shifts occur
+- [X] T024 Add favicon and update metadata in phase-2/frontend/app/layout.tsx
 
 ---
 
