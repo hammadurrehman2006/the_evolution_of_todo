@@ -1,0 +1,296 @@
+# API Contracts: AI-Powered Chatbot
+
+## Overview
+This document defines the API contracts for the AI-powered chatbot system. The API enables users to interact with an AI assistant that can manage their tasks using natural language commands. The design emphasizes stateless operation, user isolation, and security.
+
+## Base URL
+```
+https://api.example.com
+```
+*Note: This will be configured based on deployment environment*
+
+## Authentication
+All endpoints require JWT-based authentication using Better Auth. Include the token in the Authorization header:
+```
+Authorization: Bearer <jwt_token>
+```
+
+## Endpoints
+
+### 1. Chat with AI Assistant
+**Endpoint**: `POST /api/{user_id}/chat`
+
+#### Description
+Sends a message to the AI assistant and receives a response. The AI can perform task management operations based on the user's natural language input. The conversation history is retrieved from the database for context.
+
+#### Path Parameters
+- `user_id` (string, required)
+  - The unique identifier of the user
+  - Used for user isolation and security
+  - Must match the authenticated user's ID
+
+#### Request Body
+```json
+{
+  "message": "Add a task to buy milk",
+  "conversation_id": "conv_abc123",
+  "model": "optional_model_override"
+}
+```
+
+#### Request Body Fields
+- `message` (string, required)
+  - The user's message to the AI assistant
+  - Maximum length: 10,000 characters
+  - Example: "Add a task to buy milk", "What are my tasks?", "Complete the task 'buy milk'"
+
+- `conversation_id` (string, optional)
+  - Identifier for the conversation thread
+  - If omitted, creates a new conversation
+  - Used to maintain context across multiple interactions
+
+- `model` (string, optional)
+  - Override for the AI model to use for this request
+  - If omitted, uses the default configured model
+  - Example: "openai/gpt-4-turbo", "anthropic/claude-3-opus"
+
+#### Response Codes
+- `200 OK` - Successful response from AI assistant
+- `400 Bad Request` - Invalid request format or missing required fields
+- `401 Unauthorized` - Invalid or missing authentication token
+- `403 Forbidden` - User ID in path doesn't match authenticated user
+- `404 Not Found` - Conversation ID not found
+- `422 Unprocessable Entity` - Invalid conversation ID format
+- `500 Internal Server Error` - Server error during processing
+
+#### Success Response (200 OK)
+```json
+{
+  "conversation_id": "conv_abc123",
+  "message_id": "msg_def456",
+  "response": "I've added the task 'buy milk' to your list.",
+  "tool_calls": [
+    {
+      "name": "add_task",
+      "arguments": {
+        "user_id": "user_abc123",
+        "title": "buy milk",
+        "description": ""
+      },
+      "result": {
+        "success": true,
+        "task_id": "task_ghi789",
+        "message": "Task created successfully"
+      }
+    }
+  ],
+  "timestamp": "2024-01-15T10:30:20Z"
+}
+```
+
+#### Success Response Fields
+- `conversation_id` (string)
+  - The ID of the conversation thread
+  - Newly created if none was provided in request
+
+- `message_id` (string)
+  - The ID of the AI's response message
+  - Used for tracking and debugging
+
+- `response` (string)
+  - The AI assistant's natural language response
+  - May include confirmation of actions taken
+
+- `tool_calls` (array of objects, optional)
+  - List of tools called by the AI during processing
+  - Each object contains the tool name, arguments, and result
+
+- `timestamp` (string, ISO 8601)
+  - When the response was generated
+
+#### Error Response (4xx/5xx)
+```json
+{
+  "error": {
+    "code": "INVALID_REQUEST",
+    "message": "Message field is required",
+    "details": {
+      "field": "message",
+      "reason": "Value is missing or empty"
+    }
+  }
+}
+```
+
+#### Error Response Fields
+- `error.code` (string)
+  - Machine-readable error code
+  - Possible values: "INVALID_REQUEST", "AUTHENTICATION_FAILED", "FORBIDDEN", "NOT_FOUND", "INTERNAL_ERROR"
+
+- `error.message` (string)
+  - Human-readable error description
+  - Explains what went wrong
+
+- `error.details` (object, optional)
+  - Additional context about the error
+  - May include field names, reasons, etc.
+
+### 2. Get Conversation History
+**Endpoint**: `GET /api/{user_id}/conversations/{conversation_id}`
+
+#### Description
+Retrieves the history of messages in a specific conversation.
+
+#### Path Parameters
+- `user_id` (string, required)
+  - The unique identifier of the user
+  - Must match the authenticated user's ID
+- `conversation_id` (string, required)
+  - The ID of the conversation to retrieve
+
+#### Query Parameters
+- `limit` (integer, optional)
+  - Maximum number of messages to return
+  - Default: 50, Maximum: 100
+- `offset` (integer, optional)
+  - Number of messages to skip (for pagination)
+  - Default: 0
+
+#### Response Codes
+- `200 OK` - Successfully retrieved conversation history
+- `401 Unauthorized` - Invalid or missing authentication token
+- `403 Forbidden` - User ID in path doesn't match authenticated user
+- `404 Not Found` - Conversation ID not found
+- `422 Unprocessable Entity` - Invalid parameters
+
+#### Success Response (200 OK)
+```json
+{
+  "conversation_id": "conv_abc123",
+  "messages": [
+    {
+      "id": "msg_1",
+      "role": "user",
+      "content": "Add a task to buy milk",
+      "timestamp": "2024-01-15T10:30:15Z"
+    },
+    {
+      "id": "msg_2",
+      "role": "assistant",
+      "content": "I've added the task 'buy milk' to your list.",
+      "tool_calls": [
+        {
+          "name": "add_task",
+          "arguments": {"user_id": "user_abc123", "title": "buy milk"}
+        }
+      ],
+      "timestamp": "2024-01-15T10:30:20Z"
+    }
+  ],
+  "total_messages": 2,
+  "has_more": false
+}
+```
+
+### 3. List User Conversations
+**Endpoint**: `GET /api/{user_id}/conversations`
+
+#### Description
+Lists all conversations for the specified user.
+
+#### Path Parameters
+- `user_id` (string, required)
+  - The unique identifier of the user
+  - Must match the authenticated user's ID
+
+#### Query Parameters
+- `limit` (integer, optional)
+  - Maximum number of conversations to return
+  - Default: 20, Maximum: 100
+- `offset` (integer, optional)
+  - Number of conversations to skip (for pagination)
+  - Default: 0
+- `sort_by` (string, optional)
+  - Field to sort by: "created_at", "updated_at", "title"
+  - Default: "updated_at"
+- `order` (string, optional)
+  - Sort order: "asc", "desc"
+  - Default: "desc"
+
+#### Response Codes
+- `200 OK` - Successfully retrieved conversation list
+- `401 Unauthorized` - Invalid or missing authentication token
+- `403 Forbidden` - User ID in path doesn't match authenticated user
+- `422 Unprocessable Entity` - Invalid parameters
+
+#### Success Response (200 OK)
+```json
+{
+  "conversations": [
+    {
+      "id": "conv_abc123",
+      "title": "Grocery Tasks",
+      "created_at": "2024-01-15T10:30:00Z",
+      "updated_at": "2024-01-15T11:45:00Z",
+      "message_count": 5
+    },
+    {
+      "id": "conv_def456",
+      "title": "Work Projects",
+      "created_at": "2024-01-14T09:15:00Z",
+      "updated_at": "2024-01-14T16:30:00Z",
+      "message_count": 12
+    }
+  ],
+  "total_conversations": 2,
+  "has_more": false
+}
+```
+
+## Security Considerations
+
+### User Isolation
+- All endpoints require the `user_id` in the path to match the authenticated user
+- Database queries are scoped by `user_id` to prevent cross-user data access
+- MCP tools receive `user_id` parameter to ensure operations are user-scoped
+
+### Rate Limiting
+- All endpoints should implement rate limiting (TBD: specific limits)
+- Consider different limits for authenticated vs unauthenticated endpoints
+
+### Input Validation
+- All user inputs are validated for length and format
+- Special characters are sanitized to prevent injection attacks
+- Message content is validated to prevent malicious payloads
+
+## Error Handling
+
+### Standard Error Format
+All error responses follow this format:
+```json
+{
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Human readable message",
+    "details": {}
+  }
+}
+```
+
+### Common Error Codes
+- `INVALID_REQUEST`: Request data doesn't meet validation requirements
+- `AUTHENTICATION_FAILED`: Invalid or expired authentication token
+- `FORBIDDEN`: User doesn't have permission for the requested action
+- `NOT_FOUND`: Requested resource doesn't exist
+- `RATE_LIMIT_EXCEEDED`: Request rate limit has been exceeded
+- `INTERNAL_ERROR`: Server-side error occurred during processing
+
+## Performance Requirements
+- API response time: <3 seconds for 90% of requests
+- Message processing time: <2 seconds for typical AI interactions
+- Database queries: Properly indexed to ensure fast lookups
+
+## Versioning
+- API versioning will be implemented via path prefixes (e.g., `/api/v1/`)
+- Backward compatibility maintained for at least 6 months after deprecation
+- Deprecation notices provided 3 months before removing endpoints

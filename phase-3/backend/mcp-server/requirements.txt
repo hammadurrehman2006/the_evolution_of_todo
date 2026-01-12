@@ -1,0 +1,8 @@
+mcp
+pydantic
+pydantic-settings
+sqlmodel
+psycopg2-binary
+python-dotenv
+pytest
+pytest-asyncio

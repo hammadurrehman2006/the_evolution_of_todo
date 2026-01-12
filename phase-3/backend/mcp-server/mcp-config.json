@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "todo-mcp": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/home/hammadurrehman2006/Desktop/the_evolution_of_todo/phase-3/backend/mcp-server",
+        "run",
+        "python3",
+        "src/server.py"
+      ],
+      "env": {
+        "PYTHONPATH": "."
+      }
+    }
+  }
+}
