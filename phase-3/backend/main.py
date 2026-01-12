@@ -98,10 +98,11 @@ def on_startup():
 
 
 # Import and register routers
-from routes import tasks, user, chatbot
+from routes import tasks, user, chatbot, chat
 app.include_router(tasks.router)
 app.include_router(user.router)
 app.include_router(chatbot.router)
+app.include_router(chat.router)
 
 
 if __name__ == "__main__":

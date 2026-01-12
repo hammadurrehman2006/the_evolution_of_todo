@@ -218,6 +218,8 @@ See `.specify/memory/constitution.md` for code quality, testing, performance, se
 - Client-side localStorage (theme preferences) (002-todo-ui-pages)
 - TypeScript 5.7+, React 19, Next.js 16.0.3 (App Router) (003-auth-ui-integration)
 - N/A (client-side only, no backend storage for this phase) (003-auth-ui-integration)
+- TypeScript 5.7+, React 19, Next.js 16.0.3, Python 3.11+ + Next.js, React, Better Auth, react-chat-widget, FastAPI, SQLModel (001-chatkit-integration)
+- Neon PostgreSQL database accessed via SQLModel ORM (001-chatkit-integration)
 
 ## Recent Changes
 - 001-todo-console-app: Added Python 3.13+ + None required beyond standard library for initial implementation

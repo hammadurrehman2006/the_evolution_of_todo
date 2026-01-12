@@ -1,0 +1,76 @@
+openapi: 3.0.0
+info:
+  title: Chat API for ChatKit Integration
+  description: API endpoints for the AI-powered chatbot integration
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+  - url: https://your-vercel-domain.vercel.app
+    description: Production server
+
+paths:
+  /api/chat:
+    post:
+      summary: Process chat messages from the ChatKit component
+      description: Handles incoming chat messages from the ChatKit UI and processes them through the AI service
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - message
+                - sessionId
+              properties:
+                message:
+                  type: string
+                  description: The user's message to the chatbot
+                  example: "Add a task to buy groceries"
+                sessionId:
+                  type: string
+                  description: The ID of the current chat session
+                  example: "sess_abc123xyz"
+                context:
+                  type: object
+                  description: Additional context for the conversation
+                  example: {"previous_messages": ["Hello", "How can I help you?"]}
+      responses:
+        '200':
+          description: Successfully processed the chat message
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - response
+                  - taskId
+                properties:
+                  response:
+                    type: string
+                    description: The chatbot's response to the user
+                    example: "I've added the task 'buy groceries' to your list."
+                  taskId:
+                    type: string
+                    description: ID of any task created or modified
+                    example: "task_12345"
+                  operationType:
+                    type: string
+                    description: Type of operation performed
+                    enum: [create, update, delete, query]
+                    example: "create"
+        '401':
+          description: Unauthorized - Invalid or missing authentication token
+        '500':
+          description: Internal server error
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from Better Auth

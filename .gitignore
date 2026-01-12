@@ -1,0 +1,9 @@
+temp_venv/
+**/.venv
+**/.gemini_venv
+**/.venv_build_check
+**/__pycache__
+**/.next
+**/node_modules
+*.pyc
+.DS_Store

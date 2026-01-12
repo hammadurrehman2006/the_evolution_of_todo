@@ -6,7 +6,7 @@ import { TaskForm } from "@/components/todo/TaskForm"
 import { FilterBar } from "@/components/todo/FilterBar"
 import { useTodos } from "@/hooks/use-todos"
 import { Button } from "@/components/ui/button"
-import { Plus, AlertCircle } from "lucide-react"
+import { Plus, AlertCircle, Sparkles } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import type { FilterOptions, SortOption, Todo } from "@/lib/types"
@@ -37,6 +37,14 @@ export default function TodosPage() {
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  const handleCreateWithAI = () => {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("open-ai-chat", {
+        detail: { message: "I want to create a new task." }
+      }));
+    }
+  }
 
   // Filter and sort todos
   const filteredAndSortedTodos = useMemo(() => {
@@ -168,10 +176,20 @@ export default function TodosPage() {
                       </div>
                     )}
                   </div>
-                  <Button onClick={() => setIsFormOpen(true)} className="flex items-center space-x-2">
-                    <Plus className="h-4 w-4" />
-                    <span>Add Task</span>
-                  </Button>
+                  <div className="flex flex-wrap gap-2">
+                    <Button 
+                      variant="outline" 
+                      onClick={handleCreateWithAI} 
+                      className="flex items-center space-x-2 border-primary text-primary hover:bg-primary/10"
+                    >
+                      <Sparkles className="h-4 w-4" />
+                      <span>Create with AI</span>
+                    </Button>
+                    <Button onClick={() => setIsFormOpen(true)} className="flex items-center space-x-2">
+                      <Plus className="h-4 w-4" />
+                      <span>Add Task</span>
+                    </Button>
+                  </div>
                 </div>
                 <Separator />
               </div>
