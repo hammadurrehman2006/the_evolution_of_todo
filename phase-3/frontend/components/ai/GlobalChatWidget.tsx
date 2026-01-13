@@ -14,8 +14,8 @@ export default function GlobalChatWidget() {
 
   const authenticatedFetch = useCallback(async (url: string, options: RequestInit = {}) => {
     // Get JWT token from Better Auth
-    const tokenResponse = await (authClient as any).jwt.getToken();
-    const token = tokenResponse?.data?.token;
+    const { data, error } = await authClient.token();
+    const token = data?.token;
 
     const headers = new Headers(options.headers);
     if (token) {
@@ -32,7 +32,7 @@ export default function GlobalChatWidget() {
   const { control } = useChatKit({
     api: {
       // Use local FastAPI endpoint
-      url: `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/chat`,
+      url: `${process.env.NEXT_PUBLIC_API_URL || "https://todo-api-phase3.vercel.app"}/chat`,
       // Custom fetcher to inject JWT
       fetch: authenticatedFetch as any,
     } as any,
@@ -111,7 +111,7 @@ export default function GlobalChatWidget() {
                 <h4 className="text-xl font-semibold mb-2">Login Required</h4>
                 <p className="mb-6">Please log in to access your personal AI assistant and manage your tasks.</p>
                 <Link 
-                  href="/auth/sign-in" 
+                  href="/auth/login" 
                   className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
                 >
                   Sign In

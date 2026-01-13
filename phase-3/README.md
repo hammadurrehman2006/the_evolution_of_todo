@@ -1,4 +1,4 @@
-# Phase 2: The Evolution of Todo (Full-Stack)
+# Phase 3: The Evolution of Todo (AI & MCP Integration)
 
 This phase marks the transition from a simple CLI application to a modern, scalable full-stack productivity suite. It features a robust backend API and a visually stunning, feature-rich frontend.
 

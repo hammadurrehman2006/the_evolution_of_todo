@@ -1,4 +1,4 @@
-# Task Management API (Phase 2 Backend)
+# Task Management API (Phase 3 Backend)
 
 A high-performance REST API for task management built with FastAPI, SQLModel, and Neon PostgreSQL.
 

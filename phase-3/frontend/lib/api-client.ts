@@ -12,7 +12,7 @@ import type { Todo, TodoInput } from './types'
  * - Base URL configuration from environment
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://teot-phase2.vercel.app/'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://todo-api-phase3.vercel.app/'
 const API_TIMEOUT_MS = 10000 // 10 seconds
 
 export class ApiClient {
@@ -294,10 +294,10 @@ export class ApiClient {
 
   /**
    * Toggle todo completion status
-   * PATCH /tasks/{id}/toggle
+   * POST /tasks/{id}/toggle
    */
   async toggleTodo(id: string): Promise<Todo> {
-    return this.patch<Todo>(`/tasks/${id}/toggle`)
+    return this.post<Todo>(`/tasks/${id}/toggle`)
   }
 }
 

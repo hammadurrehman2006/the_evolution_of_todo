@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime, timedelta
 
 # Configuration
-API_URL = "https://teot-phase2.vercel.app"
+API_URL = "https://todo-api-phase3.vercel.app"
 USER_ID = "cli-agent-test-user"
 
 def get_secret():

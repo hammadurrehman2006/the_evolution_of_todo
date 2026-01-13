@@ -141,7 +141,7 @@ export default function Home() {
                 Ready to boost your productivity?
               </CardTitle>
               <CardDescription className="text-lg">
-                Start organizing your tasks today with TaskHive's powerful features.
+                Start organizing your tasks today with TaskHive&apos;s powerful features.
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col sm:flex-row items-center justify-center gap-4 pb-8">
