@@ -3,12 +3,14 @@
 import { useState, useCallback } from "react";
 import { ChatKit, useChatKit } from "@openai/chatkit-react";
 import { FaRobot, FaTimes } from "react-icons/fa";
+import { Send } from "lucide-react";
 import { authClient, useSession } from "@/lib/auth-client";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 
 export default function GlobalChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
+  const [inputMessage, setInputMessage] = useState("");
   const { data: session, isPending } = useSession();
   const queryClient = useQueryClient();
 
@@ -29,13 +31,14 @@ export default function GlobalChatWidget() {
     });
   }, []);
 
-  const { control } = useChatKit({
+  const { control, sendUserMessage } = useChatKit({
     api: {
       // Use local FastAPI endpoint
       url: `${process.env.NEXT_PUBLIC_API_URL || "https://todo-api-phase3.vercel.app"}/chat`,
       // Custom fetcher to inject JWT
       fetch: authenticatedFetch as any,
     } as any,
+    // We provide our own composer
     composer: {
       placeholder: "Ask me to add a task, list your todos, or summarize your goals...",
     },
@@ -51,16 +54,21 @@ export default function GlobalChatWidget() {
     },
   } as any);
 
+  const handleSendMessage = () => {
+    if (!inputMessage.trim()) return;
+    sendUserMessage({ text: inputMessage });
+    setInputMessage("");
+  };
+
   // Listen for custom events to open chat
   useState(() => {
     if (typeof window !== "undefined") {
       const handleOpenChat = (event: any) => {
         setIsOpen(true);
         if (event.detail?.message) {
-          // This is a bit of a hack as useChatKit might not expose a direct way to send message programmatically easily 
-          // without user interaction in some versions, but we can try to at least open it.
-          // If ChatKit supports control.sendMessage, we could use it here.
           console.log("Request to send message:", event.detail.message);
+          // If we want to support programmatic sending:
+          sendUserMessage({ text: event.detail.message });
         }
       };
       window.addEventListener("open-ai-chat", handleOpenChat);
@@ -95,16 +103,45 @@ export default function GlobalChatWidget() {
             </button>
           </div>
           
-          <div className="flex-1 relative">
+          <div className="flex-1 flex flex-col min-h-0">
             {isPending ? (
-              <div className="flex items-center justify-center h-full text-muted-foreground">
+              <div className="flex-1 flex items-center justify-center text-muted-foreground">
                 <FaRobot size={32} className="animate-pulse opacity-50" />
               </div>
             ) : session ? (
-              <ChatKit
-                control={control}
-                className="h-full w-full"
-              />
+              <>
+                <div className="flex-1 relative overflow-hidden">
+                  <ChatKit
+                    control={control}
+                    className="h-full w-full"
+                  />
+                </div>
+                {/* Custom Input Area */}
+                <div className="p-4 border-t border-border bg-background">
+                  <div className="flex gap-2 items-end">
+                    <textarea
+                      value={inputMessage}
+                      onChange={(e) => setInputMessage(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSendMessage();
+                        }
+                      }}
+                      placeholder="Ask me anything..."
+                      className="flex-1 max-h-32 min-h-[40px] px-3 py-2 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                      rows={1}
+                    />
+                    <button
+                      onClick={handleSendMessage}
+                      disabled={!inputMessage.trim()}
+                      className="p-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
+                    >
+                      <Send size={18} />
+                    </button>
+                  </div>
+                </div>
+              </>
             ) : (
               <div className="flex flex-col items-center justify-center h-full p-6 text-center text-muted-foreground">
                 <FaRobot size={48} className="mb-4 opacity-50" />

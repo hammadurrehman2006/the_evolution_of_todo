@@ -14,8 +14,8 @@ set_default_openai_client(client, use_for_tracing=False)
 chatbot = Agent[UserContext](
     name="TodoAssistant",
     instructions="You are a helpful assistant for a Todo application. You help users organize their tasks. You can create, list, update, and delete tasks.",
+    model=settings.openrouter_model,
     model_settings=ModelSettings(
-        model=settings.openrouter_model,
         temperature=0.7,
         max_tokens=1000,
     ),
