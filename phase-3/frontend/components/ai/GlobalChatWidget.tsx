@@ -1,16 +1,14 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { ChatKit, useChatKit } from "@openai/chatkit-react";
 import { FaRobot, FaTimes } from "react-icons/fa";
-import { Send } from "lucide-react";
 import { authClient, useSession } from "@/lib/auth-client";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 
 export default function GlobalChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
-  const [inputMessage, setInputMessage] = useState("");
   const { data: session, isPending } = useSession();
   const queryClient = useQueryClient();
 
@@ -54,14 +52,8 @@ export default function GlobalChatWidget() {
     },
   } as any);
 
-  const handleSendMessage = () => {
-    if (!inputMessage.trim()) return;
-    sendUserMessage({ text: inputMessage });
-    setInputMessage("");
-  };
-
   // Listen for custom events to open chat
-  useState(() => {
+  useEffect(() => {
     if (typeof window !== "undefined") {
       const handleOpenChat = (event: any) => {
         setIsOpen(true);
@@ -74,7 +66,7 @@ export default function GlobalChatWidget() {
       window.addEventListener("open-ai-chat", handleOpenChat);
       return () => window.removeEventListener("open-ai-chat", handleOpenChat);
     }
-  });
+  }, [sendUserMessage]);
 
   return (
     <>
@@ -115,31 +107,6 @@ export default function GlobalChatWidget() {
                     control={control}
                     className="h-full w-full"
                   />
-                </div>
-                {/* Custom Input Area */}
-                <div className="p-4 border-t border-border bg-background">
-                  <div className="flex gap-2 items-end">
-                    <textarea
-                      value={inputMessage}
-                      onChange={(e) => setInputMessage(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && !e.shiftKey) {
-                          e.preventDefault();
-                          handleSendMessage();
-                        }
-                      }}
-                      placeholder="Ask me anything..."
-                      className="flex-1 max-h-32 min-h-[40px] px-3 py-2 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                      rows={1}
-                    />
-                    <button
-                      onClick={handleSendMessage}
-                      disabled={!inputMessage.trim()}
-                      className="p-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
-                    >
-                      <Send size={18} />
-                    </button>
-                  </div>
                 </div>
               </>
             ) : (
