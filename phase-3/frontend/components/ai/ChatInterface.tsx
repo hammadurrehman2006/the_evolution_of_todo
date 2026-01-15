@@ -148,7 +148,7 @@ export function ChatInterface({ className, showHeader = true }: ChatInterfacePro
               >
                 <Avatar className={cn("h-8 w-8 mt-1", msg.role === "assistant" ? "bg-primary/10" : "bg-muted")}>
                   {msg.role === "assistant" ? (
-                    <AvatarImage src="/bot-avatar.png" /> // Fallback will show
+                    <AvatarImage src="/globe.svg" className="p-1" /> // Fallback will show
                   ) : (
                     <AvatarImage src={session?.user?.image || ""} />
                   )}
