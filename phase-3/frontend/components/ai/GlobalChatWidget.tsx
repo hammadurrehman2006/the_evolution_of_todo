@@ -1,72 +1,11 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
-import { ChatKit, useChatKit } from "@openai/chatkit-react";
+import { useState } from "react";
 import { FaRobot, FaTimes } from "react-icons/fa";
-import { authClient, useSession } from "@/lib/auth-client";
-import { useQueryClient } from "@tanstack/react-query";
-import Link from "next/link";
+import { ChatInterface } from "./ChatInterface";
 
 export default function GlobalChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
-  const { data: session, isPending } = useSession();
-  const queryClient = useQueryClient();
-
-  const authenticatedFetch = useCallback(async (url: string, options: RequestInit = {}) => {
-    // Get JWT token from Better Auth
-    const { data, error } = await authClient.token();
-    const token = data?.token;
-
-    const headers = new Headers(options.headers);
-    if (token) {
-      headers.set("Authorization", `Bearer ${token}`);
-    }
-    headers.set("Content-Type", "application/json");
-
-    return fetch(url, {
-      ...options,
-      headers,
-    });
-  }, []);
-
-  const { control, sendUserMessage } = useChatKit({
-    api: {
-      // Use local FastAPI endpoint
-      url: `${process.env.NEXT_PUBLIC_API_URL || "https://todo-api-phase3.vercel.app"}/chat`,
-      // Custom fetcher to inject JWT
-      fetch: authenticatedFetch as any,
-    } as any,
-    // We provide our own composer
-    composer: {
-      placeholder: "Ask me to add a task, list your todos, or summarize your goals...",
-    },
-    startScreen: {
-      greeting: "Hello! I'm your AI assistant. How can I help you manage your tasks today?",
-    },
-    onClientTool: (toolCall: any) => {
-      console.log("Tool call detected:", toolCall);
-      // Invalidate tasks query to refresh UI after AI modifications
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      // return empty object as expected by the type definition
-      return {}; 
-    },
-  } as any);
-
-  // Listen for custom events to open chat
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const handleOpenChat = (event: any) => {
-        setIsOpen(true);
-        if (event.detail?.message) {
-          console.log("Request to send message:", event.detail.message);
-          // If we want to support programmatic sending:
-          sendUserMessage({ text: event.detail.message });
-        }
-      };
-      window.addEventListener("open-ai-chat", handleOpenChat);
-      return () => window.removeEventListener("open-ai-chat", handleOpenChat);
-    }
-  }, [sendUserMessage]);
 
   return (
     <>
@@ -82,7 +21,7 @@ export default function GlobalChatWidget() {
       {/* Chat Widget Container */}
       {isOpen && (
         <div className="fixed bottom-24 right-6 z-50 w-[400px] h-[600px] max-w-[calc(100vw-3rem)] max-h-[calc(100vh-8rem)] bg-background border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in slide-in-from-bottom-5 duration-300">
-          <div className="bg-primary p-4 text-primary-foreground flex justify-between items-center">
+          <div className="bg-primary p-4 text-primary-foreground flex justify-between items-center shrink-0">
             <div className="flex items-center gap-2">
               <FaRobot size={20} />
               <h3 className="font-semibold text-lg">AI Assistant</h3>
@@ -95,33 +34,11 @@ export default function GlobalChatWidget() {
             </button>
           </div>
           
-          <div className="flex-1 flex flex-col min-h-0">
-            {isPending ? (
-              <div className="flex-1 flex items-center justify-center text-muted-foreground">
-                <FaRobot size={32} className="animate-pulse opacity-50" />
-              </div>
-            ) : session ? (
-              <>
-                <div className="flex-1 relative overflow-hidden">
-                  <ChatKit
-                    control={control}
-                    className="h-full w-full"
-                  />
-                </div>
-              </>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-full p-6 text-center text-muted-foreground">
-                <FaRobot size={48} className="mb-4 opacity-50" />
-                <h4 className="text-xl font-semibold mb-2">Login Required</h4>
-                <p className="mb-6">Please log in to access your personal AI assistant and manage your tasks.</p>
-                <Link 
-                  href="/auth/login" 
-                  className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
-                >
-                  Sign In
-                </Link>
-              </div>
-            )}
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-background">
+            <ChatInterface 
+              className="h-full w-full border-none shadow-none rounded-none" 
+              showHeader={false} 
+            />
           </div>
         </div>
       )}

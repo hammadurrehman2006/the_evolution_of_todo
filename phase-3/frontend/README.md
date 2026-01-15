@@ -4,7 +4,6 @@ A modern, highly interactive task management dashboard built with Next.js, React
 
 ## Features
 
-- **AI Assistant Integration**: Integrated ChatKit for AI-powered task management.
 - **"Glassmorphism" Design**: A beautiful, modern aesthetic with blurred backgrounds and vibrant gradients.
 - **Real-time Productivity**: Instant task updates, filtering, and completion toggles.
 - **Analytics Dashboard**: Visual representation of task completion rates and productivity trends using Recharts.
@@ -23,7 +22,6 @@ A modern, highly interactive task management dashboard built with Next.js, React
 - **Animations**: [GSAP](https://greensock.com/gsap/) & [Framer Motion](https://www.framer.com/motion/)
 - **Auth**: [Better Auth Client](https://www.better-auth.com/)
 - **State Management**: [Zustand](https://github.com/pmndrs/zustand)
-- **AI**: [OpenAI ChatKit](https://chatkit.openai.com/)
 
 ## Getting Started
 

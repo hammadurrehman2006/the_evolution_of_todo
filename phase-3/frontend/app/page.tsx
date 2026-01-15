@@ -14,6 +14,7 @@ import {
   Zap,
   Target,
 } from "lucide-react"
+import { ChatInterface } from "@/components/ai/ChatInterface"
 import { Hero } from "@/components/Hero"
 
 export default function Home() {
@@ -53,6 +54,22 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       <Hero />
+
+      {/* AI Assistant Demo Section */}
+      <section className="px-4 py-16 bg-muted/30">
+        <div className="mx-auto max-w-7xl">
+           <div className="text-center space-y-4 mb-10">
+              <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">New</Badge>
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+                Meet your AI Productivity Assistant
+              </h2>
+              <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+                Just ask and it gets done. Create, update, and organize tasks using natural language.
+              </p>
+           </div>
+           <ChatInterface />
+        </div>
+      </section>
 
       {/* Features Section */}
       <section className="px-4 py-20 sm:py-24">
