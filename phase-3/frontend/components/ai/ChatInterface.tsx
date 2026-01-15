@@ -33,8 +33,8 @@ export function ChatInterface({ className, showHeader = true }: ChatInterfacePro
 
   // Auto-scroll to bottom
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollIntoView({ behavior: "smooth" });
+    if (scrollRef.current && messages.length > 0) {
+      scrollRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
   }, [messages, isLoading]);
 
