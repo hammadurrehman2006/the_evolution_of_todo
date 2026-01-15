@@ -4,8 +4,8 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: "/api/:path*",
-        destination: "https://todo-api-phase3.vercel.app/:path*",
+        source: "/api/((?!auth).*)",
+        destination: "https://todo-api-phase3.vercel.app/:1",
       },
     ];
   },
