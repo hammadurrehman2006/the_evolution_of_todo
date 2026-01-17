@@ -216,7 +216,8 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="container max-w-4xl mx-auto py-10 px-4">
+    <div className="min-h-screen bg-background py-10">
+        <div className="container max-w-4xl mx-auto px-4">
         <div className="flex items-center gap-4 mb-8">
             <Button variant="ghost" size="icon" onClick={() => router.back()}>
                 <ArrowLeft className="h-4 w-4" />
@@ -444,6 +445,7 @@ export default function SettingsPage() {
           </Card>
         </TabsContent>
       </Tabs>
+    </div>
     </div>
   )
 }

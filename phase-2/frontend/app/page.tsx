@@ -51,7 +51,7 @@ export default function Home() {
   ]
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col bg-background">
       <Hero />
 
       {/* Features Section */}
@@ -137,11 +137,12 @@ export default function Home() {
         <div className="mx-auto max-w-4xl">
           <Card className="border-2">
             <CardHeader className="text-center space-y-4 pb-8">
+              <Badge variant="secondary" className="w-fit mx-auto">Get Started</Badge>
               <CardTitle className="text-3xl sm:text-4xl">
                 Ready to boost your productivity?
               </CardTitle>
               <CardDescription className="text-lg">
-                Start organizing your tasks today with TaskHive's powerful features.
+                Start organizing your tasks today with TaskHive&apos;s powerful features.
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col sm:flex-row items-center justify-center gap-4 pb-8">

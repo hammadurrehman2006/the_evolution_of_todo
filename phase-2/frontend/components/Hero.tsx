@@ -10,7 +10,7 @@ export function Hero() {
   const { data: session } = useSession()
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-background to-muted/20 px-4 py-20 sm:py-32">
+    <section className="relative overflow-hidden bg-gradient-to-b from-background to-muted/20 dark:bg-none px-4 py-20 sm:py-32">
       <div className="mx-auto max-w-7xl">
         <div className="text-center space-y-6">
           <Badge variant="secondary" className="mb-4">

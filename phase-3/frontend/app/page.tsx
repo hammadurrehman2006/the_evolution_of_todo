@@ -2,7 +2,6 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
 import {
   CheckCircle2,
   Tag,
@@ -52,11 +51,11 @@ export default function Home() {
   ]
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col bg-background">
       <Hero />
 
       {/* AI Assistant Demo Section */}
-      <section className="px-4 py-16 bg-muted/30">
+      <section className="bg-muted/50 px-4 py-16">
         <div className="mx-auto max-w-7xl">
            <div className="text-center space-y-4 mb-10">
               <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">New</Badge>
@@ -111,7 +110,7 @@ export default function Home() {
           <div className="text-center space-y-4 mb-16">
             <Badge variant="secondary">Benefits</Badge>
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Why choose TaskFlow?
+              Why choose TaskHive?
             </h2>
           </div>
 
@@ -154,6 +153,7 @@ export default function Home() {
         <div className="mx-auto max-w-4xl">
           <Card className="border-2">
             <CardHeader className="text-center space-y-4 pb-8">
+              <Badge variant="secondary" className="w-fit mx-auto">Get Started</Badge>
               <CardTitle className="text-3xl sm:text-4xl">
                 Ready to boost your productivity?
               </CardTitle>
