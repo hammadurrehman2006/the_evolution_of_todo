@@ -16,16 +16,17 @@ mcp = FastMCP("todo-mcp-server")
 task_manager = TaskManager()
 
 @mcp.tool()
-def create_task(title: str, description: str = None, priority: str = "Medium", tags: list[str] = [], due_date: str = None) -> str:
+def create_task(title: str, description: str = None, priority: str = "Medium", tags: list[str] = [], due_date: str = None, client_request_id: str = None) -> str:
     """
     Create a new task.
-    
+
     Args:
         title: The title of the task.
         description: Detailed description.
         priority: Priority level (High, Medium, Low).
         tags: List of tags.
         due_date: Optional due date (ISO 8601 string).
+        client_request_id: Optional idempotency key to prevent duplicate creation on retry.
     """
     try:
         due_date_obj = None
@@ -36,11 +37,12 @@ def create_task(title: str, description: str = None, priority: str = "Medium", t
                  return f"Error: Invalid due_date format '{due_date}'. Use ISO 8601."
 
         input_data = CreateTaskInput(
-            title=title, 
-            description=description, 
+            title=title,
+            description=description,
             priority=priority, # Pydantic coerces str -> Enum
             tags=tags,
-            due_date=due_date_obj
+            due_date=due_date_obj,
+            client_request_id=client_request_id
         )
         task = task_manager.create_task(input_data)
         return f"Task created with ID: {task.id}"

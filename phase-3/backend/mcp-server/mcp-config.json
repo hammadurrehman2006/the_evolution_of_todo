@@ -4,13 +4,15 @@
       "command": "uv",
       "args": [
         "--directory",
-        "/home/hammadurrehman2006/Desktop/the_evolution_of_todo/phase-3/backend/mcp-server",
+        "${workspaceFolder}/phase-3/backend/mcp-server",
         "run",
         "python3",
         "src/server.py"
       ],
       "env": {
-        "PYTHONPATH": "."
+        "PYTHONPATH": ".",
+        "DATABASE_URL": "${env:DATABASE_URL}",
+        "MCP_USER_ID": "${env:MCP_USER_ID:-default-mcp-user}"
       }
     }
   }

@@ -28,15 +28,19 @@ While the MCP server is tool-agnostic, we envision the following agent roles int
 -   `completed` (boolean): Status.
 -   `priority` (string): High, Medium, Low.
 -   `tags` (List[string]): Categorization tags.
+-   `due_date` (datetime, optional): ISO 8601 timestamp.
+-   `client_request_id` (string, optional): Idempotency key to prevent duplicate creation.
 -   `created_at` (datetime): ISO 8601 timestamp.
 -   `updated_at` (datetime): ISO 8601 timestamp.
 
 ## API Endpoints (MCP Tools)
 
--   `create_task(title, description?, priority?, tags?, client_request_id?)`: Creates a task.
--   `read_tasks(completed?, priority?, tag?)`: Returns a list of tasks matching filters.
--   `update_task(task_id, ...)`: Updates specified fields.
--   `delete_task(task_id)`: Removes a task.
+| Tool | Arguments | Description |
+|------|-----------|-------------|
+| `create_task` | `title`, `description?`, `priority?`, `tags?`, `due_date?`, `client_request_id?` | Creates a task. Idempotent when `client_request_id` is provided. |
+| `read_tasks` | `completed?`, `priority?`, `tag?` | Returns a list of tasks matching filters. |
+| `update_task` | `task_id`, `title?`, `description?`, `completed?`, `priority?`, `tags?`, `due_date?` | Updates specified fields. |
+| `delete_task` | `task_id` | Removes a task. |
 
 ## Resources
 
@@ -52,7 +56,7 @@ While the MCP server is tool-agnostic, we envision the following agent roles int
 
 The server requires the following environment variables (in a `.env` file or exported):
 
--   `DATABASE_URL`: Connection string for the PostgreSQL database (same as main backend).
+-   `DATABASE_URL`: Connection string for the PostgreSQL database.
 -   `MCP_USER_ID`: The User ID to impersonate when performing operations (required because the MCP protocol is stateless/single-user in this context).
 
 ## Error Handling
@@ -60,6 +64,12 @@ The server requires the following environment variables (in a `.env` file or exp
 -   Tools return clear error messages (e.g., "Task {id} not found") instead of crashing.
 -   Input validation is handled via Pydantic models.
 -   Database operations are wrapped in transactions with automatic rollback on failure.
+
+## Idempotency
+
+The `create_task` tool supports idempotent operations via the `client_request_id` parameter:
+-   If a `client_request_id` is provided and a task with that ID already exists, the existing task is returned.
+-   This prevents duplicate task creation when retrying failed requests.
 
 ## Integration with AI Agents (OpenAI, Claude, etc.)
 
@@ -83,7 +93,9 @@ Add the following to your `claude_desktop_config.json`:
         "src/server.py"
       ],
       "env": {
-        "PYTHONPATH": "."
+        "PYTHONPATH": ".",
+        "DATABASE_URL": "${env:DATABASE_URL}",
+        "MCP_USER_ID": "${env:MCP_USER_ID:-default-mcp-user}"
       }
     }
   }
@@ -92,5 +104,36 @@ Add the following to your `claude_desktop_config.json`:
 
 ## Running Locally
 ```bash
+# Set up environment
+cp .env.example .env
+# Edit .env with your DATABASE_URL and MCP_USER_ID
+
+# Run the server
 uv run python3 src/server.py
+```
+
+## Testing
+```bash
+# Run tests with SQLite (no database connection required)
+pytest tests/test_logic.py -v
+```
+
+## Project Structure
+```
+mcp-server/
+├── src/
+│   ├── __init__.py       # Package exports
+│   ├── config.py         # Pydantic settings
+│   ├── database.py       # Database engine and session management
+│   ├── logic.py          # Business logic (TaskManager)
+│   ├── models.py         # SQLModel schemas
+│   └── server.py         # MCP server definition
+├── tests/
+│   ├── __init__.py
+│   └── test_logic.py     # Unit tests
+├── .env                  # Environment variables (gitignored)
+├── .env.example          # Environment template
+├── mcp-config.json       # MCP configuration for IDE integration
+├── requirements.txt      # Python dependencies
+└── README.md
 ```

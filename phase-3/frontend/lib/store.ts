@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware'
 import type { Todo, Priority, FilterOptions, SortOption, ApiError } from '@/lib/types'
 import { apiClient } from '@/lib/api-client'
 import { ApiError as ApiErrorClass } from '@/lib/types'
+import { mcpClient } from '@/lib/mcp-client'
 
 // Backend Data Types (Snake Case)
 interface BackendTask {
@@ -26,7 +27,12 @@ interface TodoState {
   error: ApiError | null
   filters: FilterOptions
   sortBy: SortOption
-  
+
+  // MCP State
+  mcpConnected: boolean
+  mcpConnecting: boolean
+  mcpError: string | null
+
   // Actions
   setFilters: (filters: FilterOptions) => void
   setSortBy: (sortBy: SortOption) => void
@@ -43,6 +49,18 @@ interface TodoState {
   deleteTask: (id: string) => Promise<void>
   toggleTask: (id: string) => Promise<Todo>
   getTask: (id: string) => Promise<Todo>
+
+  // MCP Actions
+  connectMCP: () => Promise<void>
+  disconnectMCP: () => Promise<void>
+  addTaskViaMCP: (
+    title: string,
+    description?: string,
+    priority?: string,
+    tags?: string[],
+    dueDate?: string,
+    clientRequestId?: string
+  ) => Promise<string>
 }
 
 // --- Mappers ---
@@ -127,6 +145,64 @@ export const useTodoStore = create<TodoState>()(
         tags: [],
       },
       sortBy: 'createdAt',
+
+      // MCP State
+      mcpConnected: false,
+      mcpConnecting: false,
+      mcpError: null,
+
+      // MCP Actions
+      connectMCP: async () => {
+        set({ mcpConnecting: true, mcpError: null })
+        try {
+          mcpClient.configure({
+            name: 'todo-mcp',
+            command: 'uv',
+            args: [
+              '--directory',
+              'phase-3/backend/mcp-server',
+              'run',
+              'python3',
+              'src/server.py'
+            ],
+            env: { PYTHONPATH: '.' }
+          })
+
+          const connected = await mcpClient.connect()
+          set({
+            mcpConnected: connected,
+            mcpConnecting: false,
+            mcpError: connected ? null : 'Failed to connect to MCP server'
+          })
+        } catch (error) {
+          set({
+            mcpConnecting: false,
+            mcpError: error instanceof Error ? error.message : 'MCP connection failed'
+          })
+        }
+      },
+
+      disconnectMCP: async () => {
+        await mcpClient.disconnect()
+        set({ mcpConnected: false, mcpError: null })
+      },
+
+      addTaskViaMCP: async (title, description, priority, tags, dueDate, clientRequestId) => {
+        const response = await mcpClient.callTool('create_task', {
+          title,
+          description: description || null,
+          priority: priority || 'Medium',
+          tags: tags || [],
+          due_date: dueDate || null,
+          client_request_id: clientRequestId || null
+        })
+
+        if (!response.success) {
+          throw new Error(response.error || 'Failed to create task via MCP')
+        }
+
+        return response.result || 'Task created'
+      },
 
       setFilters: (filters) => set({ filters }),
       setSortBy: (sortBy) => set({ sortBy }),

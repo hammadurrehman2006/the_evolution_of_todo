@@ -9,21 +9,40 @@ import json
 
 class TaskManager:
     def __init__(self):
-        # Ensure tables exist
+        # Database tables will be created on first operation
+        # This avoids connection attempts during import
+        pass
+
+    def _ensure_tables(self):
+        """Ensure database tables exist (called lazily)."""
         database.create_db_and_tables()
+        self._ensure_tables = lambda: None  # Only run once
 
     def create_task(self, input_data: CreateTaskInput) -> Task:
+        self._ensure_tables()
         with Session(database.engine) as session:
             try:
+                # Check for idempotency if client_request_id is provided
+                if input_data.client_request_id:
+                    existing_statement = select(Task).where(
+                        Task.client_request_id == input_data.client_request_id,
+                        Task.user_id == settings.mcp_user_id
+                    )
+                    existing_task = session.exec(existing_statement).first()
+                    if existing_task:
+                        # Return existing task for idempotency
+                        return existing_task
+
                 task = Task(
                     user_id=settings.mcp_user_id,
                     title=input_data.title,
                     description=input_data.description,
                     priority=input_data.priority or PriorityEnum.MEDIUM,
                     due_date=input_data.due_date,
-                    tags=input_data.tags or []
+                    tags=input_data.tags or [],
+                    client_request_id=input_data.client_request_id
                 )
-                
+
                 session.add(task)
                 session.commit()
                 session.refresh(task)
@@ -35,17 +54,26 @@ class TaskManager:
     def read_tasks(self, filter_data: Optional[TaskFilter] = None) -> List[Task]:
         with Session(database.engine) as session:
             statement = select(Task).where(Task.user_id == settings.mcp_user_id)
-            
+
             if filter_data:
                 if filter_data.completed is not None:
                     statement = statement.where(Task.completed == filter_data.completed)
                 if filter_data.priority:
                     statement = statement.where(Task.priority == filter_data.priority)
                 if filter_data.tag:
-                    # Construct JSON array string for containment check: '["tag"]'
+                    # Use JSON contains check that works with both SQLite and PostgreSQL
+                    # For SQLite: JSON_EXTRACT(tags, '$[*]') LIKE '%tag%'
+                    # For PostgreSQL: tags @> '["tag"]'
                     tag_json = json.dumps([filter_data.tag])
-                    # Use @> operator for JSONB
-                    statement = statement.where(Task.tags.op('@>')(tag_json))
+                    try:
+                        # Try PostgreSQL JSONB operator first
+                        statement = statement.where(Task.tags.op('@>')(tag_json))
+                    except Exception:
+                        # Fallback for SQLite - use JSON contains
+                        from sqlalchemy import text
+                        statement = statement.where(
+                            Task.tags.op('LIKE')(f'%"{filter_data.tag}"%')
+                        )
 
             results = session.exec(statement).all()
             return list(results)

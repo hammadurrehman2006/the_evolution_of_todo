@@ -1,6 +1,7 @@
 """SQLModel data models for the Task Management API."""
 from sqlmodel import SQLModel, Field, Column
-from sqlalchemy.dialects.postgresql import JSONB, UUID as PGUUID
+from sqlalchemy.dialects.postgresql import UUID as PGUUID
+from sqlalchemy import JSON as SA_JSON
 from typing import Optional, List
 from datetime import datetime, timezone
 from enum import Enum
@@ -25,7 +26,7 @@ class Task(SQLModel, table=True):
         description: Optional task description (max 2000 characters)
         completed: Completion status (default: false)
         priority: Priority level (High/Medium/Low, default: Medium)
-        tags: Array of tag strings stored as JSONB
+        tags: Array of tag strings stored as JSON
         due_date: Optional due date/time
         reminder_at: Optional reminder time (must be <= due_date)
         is_recurring: Whether task auto-reschedules on completion
@@ -70,8 +71,8 @@ class Task(SQLModel, table=True):
 
     tags: Optional[List[str]] = Field(
         default=None,
-        sa_column=Column(JSONB),
-        description="Array of tag strings stored as JSONB"
+        sa_column=Column(SA_JSON),
+        description="Array of tag strings stored as JSON"
     )
 
     due_date: Optional[datetime] = Field(
@@ -93,6 +94,12 @@ class Task(SQLModel, table=True):
         default=None,
         max_length=500,
         description="iCalendar RRULE format for recurring tasks"
+    )
+
+    client_request_id: Optional[str] = Field(
+        default=None,
+        index=True,
+        description="Client-provided idempotency key to prevent duplicate creation"
     )
 
     created_at: datetime = Field(

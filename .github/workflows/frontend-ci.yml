@@ -1,0 +1,63 @@
+name: Frontend CI/CD
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'phase-3/frontend/**'
+  pull_request:
+    branches: [main, master]
+    paths:
+      - 'phase-3/frontend/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: phase-3/frontend/package-lock.json
+          
+      - name: Install dependencies
+        working-directory: ./phase-3/frontend
+        run: npm ci
+        
+      - name: Type check
+        working-directory: ./phase-3/frontend
+        run: npm run type-check
+        
+      - name: Lint
+        working-directory: ./phase-3/frontend
+        run: npm run lint
+        
+      - name: Build
+        working-directory: ./phase-3/frontend
+        env:
+          NEXT_PUBLIC_API_URL: https://todo-api-phase3.vercel.app
+          NEXT_PUBLIC_APP_URL: http://localhost:3000
+          BETTER_AUTH_SECRET: test-secret-for-ci
+          DATABASE_URL: postgresql://user:pass@localhost/db
+        run: npm run build
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_FRONTEND_PROJECT_ID }}
+          vercel-args: '--prod'
+          working-directory: ./phase-3/frontend
