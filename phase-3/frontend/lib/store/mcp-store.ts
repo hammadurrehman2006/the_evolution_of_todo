@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { mcpClient, MCPToolResponse } from '../lib/mcp-client'
+import { mcpClient, MCPToolResponse } from '../mcp-client'
 
 interface MCPState {
   isConnected: boolean
