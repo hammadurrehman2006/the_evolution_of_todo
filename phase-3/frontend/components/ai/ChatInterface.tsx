@@ -10,7 +10,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Send, Bot, User, Loader2, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 
 interface ChatInterfaceProps {
   className?: string;
@@ -121,7 +120,7 @@ export function ChatInterface({ className, showHeader = true }: ChatInterfacePro
           </div>
           {!session && (
             <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-              Preview Mode
+              Anonymous Mode
             </div>
           )}
         </CardHeader>
@@ -193,18 +192,6 @@ export function ChatInterface({ className, showHeader = true }: ChatInterfacePro
             <div ref={scrollRef} />
           </div>
         </ScrollArea>
-        
-        {!session && (
-          <div className="absolute inset-0 bg-background/50 backdrop-blur-[1px] flex items-center justify-center z-10">
-            <div className="bg-background border p-6 rounded-xl shadow-lg text-center max-w-sm mx-4">
-              <h4 className="font-semibold mb-2">Sign in to Chat</h4>
-              <p className="text-sm text-muted-foreground mb-4">You need to be logged in to use the AI assistant.</p>
-              <Link href="/auth/login">
-                <Button className="w-full">Sign In / Sign Up</Button>
-              </Link>
-            </div>
-          </div>
-        )}
       </CardContent>
 
       <CardFooter className="p-4 bg-muted/20 border-t">
@@ -214,13 +201,13 @@ export function ChatInterface({ className, showHeader = true }: ChatInterfacePro
             placeholder="Type your message..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            disabled={isLoading || !session}
+            disabled={isLoading}
             className="flex-1 bg-background border-border/60 focus-visible:ring-primary/20"
           />
-          <Button 
-            type="submit" 
-            size="icon" 
-            disabled={isLoading || !input.trim() || !session}
+          <Button
+            type="submit"
+            size="icon"
+            disabled={isLoading || !input.trim()}
             className="shrink-0 transition-all"
           >
             {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
