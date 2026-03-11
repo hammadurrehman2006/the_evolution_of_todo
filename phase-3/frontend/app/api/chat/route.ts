@@ -7,9 +7,9 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const authHeader = req.headers.get("authorization");
     const cookieHeader = req.headers.get("cookie");
-    
+
     // Production API URL
-    const apiUrl = "https://todo-api-phase3.vercel.app/chat";
+    const apiUrl = "https://teot-p3-api.vercel.app/chat";
     
     console.log(`Proxying chat request to: ${apiUrl}`);
 

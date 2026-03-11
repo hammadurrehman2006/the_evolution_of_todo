@@ -12,7 +12,7 @@ import type { Todo, TodoInput } from './types'
  * - Base URL configuration from environment
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://todo-api-phase3.vercel.app/'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://teot-p3-api.vercel.app/'
 const API_TIMEOUT_MS = 10000 // 10 seconds
 
 export class ApiClient {

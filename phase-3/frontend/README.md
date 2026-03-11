@@ -33,7 +33,7 @@ npm install
 ### 2. Environment Setup
 Create a `.env.local`:
 ```env
-NEXT_PUBLIC_API_URL=https://todo-api-phase3.vercel.app
+NEXT_PUBLIC_API_URL=https://teot-p3-api.vercel.app
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 

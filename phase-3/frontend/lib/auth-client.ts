@@ -2,7 +2,7 @@ import { createAuthClient } from "better-auth/react"
 import { jwtClient } from "better-auth/client/plugins"
 
 export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_APP_URL || "https://todo-phase3-ai.vercel.app",
+  baseURL: process.env.NEXT_PUBLIC_APP_URL || "https://teot-p3-api.vercel.app",
   plugins: [
     // Enable JWT plugin for API token retrieval
     jwtClient()

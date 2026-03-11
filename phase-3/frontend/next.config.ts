@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/((?!auth).*)",
-        destination: "https://todo-api-phase3.vercel.app/:1",
+        destination: "https://teot-p3-api.vercel.app/:1",
       },
     ];
   },

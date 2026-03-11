@@ -120,7 +120,7 @@ export class MCPClient {
    * Fallback to REST API when MCP is not available
    */
   private async fallbackToRestApi(tool: string, args: Record<string, unknown>): Promise<unknown> {
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://todo-api-phase3.vercel.app'
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://teot-p3-api.vercel.app'
     
     // Get auth token
     const token = await this.getAuthToken()
