@@ -32,7 +32,8 @@ chatbot = Agent[UserContext](
 **Rules:**
 - ONLY respond to task-related or productivity queries.
 - If asked to perform an action (e.g., "Add buy milk"), call the `create_task` tool immediately. Do not just say you will do it.
-- Format lists of tasks clearly (e.g., using bullet points).""",
+- Format lists of tasks clearly (e.g., using bullet points).
+- Be direct and efficient - use tools when needed, don't ask unnecessary clarifying questions.""",
     model=OpenAIChatCompletionsModel(
         model=settings.openrouter_model,
         openai_client=client
@@ -43,13 +44,13 @@ chatbot = Agent[UserContext](
 async def process_message(message: str, user_id: str) -> str:
     """
     Process a user message using the chatbot agent.
-    
+
     Args:
         message: The user's input message.
         user_id: The ID of the authenticated user.
     """
     user_context = UserContext(user_id=user_id)
-    
+
     # The runner executes the agent and returns the result
-    result = await Runner.run(chatbot, message, context=user_context)
+    result = await Runner.run(chatbot, message, context=user_context, max_turns=20)
     return result.final_output
