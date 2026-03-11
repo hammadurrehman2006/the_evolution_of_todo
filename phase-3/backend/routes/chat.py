@@ -1,13 +1,18 @@
 from fastapi import APIRouter, HTTPException, Depends, Request
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
 from services.chatbot import process_message
 from dependencies import get_current_user
+from database import get_session
 import logging
 import uuid
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
+# Optional security scheme (doesn't auto-reject)
+security_optional = HTTPBearer(auto_error=False)
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -23,38 +28,30 @@ class ChatResponse(BaseModel):
     taskId: Optional[str] = None
     client_secret: Optional[str] = None
 
-async def get_current_user_optional(request: Request) -> Optional[str]:
+async def get_current_user_optional(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security_optional)
+) -> str:
     """
-    Try to get authenticated user, return None if not authenticated.
+    Try to get authenticated user, return anonymous ID if not authenticated.
     """
-    try:
-        # Check if Authorization header exists
-        auth_header = request.headers.get("authorization")
-        if auth_header and auth_header.startswith("Bearer "):
-            token = auth_header.split(" ")[1]
-            # Import here to avoid circular imports
-            from dependencies import security
-            from fastapi.security import HTTPAuthorizationCredentials
-            credentials = HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
-            session = next(request.app.state.session_generator)
+    if credentials:
+        try:
+            # Try to get authenticated user
+            session = next(get_session())
             user_id = await get_current_user(credentials, session)
             return user_id
-    except Exception:
-        pass
-    return None
+        except Exception as e:
+            logger.info(f"Auth failed, using anonymous: {e}")
+    # Return anonymous user ID
+    return f"anon_{uuid.uuid4().hex[:12]}"
 
 @router.post("/", response_model=ChatResponse)
 @router.post("", response_model=ChatResponse)
 async def chat(
     request: ChatRequest,
-    req: Request
+    user_id: str = Depends(get_current_user_optional)
 ):
     try:
-        # Try to get authenticated user, or use anonymous
-        user_id = await get_current_user_optional(req)
-        if not user_id:
-            user_id = f"anon_{uuid.uuid4().hex[:12]}"
-        
         # If it's a session creation request (no message)
         if not request.message:
             return ChatResponse(
