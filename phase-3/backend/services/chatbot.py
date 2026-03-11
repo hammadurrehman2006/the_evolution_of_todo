@@ -1,15 +1,38 @@
+from __future__ import annotations
+
+import os
 from openai import AsyncOpenAI
-from agents import Agent, Runner, OpenAIChatCompletionsModel, set_tracing_disabled
+from agents import (
+    Agent,
+    Model,
+    ModelProvider,
+    OpenAIChatCompletionsModel,
+    RunConfig,
+    Runner,
+    function_tool,
+    set_tracing_disabled,
+)
 from config import settings
 from .tools import create_task, get_tasks, update_task, delete_task, UserContext
 
-# Configure the default client
-client = AsyncOpenAI(
-    base_url=settings.openrouter_base_url,
-    api_key=settings.openrouter_api_key,
-)
+# Configure OpenRouter client
+BASE_URL = settings.openrouter_base_url
+API_KEY = settings.openrouter_api_key
+MODEL_NAME = settings.openrouter_model
 
+client = AsyncOpenAI(base_url=BASE_URL, api_key=API_KEY)
 set_tracing_disabled(disabled=True)
+
+
+class OpenRouterModelProvider(ModelProvider):
+    def get_model(self, model_name: str | None) -> Model:
+        return OpenAIChatCompletionsModel(
+            model=model_name or MODEL_NAME,
+            openai_client=client
+        )
+
+
+OPENROUTER_MODEL_PROVIDER = OpenRouterModelProvider()
 
 # Define the chatbot agent
 chatbot = Agent[UserContext](
@@ -34,12 +57,9 @@ chatbot = Agent[UserContext](
 - If asked to perform an action (e.g., "Add buy milk"), call the `create_task` tool immediately. Do not just say you will do it.
 - Format lists of tasks clearly (e.g., using bullet points).
 - Be direct and efficient - use tools when needed, don't ask unnecessary clarifying questions.""",
-    model=OpenAIChatCompletionsModel(
-        model=settings.openrouter_model,
-        openai_client=client
-    ),
     tools=[create_task, get_tasks, update_task, delete_task]
 )
+
 
 async def process_message(message: str, user_id: str) -> str:
     """
@@ -51,6 +71,12 @@ async def process_message(message: str, user_id: str) -> str:
     """
     user_context = UserContext(user_id=user_id)
 
-    # The runner executes the agent and returns the result
-    result = await Runner.run(chatbot, message, context=user_context, max_turns=20)
+    # Run with OpenRouter model provider
+    result = await Runner.run(
+        chatbot,
+        message,
+        context=user_context,
+        max_turns=20,
+        run_config=RunConfig(model_provider=OPENROUTER_MODEL_PROVIDER)
+    )
     return result.final_output
