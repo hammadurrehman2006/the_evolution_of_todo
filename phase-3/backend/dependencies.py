@@ -176,7 +176,7 @@ async def get_user_from_session(
     session: Session = Depends(get_session)
 ) -> str:
     """
-    Authenticate user via session cookie from better-auth.
+    Authenticate user via session cookie or JWT cookie from better-auth.
     
     Args:
         request: FastAPI request object to extract cookies
@@ -188,25 +188,49 @@ async def get_user_from_session(
     Raises:
         HTTPException: 401 if session is invalid or expired
     """
-    # Extract session token from cookies - try multiple possible cookie names
-    token = (
+    # First, try to get JWT token directly from cookie (better-auth with JWT plugin)
+    jwt_token = (
         request.cookies.get("better-auth.session_token") or
-        request.cookies.get("better-auth.session") or
-        request.cookies.get("session_token") or
-        request.cookies.get("auth_session")
+        request.cookies.get("better-auth.access_token")
     )
     
-    print(f"[get_user_from_session] Cookie token found: {bool(token)}")
+    print(f"[get_user_from_session] JWT cookie found: {bool(jwt_token)}")
     print(f"[get_user_from_session] All cookies: {dict(request.cookies)}")
     
-    if not token:
+    # If we have a JWT token, try to decode it
+    if jwt_token:
+        try:
+            payload = jwt.decode(
+                jwt_token,
+                settings.jwt_secret,
+                algorithms=[settings.jwt_algorithm]
+            )
+            user_id: str = payload.get("sub") or payload.get("user_id")
+            if user_id:
+                print(f"[get_user_from_session] Authenticated via JWT cookie, user: {user_id}")
+                return user_id
+        except jwt.ExpiredSignatureError:
+            print("[get_user_from_session] JWT token expired")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Session expired"
+            )
+        except jwt.InvalidTokenError as e:
+            print(f"[get_user_from_session] Invalid JWT token: {e}")
+            # Fall through to session lookup
+    
+    # If JWT didn't work, try session token lookup in database
+    session_token = request.cookies.get("better-auth.session_token")
+    
+    if not session_token:
+        print("[get_user_from_session] No session token found")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not authenticated"
         )
     
     # Look up session in database
-    auth_session = session.exec(select(AuthSession).where(AuthSession.token == token)).first()
+    auth_session = session.exec(select(AuthSession).where(AuthSession.token == session_token)).first()
     
     print(f"[get_user_from_session] Session found in DB: {bool(auth_session)}")
     
