@@ -18,13 +18,14 @@ interface ChatInterfaceProps {
 
 export function ChatInterface({ className, showHeader = true }: ChatInterfaceProps) {
   const { data: session } = useSession();
-  const { 
-    messages, 
-    input, 
-    isLoading, 
-    setInput, 
-    addMessage, 
-    setLoading 
+  const {
+    messages,
+    input,
+    isLoading,
+    setInput,
+    addMessage,
+    updateMessage,
+    setLoading
   } = useChatStore();
   
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -43,7 +44,7 @@ export function ChatInterface({ className, showHeader = true }: ChatInterfacePro
 
     const userMessage = input.trim();
     setInput(""); // Clear input immediately
-    
+
     // Add user message
     addMessage({
       id: Date.now().toString(),
@@ -71,15 +72,63 @@ export function ChatInterface({ className, showHeader = true }: ChatInterfacePro
         throw new Error("Failed to send message");
       }
 
-      const data = await response.json();
+      // Check if response is streaming (SSE)
+      const contentType = response.headers.get("content-type");
+      
+      if (contentType?.includes("text/event-stream")) {
+        // Handle streaming response
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+        let assistantMessageId = Date.now().toString();
+        let assistantContent = "";
 
-      // Add assistant message
-      addMessage({
-        id: Date.now().toString(),
-        role: "assistant",
-        content: data.response || "I didn't get a response.",
-        timestamp: new Date(),
-      });
+        // Add empty assistant message that will be filled incrementally
+        addMessage({
+          id: assistantMessageId,
+          role: "assistant",
+          content: "",
+          timestamp: new Date(),
+        });
+
+        if (reader) {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value);
+            // Parse SSE lines (format: "data: {...}\n\n")
+            const lines = chunk.split("\n");
+            for (const line of lines) {
+              if (line.startsWith("data: ")) {
+                try {
+                  const data = JSON.parse(line.slice(6));
+                  if (data.type === "chunk" && data.content) {
+                    assistantContent += data.content;
+                    // Update the message with accumulated content
+                    updateMessage(assistantMessageId, assistantContent);
+                  } else if (data.type === "error") {
+                    throw new Error(data.message);
+                  }
+                } catch (parseError) {
+                  // Skip malformed JSON lines
+                  console.warn("Failed to parse SSE chunk:", parseError);
+                }
+              }
+            }
+          }
+        }
+      } else {
+        // Handle non-streaming JSON response (fallback)
+        const data = await response.json();
+
+        // Add assistant message
+        addMessage({
+          id: Date.now().toString(),
+          role: "assistant",
+          content: data.response || "I didn't get a response.",
+          timestamp: new Date(),
+        });
+      }
     } catch (error) {
       console.error("Chat error:", error);
       addMessage({

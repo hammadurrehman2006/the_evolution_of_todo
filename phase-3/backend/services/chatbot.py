@@ -63,7 +63,7 @@ chatbot = Agent[UserContext](
 
 async def process_message(message: str, user_id: str) -> str:
     """
-    Process a user message using the chatbot agent.
+    Process a user message using the chatbot agent (non-streaming).
 
     Args:
         message: The user's input message.
@@ -80,3 +80,33 @@ async def process_message(message: str, user_id: str) -> str:
         run_config=RunConfig(model_provider=OPENROUTER_MODEL_PROVIDER)
     )
     return result.final_output
+
+
+async def process_message_stream(message: str, user_id: str):
+    """
+    Process a user message using the chatbot agent with streaming support.
+    
+    Yields chunks of the response as they are generated, keeping the connection
+    alive during long-running MCP tool executions.
+    
+    Args:
+        message: The user's input message.
+        user_id: The ID of the authenticated user.
+        
+    Yields:
+        str: Chunks of the response text as they become available.
+    """
+    user_context = UserContext(user_id=user_id)
+    
+    # Use streamed run for real-time chunk delivery
+    streamed_result = Runner.run_streamed(
+        chatbot,
+        message,
+        context=user_context,
+        max_turns=20,
+        run_config=RunConfig(model_provider=OPENROUTER_MODEL_PROVIDER)
+    )
+    
+    # Yield chunks as they arrive from the stream
+    async for chunk in streamed_result.stream_text_deltas():
+        yield chunk
