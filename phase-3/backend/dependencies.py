@@ -189,14 +189,18 @@ async def get_user_from_session(
         HTTPException: 401 if session is invalid or expired
     """
     # First, try to get JWT token directly from cookie (better-auth with JWT plugin)
-    jwt_token = (
+    raw_jwt_token = (
         request.cookies.get("better-auth.session_token") or
         request.cookies.get("better-auth.access_token")
     )
-    
+
+    # Decode URL-encoded token (better-auth sends tokens with %2B, %2F, %3D etc.)
+    from urllib.parse import unquote
+    jwt_token = unquote(raw_jwt_token) if raw_jwt_token else None
+
     print(f"[get_user_from_session] JWT cookie found: {bool(jwt_token)}")
     print(f"[get_user_from_session] All cookies: {dict(request.cookies)}")
-    
+
     # If we have a JWT token, try to decode it
     if jwt_token:
         try:
@@ -218,9 +222,10 @@ async def get_user_from_session(
         except jwt.InvalidTokenError as e:
             print(f"[get_user_from_session] Invalid JWT token: {e}")
             # Fall through to session lookup
-    
+
     # If JWT didn't work, try session token lookup in database
-    session_token = request.cookies.get("better-auth.session_token")
+    raw_session_token = request.cookies.get("better-auth.session_token")
+    session_token = unquote(raw_session_token) if raw_session_token else None
     
     if not session_token:
         print("[get_user_from_session] No session token found")
