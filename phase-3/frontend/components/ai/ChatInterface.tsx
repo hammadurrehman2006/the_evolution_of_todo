@@ -55,19 +55,15 @@ export function ChatInterface({ className, showHeader = true }: ChatInterfacePro
     setLoading(true);
 
     try {
-      // Get token for auth header (better-auth handles cookies usually, but we might need explicit header if backend requires Bearer)
-      // The backend uses 'get_current_user' which usually checks Authorization header or cookies.
-      // We'll rely on browser cookies if better-auth sets them, or we might need to inject the token.
-      // better-auth client typically handles this.
-      
+      // Send request with credentials to include cookies for authentication
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include", // Include cookies for authentication
         body: JSON.stringify({
           message: userMessage,
-          // sessionId can be handled by backend
         }),
       });
 
