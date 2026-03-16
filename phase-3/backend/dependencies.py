@@ -188,8 +188,16 @@ async def get_user_from_session(
     Raises:
         HTTPException: 401 if session is invalid or expired
     """
-    # Extract session token from cookies
-    token = request.cookies.get("better-auth.session_token")
+    # Extract session token from cookies - try multiple possible cookie names
+    token = (
+        request.cookies.get("better-auth.session_token") or
+        request.cookies.get("better-auth.session") or
+        request.cookies.get("session_token") or
+        request.cookies.get("auth_session")
+    )
+    
+    print(f"[get_user_from_session] Cookie token found: {bool(token)}")
+    print(f"[get_user_from_session] All cookies: {dict(request.cookies)}")
     
     if not token:
         raise HTTPException(
@@ -199,6 +207,8 @@ async def get_user_from_session(
     
     # Look up session in database
     auth_session = session.exec(select(AuthSession).where(AuthSession.token == token)).first()
+    
+    print(f"[get_user_from_session] Session found in DB: {bool(auth_session)}")
     
     if not auth_session:
         raise HTTPException(

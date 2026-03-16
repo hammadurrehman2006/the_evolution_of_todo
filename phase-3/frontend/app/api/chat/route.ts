@@ -5,14 +5,16 @@ export const runtime = 'edge'; // Optional: Use Edge Runtime for lower latency
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    
+
     // Get cookies from the request
     const cookieHeader = req.headers.get("cookie") || "";
 
     // Production API URL - use /chatbot/ which requires authentication
     const apiUrl = "https://teot-p3-api.vercel.app/chatbot/";
 
-    console.log(`Proxying chat request to: ${apiUrl}`);
+    console.log(`[Chat API] Proxying chat request to: ${apiUrl}`);
+    console.log(`[Chat API] Cookies received: ${cookieHeader ? 'Yes' : 'No'}`);
+    console.log(`[Chat API] Cookie header: ${cookieHeader.substring(0, 100)}...`);
 
     // Forward cookies to backend for authentication
     // better-auth sets session cookies that the backend can validate
@@ -27,8 +29,8 @@ export async function POST(req: NextRequest) {
 
     if (!backendResponse.ok) {
       const errorText = await backendResponse.text();
-      console.error(`Backend error (${backendResponse.status}):`, errorText);
-      
+      console.error(`[Chat API] Backend error (${backendResponse.status}):`, errorText);
+
       // Handle 401 - not authenticated
       if (backendResponse.status === 401) {
         return NextResponse.json(
@@ -36,7 +38,7 @@ export async function POST(req: NextRequest) {
           { status: 401 }
         );
       }
-      
+
       try {
          const errorJson = JSON.parse(errorText);
          return NextResponse.json(errorJson, { status: backendResponse.status });
@@ -49,7 +51,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(data);
 
   } catch (error) {
-    console.error("Chat API Proxy Error:", error);
+    console.error("[Chat API] Chat API Proxy Error:", error);
     return NextResponse.json(
       { error: "Internal Server Error", details: String(error) },
       { status: 500 }
