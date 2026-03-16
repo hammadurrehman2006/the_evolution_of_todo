@@ -96,10 +96,12 @@ async def process_message_stream(message: str, user_id: str):
     Yields:
         str: Chunks of the response text as they become available.
     """
+    from openai.types.responses import ResponseTextDeltaEvent
+    
     user_context = UserContext(user_id=user_id)
     
     # Use streamed run for real-time chunk delivery
-    streamed_result = Runner.run_streamed(
+    result = Runner.run_streamed(
         chatbot,
         message,
         context=user_context,
@@ -107,6 +109,8 @@ async def process_message_stream(message: str, user_id: str):
         run_config=RunConfig(model_provider=OPENROUTER_MODEL_PROVIDER)
     )
     
-    # Yield chunks as they arrive from the stream
-    async for chunk in streamed_result.stream_text_deltas():
-        yield chunk
+    # Stream events and yield text deltas
+    async for event in result.stream_events():
+        # Extract text deltas from raw response events
+        if event.type == "raw_response_event" and isinstance(event.data, ResponseTextDeltaEvent):
+            yield event.data.delta
