@@ -176,75 +176,55 @@ async def get_user_from_session(
     session: Session = Depends(get_session)
 ) -> str:
     """
-    Authenticate user via session cookie or JWT cookie from better-auth.
-    
+    Authenticate user via better-auth.session_token cookie.
+
+    The token is a signed opaque token (not JWT) in format: <session_id>.<signature>
+    The cookie arrives URL-encoded and must be decoded before processing.
+
     Args:
         request: FastAPI request object to extract cookies
         session: Database session
-        
+
     Returns:
         str: User ID from the session
-        
+
     Raises:
         HTTPException: 401 if session is invalid or expired
     """
-    # First, try to get JWT token directly from cookie (better-auth with JWT plugin)
-    raw_jwt_token = (
-        request.cookies.get("better-auth.session_token") or
-        request.cookies.get("better-auth.access_token")
-    )
-
-    # Decode URL-encoded token (better-auth sends tokens with %2B, %2F, %3D etc.)
     from urllib.parse import unquote
-    jwt_token = unquote(raw_jwt_token) if raw_jwt_token else None
 
-    print(f"[get_user_from_session] JWT cookie found: {bool(jwt_token)}")
-    print(f"[get_user_from_session] All cookies: {dict(request.cookies)}")
+    # Get the raw cookie from the request
+    raw_token = request.cookies.get("better-auth.session_token")
 
-    # If we have a JWT token, try to decode it
-    if jwt_token:
-        try:
-            payload = jwt.decode(
-                jwt_token,
-                settings.jwt_secret,
-                algorithms=[settings.jwt_algorithm]
-            )
-            user_id: str = payload.get("sub") or payload.get("user_id")
-            if user_id:
-                print(f"[get_user_from_session] Authenticated via JWT cookie, user: {user_id}")
-                return user_id
-        except jwt.ExpiredSignatureError:
-            print("[get_user_from_session] JWT token expired")
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Session expired"
-            )
-        except jwt.InvalidTokenError as e:
-            print(f"[get_user_from_session] Invalid JWT token: {e}")
-            # Fall through to session lookup
-
-    # If JWT didn't work, try session token lookup in database
-    raw_session_token = request.cookies.get("better-auth.session_token")
-    session_token = unquote(raw_session_token) if raw_session_token else None
-    
-    if not session_token:
+    if not raw_token:
         print("[get_user_from_session] No session token found")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not authenticated"
         )
-    
-    # Look up session in database
-    auth_session = session.exec(select(AuthSession).where(AuthSession.token == session_token)).first()
-    
+
+    # URL decode the cookie (handles %2B, %2F, %3D etc.)
+    decoded_token = unquote(raw_token)
+
+    # Split at the period and keep ONLY the first half (session ID)
+    # This changes 'SzyvGhaDcUA4IxYWY61utRV3okbSl8xV.tXOB...' to just 'SzyvGhaDcUA4IxYWY61utRV3okbSl8xV'
+    db_token = decoded_token.split(".")[0]
+
+    print(f"[get_user_from_session] Raw token: {raw_token}")
+    print(f"[get_user_from_session] Decoded token: {decoded_token}")
+    print(f"[get_user_from_session] DB lookup token (session ID): {db_token}")
+
+    # Look up session in database using only the session ID (first part before the dot)
+    auth_session = session.exec(select(AuthSession).where(AuthSession.token == db_token)).first()
+
     print(f"[get_user_from_session] Session found in DB: {bool(auth_session)}")
-    
+
     if not auth_session:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid session"
         )
-    
+
     # Check if session is expired
     from datetime import datetime, timezone
     if auth_session.expiresAt.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
@@ -252,5 +232,5 @@ async def get_user_from_session(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Session expired"
         )
-    
+
     return auth_session.userId
