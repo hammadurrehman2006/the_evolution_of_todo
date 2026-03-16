@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authClient } from "@/lib/auth-client";
 
 export const runtime = 'edge'; // Optional: Use Edge Runtime for lower latency
 
@@ -7,28 +6,21 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     
-    // Get JWT token from better-auth client
-    const { data: tokenData } = await authClient.token();
-    const jwtToken = tokenData?.token;
+    // Get cookies from the request
+    const cookieHeader = req.headers.get("cookie") || "";
 
     // Production API URL - use /chatbot/ which requires authentication
     const apiUrl = "https://teot-p3-api.vercel.app/chatbot/";
 
     console.log(`Proxying chat request to: ${apiUrl}`);
 
-    // If no token, return 401
-    if (!jwtToken) {
-      return NextResponse.json(
-        { error: "Authentication required. Please log in to use the chatbot." },
-        { status: 401 }
-      );
-    }
-
+    // Forward cookies to backend for authentication
+    // better-auth sets session cookies that the backend can validate
     const backendResponse = await fetch(apiUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${jwtToken}`,
+        "Cookie": cookieHeader,
       },
       body: JSON.stringify(body),
     });
@@ -36,6 +28,15 @@ export async function POST(req: NextRequest) {
     if (!backendResponse.ok) {
       const errorText = await backendResponse.text();
       console.error(`Backend error (${backendResponse.status}):`, errorText);
+      
+      // Handle 401 - not authenticated
+      if (backendResponse.status === 401) {
+        return NextResponse.json(
+          { error: "Authentication required. Please log in to use the chatbot." },
+          { status: 401 }
+        );
+      }
+      
       try {
          const errorJson = JSON.parse(errorText);
          return NextResponse.json(errorJson, { status: backendResponse.status });

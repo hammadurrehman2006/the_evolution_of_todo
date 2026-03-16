@@ -1,11 +1,12 @@
 """FastAPI dependencies for authentication and authorization."""
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import jwt
 from sqlmodel import Session, select
 from config import settings
 from database import get_session
-from models import Jwks
+from models import Jwks, Session as AuthSession
+from typing import Optional
 
 # HTTP Bearer token security scheme
 security = HTTPBearer()
@@ -35,7 +36,7 @@ async def get_current_user(
         # Get unverified header to check algorithm
         header = jwt.get_unverified_header(token)
         alg = header.get("alg")
-        
+
         payload = None
 
         if alg == settings.jwt_algorithm:
@@ -46,7 +47,7 @@ async def get_current_user(
             )
         else:
             all_jwks = session.exec(select(Jwks)).all()
-            
+
             if not all_jwks:
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
@@ -57,14 +58,14 @@ async def get_current_user(
             def try_verify(record, token_kid):
                 try:
                     public_key_str = record.publicKey
-                    
+
                     # Handle JWK JSON format
                     if public_key_str.strip().startswith("{"):
                         import json
                         from jwt import PyJWK
-                        
+
                         key_data = json.loads(public_key_str)
-                        
+
                         # Handle potential JWKS wrapper {"keys": [...]}
                         if "keys" in key_data and isinstance(key_data["keys"], list):
                              # Try all keys in the set
@@ -74,10 +75,10 @@ async def get_current_user(
                                      # Check kid if present
                                      if token_kid and k.get("kid") and k.get("kid") != token_kid:
                                          continue
-                                         
+
                                      decoded = jwt.decode(
-                                         token, 
-                                         key=jwk_obj.key, 
+                                         token,
+                                         key=jwk_obj.key,
                                          algorithms=[alg],
                                          options={"verify_aud": False, "verify_iss": False}
                                      )
@@ -88,28 +89,28 @@ async def get_current_user(
 
                         # Single JWK
                         jwk_obj = PyJWK(key_data)
-                        
+
                         # Check kid if we have one in the JWK
                         jwk_kid = key_data.get("kid")
                         if token_kid and jwk_kid and jwk_kid != token_kid:
                             # Mismatch in JWK content kid
                             return None
-                            
+
                         return jwt.decode(
-                            token, 
-                            key=jwk_obj.key, 
+                            token,
+                            key=jwk_obj.key,
                             algorithms=[alg],
                             options={"verify_aud": False, "verify_iss": False}
                         )
-                    
+
                     # Handle PEM format (fallback)
                     # For PEM, we assume the record.id might be the kid
                     if token_kid and record.id != token_kid:
                         return None
-                        
+
                     return jwt.decode(
-                        token, 
-                        key=public_key_str, 
+                        token,
+                        key=public_key_str,
                         algorithms=[alg],
                         options={"verify_aud": False, "verify_iss": False}
                     )
@@ -123,14 +124,14 @@ async def get_current_user(
                 matching_record = next((r for r in all_jwks if r.id == token_kid), None)
                 if matching_record:
                     payload = try_verify(matching_record, token_kid)
-            
+
             # 2. If no payload yet, try ALL keys (rotation/mismatched IDs support)
             if not payload:
                 for record in all_jwks:
                     # Skip if we already tried it (optimization)
                     if token_kid and record.id == token_kid:
                         continue
-                        
+
                     payload = try_verify(record, token_kid)
                     if payload:
                         break
@@ -168,3 +169,49 @@ async def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authentication failed"
         )
+
+
+async def get_user_from_session(
+    request: Request,
+    session: Session = Depends(get_session)
+) -> str:
+    """
+    Authenticate user via session cookie from better-auth.
+    
+    Args:
+        request: FastAPI request object to extract cookies
+        session: Database session
+        
+    Returns:
+        str: User ID from the session
+        
+    Raises:
+        HTTPException: 401 if session is invalid or expired
+    """
+    # Extract session token from cookies
+    token = request.cookies.get("better-auth.session_token")
+    
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated"
+        )
+    
+    # Look up session in database
+    auth_session = session.exec(select(AuthSession).where(AuthSession.token == token)).first()
+    
+    if not auth_session:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid session"
+        )
+    
+    # Check if session is expired
+    from datetime import datetime, timezone
+    if auth_session.expiresAt.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Session expired"
+        )
+    
+    return auth_session.userId
