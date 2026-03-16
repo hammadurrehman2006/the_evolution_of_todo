@@ -1,26 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
+import { authClient } from "@/lib/auth-client";
 
 export const runtime = 'edge'; // Optional: Use Edge Runtime for lower latency
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const authHeader = req.headers.get("authorization");
-    const cookieHeader = req.headers.get("cookie");
-
-    // Production API URL
-    const apiUrl = "https://teot-p3-api.vercel.app/chat";
     
+    // Get JWT token from better-auth client
+    const { data: tokenData } = await authClient.token();
+    const jwtToken = tokenData?.token;
+
+    // Production API URL - use /chatbot/ which requires authentication
+    const apiUrl = "https://teot-p3-api.vercel.app/chatbot/";
+
     console.log(`Proxying chat request to: ${apiUrl}`);
+
+    // If no token, return 401
+    if (!jwtToken) {
+      return NextResponse.json(
+        { error: "Authentication required. Please log in to use the chatbot." },
+        { status: 401 }
+      );
+    }
 
     const backendResponse = await fetch(apiUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        // Forward auth headers if present
-        ...(authHeader && { "Authorization": authHeader }),
-        // Forward cookies (important for session-based auth if used)
-        ...(cookieHeader && { "Cookie": cookieHeader }),
+        "Authorization": `Bearer ${jwtToken}`,
       },
       body: JSON.stringify(body),
     });
@@ -38,7 +46,7 @@ export async function POST(req: NextRequest) {
 
     const data = await backendResponse.json();
     return NextResponse.json(data);
-    
+
   } catch (error) {
     console.error("Chat API Proxy Error:", error);
     return NextResponse.json(
