@@ -144,11 +144,9 @@ export function ChatInterface({
   }, [messages, isLoading]);
 
   /**
-   * Refresh todos after AI action with a small delay to ensure backend is updated
+   * Refresh todos after AI action immediately
    */
   const refreshTodos = useCallback(async () => {
-    // Small delay to ensure backend transaction is complete
-    await new Promise(resolve => setTimeout(resolve, 300));
     console.log('[ChatInterface] Refreshing todos after AI action...');
     await fetchTodos();
     onActionComplete?.();
