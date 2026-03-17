@@ -210,34 +210,62 @@ def update_task(
         return f"Error updating task: {str(e)}"
 
 @function_tool
-def delete_task(ctx: RunContextWrapper[UserContext], task_id: str) -> str:
+def delete_task(
+    ctx: RunContextWrapper[UserContext],
+    task_id: Optional[str] = None,
+    task_name: Optional[str] = None
+) -> str:
     """
-    Delete a task.
-    
+    Delete a task by ID or by task name/title.
+
     Args:
-        task_id: The UUID of the task to delete.
-        
+        task_id: The UUID of the task to delete (optional if task_name provided).
+        task_name: The title/name of the task to delete (optional if task_id provided).
+                   If multiple tasks match, the most recently created one will be deleted.
+
     Returns:
         Success or error message.
     """
     user_id = ctx.context.user_id
+    
+    if not task_id and not task_name:
+        return "Error: Either task_id or task_name must be provided."
+    
     try:
-        import uuid
-        try:
-            task_uuid = uuid.UUID(task_id)
-        except ValueError:
-            return "Error: Invalid task ID format."
-
         session_gen = get_session()
         session = next(session_gen)
         try:
-            task = session.get(Task, task_uuid)
-            if not task or task.user_id != user_id:
-                return "Error: Task not found or access denied."
-
+            task = None
+            
+            if task_id:
+                import uuid
+                try:
+                    task_uuid = uuid.UUID(task_id)
+                except ValueError:
+                    return "Error: Invalid task ID format."
+                
+                task = session.get(Task, task_uuid)
+                if not task or task.user_id != user_id:
+                    return "Error: Task not found or access denied."
+            
+            elif task_name:
+                # Find task by name/title for the authenticated user
+                from sqlmodel import select
+                query = select(Task).where(
+                    Task.user_id == user_id,
+                    Task.title.ilike(f"%{task_name}%")
+                ).order_by(Task.created_at.desc())
+                
+                tasks = session.exec(query).all()
+                if not tasks:
+                    return f"Error: No task found with name containing '{task_name}'."
+                
+                # Delete the most recently created matching task
+                task = tasks[0]
+            
             session.delete(task)
             session.commit()
-            return f"Task {task_id} deleted successfully."
+            return f"Task '{task.title}' deleted successfully."
         finally:
             session.close()
     except Exception as e:

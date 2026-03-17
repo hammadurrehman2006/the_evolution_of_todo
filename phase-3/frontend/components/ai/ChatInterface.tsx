@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useChatStore } from "@/lib/store/chat-store";
 import { useSession } from "@/lib/auth-client";
+import { useTodoStore } from "@/lib/store";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,9 +15,73 @@ import { cn } from "@/lib/utils";
 interface ChatInterfaceProps {
   className?: string;
   showHeader?: boolean;
+  onActionComplete?: () => void; // Callback when AI performs an action
 }
 
-export function ChatInterface({ className, showHeader = true }: ChatInterfaceProps) {
+// Patterns to detect AI actions that modify todos
+const ACTION_PATTERNS = {
+  created: [
+    /task created/i,
+    /created task/i,
+    /added task/i,
+    /task added/i,
+    /i've created/i,
+    /i've added/i,
+    /successfully created/i,
+    /task has been created/i,
+    /task has been added/i,
+  ],
+  deleted: [
+    /task deleted/i,
+    /deleted task/i,
+    /removed task/i,
+    /task removed/i,
+    /i've deleted/i,
+    /i've removed/i,
+    /successfully deleted/i,
+    /task has been deleted/i,
+    /task has been removed/i,
+  ],
+  updated: [
+    /task updated/i,
+    /updated task/i,
+    /modified task/i,
+    /task modified/i,
+    /i've updated/i,
+    /successfully updated/i,
+    /task has been updated/i,
+    /marked as complete/i,
+    /marked as incomplete/i,
+    /task completed/i,
+  ],
+};
+
+/**
+ * Detects if the AI response indicates a todo-modifying action
+ */
+function detectAction(content: string): "create" | "delete" | "update" | null {
+  const lowerContent = content.toLowerCase();
+
+  for (const pattern of ACTION_PATTERNS.deleted) {
+    if (pattern.test(lowerContent)) return "delete";
+  }
+
+  for (const pattern of ACTION_PATTERNS.updated) {
+    if (pattern.test(lowerContent)) return "update";
+  }
+
+  for (const pattern of ACTION_PATTERNS.created) {
+    if (pattern.test(lowerContent)) return "create";
+  }
+
+  return null;
+}
+
+export function ChatInterface({
+  className,
+  showHeader = true,
+  onActionComplete,
+}: ChatInterfaceProps) {
   const { data: session } = useSession();
   const {
     messages,
@@ -25,9 +90,10 @@ export function ChatInterface({ className, showHeader = true }: ChatInterfacePro
     setInput,
     addMessage,
     updateMessage,
-    setLoading
+    setLoading,
   } = useChatStore();
-  
+  const fetchTodos = useTodoStore((state) => state.fetchTodos);
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -74,7 +140,7 @@ export function ChatInterface({ className, showHeader = true }: ChatInterfacePro
 
       // Check if response is streaming (SSE)
       const contentType = response.headers.get("content-type");
-      
+
       if (contentType?.includes("text/event-stream")) {
         // Handle streaming response
         const reader = response.body?.getReader();
@@ -117,17 +183,34 @@ export function ChatInterface({ className, showHeader = true }: ChatInterfacePro
             }
           }
         }
+
+        // Stream completed - check for actions and refresh todos if needed
+        const detectedAction = detectAction(assistantContent);
+        if (detectedAction) {
+          console.log(`[ChatInterface] Detected action: ${detectedAction}, refreshing todos...`);
+          await fetchTodos();
+          onActionComplete?.();
+        }
       } else {
         // Handle non-streaming JSON response (fallback)
         const data = await response.json();
+        const responseContent = data.response || "I didn't get a response.";
 
         // Add assistant message
         addMessage({
           id: Date.now().toString(),
           role: "assistant",
-          content: data.response || "I didn't get a response.",
+          content: responseContent,
           timestamp: new Date(),
         });
+
+        // Check for actions and refresh todos if needed
+        const detectedAction = detectAction(responseContent);
+        if (detectedAction) {
+          console.log(`[ChatInterface] Detected action: ${detectedAction}, refreshing todos...`);
+          await fetchTodos();
+          onActionComplete?.();
+        }
       }
     } catch (error) {
       console.error("Chat error:", error);

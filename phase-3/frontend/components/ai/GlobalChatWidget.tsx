@@ -3,9 +3,16 @@
 import { useState } from "react";
 import { FaRobot, FaTimes } from "react-icons/fa";
 import { ChatInterface } from "./ChatInterface";
+import { useTodoStore } from "@/lib/store";
 
 export default function GlobalChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
+  const fetchTodos = useTodoStore((state) => state.fetchTodos);
+
+  const handleActionComplete = async () => {
+    // Refresh todos when AI performs an action
+    await fetchTodos();
+  };
 
   return (
     <>
@@ -26,18 +33,19 @@ export default function GlobalChatWidget() {
               <FaRobot size={20} />
               <h3 className="font-semibold text-lg">AI Assistant</h3>
             </div>
-            <button 
+            <button
               onClick={() => setIsOpen(false)}
               className="hover:bg-primary-foreground/20 p-1 rounded transition-colors"
             >
               <FaTimes size={18} />
             </button>
           </div>
-          
+
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-background">
-            <ChatInterface 
-              className="h-full w-full border-none shadow-none rounded-none" 
-              showHeader={false} 
+            <ChatInterface
+              className="h-full w-full border-none shadow-none rounded-none"
+              showHeader={false}
+              onActionComplete={handleActionComplete}
             />
           </div>
         </div>
