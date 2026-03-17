@@ -36,9 +36,11 @@ async def chat_stream(
 ):
     """
     Streaming chat endpoint using Server-Sent Events (SSE).
-    
+
     This keeps the connection alive during long-running MCP tool executions
     and prevents 504 Gateway Timeout errors by sending periodic chunks.
+    
+    DEPLOYED: 2026-03-17 - Streaming fix for Vercel timeout
     """
     async def generate_stream():
         try:
