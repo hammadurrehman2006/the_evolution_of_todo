@@ -13,7 +13,7 @@ interface ChatState {
   isLoading: boolean;
   input: string;
   setInput: (input: string) => void;
-  addMessage: (message: Message) => void;
+  addMessage: (message: Message | { id: string; role: 'user' | 'assistant'; content: string; timestamp: string | Date }) => void;
   updateMessage: (id: string, content: string) => void;
   setLoading: (loading: boolean) => void;
   clearMessages: () => void;
@@ -39,13 +39,13 @@ export const useChatStore = create<ChatState>()(
       isLoading: false,
       input: '',
       setInput: (input) => set({ input }),
-      addMessage: (message) => set((state) => ({ 
-        messages: [...state.messages, { 
-          ...message, 
-          timestamp: message.timestamp instanceof Date 
-            ? message.timestamp.toISOString() 
-            : message.timestamp 
-        }] 
+      addMessage: (message) => set((state) => ({
+        messages: [...state.messages, {
+          ...message,
+          timestamp: typeof message.timestamp === 'string'
+            ? message.timestamp
+            : message.timestamp.toISOString()
+        }]
       })),
       updateMessage: (id, content) => set((state) => ({
         messages: state.messages.map((msg) =>
