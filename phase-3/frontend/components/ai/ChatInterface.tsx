@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useChatStore } from "@/lib/store/chat-store";
 import { useSession } from "@/lib/auth-client";
 import { useTodoStore } from "@/lib/store";
@@ -18,7 +18,7 @@ interface ChatInterfaceProps {
   onActionComplete?: () => void; // Callback when AI performs an action
 }
 
-// Patterns to detect AI actions that modify todos
+// Patterns to detect AI actions that modify todos - expanded for better detection
 const ACTION_PATTERNS = {
   created: [
     /task created/i,
@@ -30,6 +30,10 @@ const ACTION_PATTERNS = {
     /successfully created/i,
     /task has been created/i,
     /task has been added/i,
+    /task.*created successfully/i,
+    /task.*added successfully/i,
+    /new task.*created/i,
+    /created.*task.*successfully/i,
   ],
   deleted: [
     /task deleted/i,
@@ -41,6 +45,9 @@ const ACTION_PATTERNS = {
     /successfully deleted/i,
     /task has been deleted/i,
     /task has been removed/i,
+    /task.*deleted successfully/i,
+    /task.*removed successfully/i,
+    /deleted.*task.*successfully/i,
   ],
   updated: [
     /task updated/i,
@@ -53,6 +60,11 @@ const ACTION_PATTERNS = {
     /marked as complete/i,
     /marked as incomplete/i,
     /task completed/i,
+    /task.*updated successfully/i,
+    /task.*marked as/i,
+    /updated.*task.*successfully/i,
+    /changed.*priority/i,
+    /priority.*changed/i,
   ],
 };
 
@@ -62,19 +74,46 @@ const ACTION_PATTERNS = {
 function detectAction(content: string): "create" | "delete" | "update" | null {
   const lowerContent = content.toLowerCase();
 
+  // Check delete first (more specific)
   for (const pattern of ACTION_PATTERNS.deleted) {
     if (pattern.test(lowerContent)) return "delete";
   }
 
+  // Then check update
   for (const pattern of ACTION_PATTERNS.updated) {
     if (pattern.test(lowerContent)) return "update";
   }
 
+  // Finally check create
   for (const pattern of ACTION_PATTERNS.created) {
     if (pattern.test(lowerContent)) return "create";
   }
 
   return null;
+}
+
+/**
+ * Helper to convert timestamp to Date object
+ */
+function toTimestamp(timestamp: string | Date): string {
+  if (timestamp instanceof Date) {
+    return timestamp.toISOString();
+  }
+  return timestamp;
+}
+
+/**
+ * Helper to format timestamp for display
+ */
+function formatTime(timestamp: string): string {
+  try {
+    return new Date(timestamp).toLocaleTimeString([], { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+  } catch {
+    return '';
+  }
 }
 
 export function ChatInterface({
@@ -104,6 +143,17 @@ export function ChatInterface({
     }
   }, [messages, isLoading]);
 
+  /**
+   * Refresh todos after AI action with a small delay to ensure backend is updated
+   */
+  const refreshTodos = useCallback(async () => {
+    // Small delay to ensure backend transaction is complete
+    await new Promise(resolve => setTimeout(resolve, 300));
+    console.log('[ChatInterface] Refreshing todos after AI action...');
+    await fetchTodos();
+    onActionComplete?.();
+  }, [fetchTodos, onActionComplete]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
@@ -113,10 +163,10 @@ export function ChatInterface({
 
     // Add user message
     addMessage({
-      id: Date.now().toString(),
+      id: `user-${Date.now()}`,
       role: "user",
       content: userMessage,
-      timestamp: new Date(),
+      timestamp: toTimestamp(new Date()),
     });
 
     setLoading(true);
@@ -145,7 +195,7 @@ export function ChatInterface({
         // Handle streaming response
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
-        let assistantMessageId = Date.now().toString();
+        let assistantMessageId = `assistant-${Date.now()}`;
         let assistantContent = "";
 
         // Add empty assistant message that will be filled incrementally
@@ -153,7 +203,7 @@ export function ChatInterface({
           id: assistantMessageId,
           role: "assistant",
           content: "",
-          timestamp: new Date(),
+          timestamp: toTimestamp(new Date()),
         });
 
         if (reader) {
@@ -187,9 +237,8 @@ export function ChatInterface({
         // Stream completed - check for actions and refresh todos if needed
         const detectedAction = detectAction(assistantContent);
         if (detectedAction) {
-          console.log(`[ChatInterface] Detected action: ${detectedAction}, refreshing todos...`);
-          await fetchTodos();
-          onActionComplete?.();
+          console.log(`[ChatInterface] Detected action: ${detectedAction}`);
+          await refreshTodos();
         }
       } else {
         // Handle non-streaming JSON response (fallback)
@@ -198,27 +247,26 @@ export function ChatInterface({
 
         // Add assistant message
         addMessage({
-          id: Date.now().toString(),
+          id: `assistant-${Date.now()}`,
           role: "assistant",
           content: responseContent,
-          timestamp: new Date(),
+          timestamp: toTimestamp(new Date()),
         });
 
         // Check for actions and refresh todos if needed
         const detectedAction = detectAction(responseContent);
         if (detectedAction) {
-          console.log(`[ChatInterface] Detected action: ${detectedAction}, refreshing todos...`);
-          await fetchTodos();
-          onActionComplete?.();
+          console.log(`[ChatInterface] Detected action: ${detectedAction}`);
+          await refreshTodos();
         }
       }
     } catch (error) {
       console.error("Chat error:", error);
       addMessage({
-        id: Date.now().toString(),
+        id: `assistant-${Date.now()}`,
         role: "assistant",
         content: "Sorry, I encountered an error. Please try again.",
-        timestamp: new Date(),
+        timestamp: toTimestamp(new Date()),
       });
     } finally {
       setLoading(false);
@@ -291,15 +339,15 @@ export function ChatInterface({
                   <div
                     className={cn(
                       "px-4 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap shadow-sm",
-                      msg.role === "user" 
-                        ? "bg-primary text-primary-foreground rounded-tr-none" 
+                      msg.role === "user"
+                        ? "bg-primary text-primary-foreground rounded-tr-none"
                         : "bg-muted/50 border border-border/50 rounded-tl-none"
                     )}
                   >
                     {msg.content}
                   </div>
                   <span className="text-[10px] text-muted-foreground mt-1 px-1">
-                    {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {formatTime(msg.timestamp)}
                   </span>
                 </div>
               </div>
