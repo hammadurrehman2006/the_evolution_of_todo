@@ -35,20 +35,26 @@ class OpenRouterModelProvider(ModelProvider):
 OPENROUTER_MODEL_PROVIDER = OpenRouterModelProvider()
 
 # Initialize Memori for per-user memory (SQLite in-memory, free)
-from memori import Memori
+try:
+    from memori import Memori
 
-def get_memory_system(user_id: str) -> Memori:
-    """
-    Get or create a memory system for a specific user.
-    Uses SQLite in-memory database (free, no external services).
-    Each user gets isolated memory namespace.
-    """
-    return Memori(
-        database_connect="sqlite:///::memory:",  # In-memory SQLite (free)
-        conscious_ingest=True,  # Short-term memory
-        auto_ingest=True,  # Long-term memory
-        namespace=f"user_{user_id}",  # Per-user isolation
-    )
+    def get_memory_system(user_id: str) -> Memori:
+        """
+        Get or create a memory system for a specific user.
+        Uses SQLite in-memory database (free, no external services).
+        Each user gets isolated memory namespace.
+        """
+        return Memori(
+            database_connect=":memory:",  # In-memory SQLite (free)
+            conscious_ingest=True,  # Short-term memory
+            auto_ingest=True,  # Long-term memory
+            namespace=f"user_{user_id}",  # Per-user isolation
+        )
+except ImportError:
+    # Memori not installed - memory features disabled but app still works
+    def get_memory_system(user_id: str):
+        """Fallback when Memori is not available."""
+        return None
 
 
 # Define the chatbot agent with memory-aware instructions
@@ -105,11 +111,12 @@ async def process_message(message: str, user_id: str) -> str:
     """
     user_context = UserContext(user_id=user_id)
     
-    # Get user's memory system
+    # Get user's memory system (may be None if Memori not installed)
     memory_system = get_memory_system(user_id)
-    memory_system.enable()
+    if memory_system:
+        memory_system.enable()
 
-    # Run with OpenRouter model provider and memory session
+    # Run with OpenRouter model provider
     result = await Runner.run(
         chatbot,
         message,
@@ -118,11 +125,12 @@ async def process_message(message: str, user_id: str) -> str:
         run_config=RunConfig(model_provider=OPENROUTER_MODEL_PROVIDER)
     )
     
-    # Store conversation in memory
-    memory_system.record_conversation(
-        user_input=message,
-        ai_output=result.final_output
-    )
+    # Store conversation in memory if available
+    if memory_system and result.final_output:
+        memory_system.record_conversation(
+            user_input=message,
+            ai_output=result.final_output
+        )
     
     return result.final_output
 
@@ -145,9 +153,10 @@ async def process_message_stream(message: str, user_id: str):
 
     user_context = UserContext(user_id=user_id)
     
-    # Get user's memory system
+    # Get user's memory system (may be None if Memori not installed)
     memory_system = get_memory_system(user_id)
-    memory_system.enable()
+    if memory_system:
+        memory_system.enable()
 
     # Use streamed run for real-time chunk delivery
     result = Runner.run_streamed(
@@ -170,7 +179,7 @@ async def process_message_stream(message: str, user_id: str):
             yield chunk
     
     # Store conversation in memory after streaming completes
-    if full_response:
+    if memory_system and full_response:
         memory_system.record_conversation(
             user_input=message,
             ai_output=full_response
