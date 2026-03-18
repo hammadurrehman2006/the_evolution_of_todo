@@ -1,7 +1,8 @@
 """SQLModel data models for the Task Management API."""
 from sqlmodel import SQLModel, Field, Column
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
-from sqlalchemy import JSON as SA_JSON
+from sqlalchemy import JSON as SA_JSON, Text
+import sqlalchemy as sa
 from typing import Optional, List
 from datetime import datetime, timezone
 from enum import Enum
