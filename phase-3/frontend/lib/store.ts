@@ -1,3 +1,5 @@
+'use client'
+
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import type { Todo, Priority, FilterOptions, SortOption, ApiError } from '@/lib/types'

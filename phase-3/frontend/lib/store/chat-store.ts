@@ -1,3 +1,5 @@
+'use client'
+
 import { create } from 'zustand'
 
 export interface Message {
@@ -43,7 +45,7 @@ const saveToStorage = (messages: Message[]) => {
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
-  messages: [],
+  messages: typeof window !== 'undefined' ? loadFromStorage() : [],
   isLoading: false,
   input: '',
   setInput: (input) => set({ input }),
@@ -73,11 +75,3 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set({ messages: [] })
   },
 }))
-
-// Load messages from localStorage on mount (client-side only)
-if (typeof window !== 'undefined') {
-  const storedMessages = loadFromStorage()
-  if (storedMessages.length > 0) {
-    useChatStore.setState({ messages: storedMessages })
-  }
-}
