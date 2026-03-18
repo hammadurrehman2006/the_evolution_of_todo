@@ -9,14 +9,27 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Send, Bot, User, Loader2, Sparkles } from "lucide-react";
+import { Send, Bot, User, Loader2, Sparkles, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface ChatInterfaceProps {
   className?: string;
   showHeader?: boolean;
   onActionComplete?: () => void; // Callback when AI performs an action
 }
+
+const PREVIOUS_USER_ID_KEY = 'chat-previous-user-id';
 
 // Patterns to detect AI actions that modify todos - expanded for better detection
 const ACTION_PATTERNS = {
@@ -130,11 +143,34 @@ export function ChatInterface({
     addMessage,
     updateMessage,
     setLoading,
+    clearMessages,
   } = useChatStore();
   const fetchTodos = useTodoStore((state) => state.fetchTodos);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const hasInitializedRef = useRef(false);
+
+  const currentUserId = session?.user?.id;
+
+  // Clear chat when user logs in or out (user ID changes)
+  useEffect(() => {
+    if (!hasInitializedRef.current) {
+      // First load - just store the user ID
+      hasInitializedRef.current = true;
+      localStorage.setItem(PREVIOUS_USER_ID_KEY, currentUserId || 'anonymous');
+      return;
+    }
+
+    const previousUserId = localStorage.getItem(PREVIOUS_USER_ID_KEY);
+    
+    // User ID changed (login or logout)
+    if (previousUserId !== currentUserId) {
+      console.log('[ChatInterface] User session changed, clearing chat...');
+      clearMessages();
+      localStorage.setItem(PREVIOUS_USER_ID_KEY, currentUserId || 'anonymous');
+    }
+  }, [currentUserId, clearMessages]);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -292,11 +328,45 @@ export function ChatInterface({
               </p>
             </div>
           </div>
-          {!session && (
-            <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-              Anonymous Mode
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            {!session && (
+              <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                Anonymous Mode
+              </div>
+            )}
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                  title="Clear chat history"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Clear Chat History?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete all chat messages. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => {
+                      clearMessages();
+                      console.log('[ChatInterface] Chat history cleared');
+                    }}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Clear Chat
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </CardHeader>
       )}
 

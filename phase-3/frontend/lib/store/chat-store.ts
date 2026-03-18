@@ -58,6 +58,11 @@ export const useChatStore = create<ChatState>()(
     {
       name: 'chat-history',
       storage: storageWithDates,
+      // Clear chat on logout by checking session
+      partialize: (state) => ({
+        messages: state.messages,
+        input: state.input,
+      }),
     }
   )
 );
