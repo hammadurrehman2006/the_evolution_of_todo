@@ -31,93 +31,95 @@ interface ChatInterfaceProps {
 
 const PREVIOUS_USER_ID_KEY = 'chat-previous-user-id';
 
-// Patterns to detect AI actions that modify todos - expanded for better detection
+// Patterns to detect AI actions that modify todos - comprehensive coverage for ALL CRUD responses
 const ACTION_PATTERNS = {
   created: [
-    /task created/i,
-    /created task/i,
-    /added task/i,
-    /task added/i,
-    /i've created/i,
-    /i've added/i,
+    /task.*created/i,           // "Task 'X' created", "Task created successfully"
+    /created.*task/i,           // "Created task 'X'"
+    /task.*added/i,             // "Task 'X' added"
+    /added.*task/i,             // "Added task 'X'"
+    /task created successfully/i,  // Backend: "Task created successfully. ID: xxx"
     /successfully created/i,
     /task has been created/i,
     /task has been added/i,
-    /task.*created successfully/i,
-    /task.*added successfully/i,
+    /i've created/i,
+    /i've added/i,
     /new task.*created/i,
-    /created.*task.*successfully/i,
-    /task created successfully/i,
-    /created successfully.*id/i,
+    /created successfully/i,
   ],
   deleted: [
-    /task deleted/i,
-    /deleted task/i,
-    /removed task/i,
-    /task removed/i,
-    /i've deleted/i,
-    /i've removed/i,
+    /task.*deleted/i,           // "Task 'X' deleted", "Task deleted successfully"
+    /deleted.*task/i,           // "Deleted task 'X'"
+    /task.*removed/i,           // "Task 'X' removed"
+    /removed.*task/i,           // "Removed task 'X'"
+    /task.*deleted successfully/i,  // Backend: "Task 'X' deleted successfully."
+    /deleted successfully/i,
     /successfully deleted/i,
     /task has been deleted/i,
     /task has been removed/i,
-    /task.*deleted successfully/i,
-    /task.*removed successfully/i,
-    /deleted.*task.*successfully/i,
-    /task deleted successfully/i,
+    /i've deleted/i,
+    /i've removed/i,
   ],
   updated: [
-    /task updated/i,
-    /updated task/i,
-    /modified task/i,
-    /task modified/i,
-    /i've updated/i,
+    /task.*updated/i,           // "Task 'X' updated", "Task updated successfully"
+    /updated.*task/i,           // "Updated task 'X'"
+    /task.*modified/i,
+    /modified.*task/i,
+    /task.*updated successfully/i,  // Backend: "Task xxx updated successfully."
+    /updated successfully/i,
     /successfully updated/i,
     /task has been updated/i,
+    /i've updated/i,
     /marked as complete/i,
     /marked as incomplete/i,
     /task completed/i,
-    /task.*updated successfully/i,
     /task.*marked as/i,
-    /updated.*task.*successfully/i,
     /changed.*priority/i,
     /priority.*changed/i,
-    /task updated successfully/i,
   ],
 };
 
 /**
  * Detects if the AI response indicates a todo-modifying action
+ * Tests against comprehensive pattern library for all CRUD operations
  */
 function detectAction(content: string): "create" | "delete" | "update" | null {
   const lowerContent = content.toLowerCase();
   
-  console.log('[detectAction] Analyzing content:', content.substring(0, 100));
+  console.log('[detectAction] Analyzing content:', content);
+  console.log('[detectAction] Lowercase:', lowerContent);
 
-  // Check delete first (more specific)
-  for (const pattern of ACTION_PATTERNS.deleted) {
-    if (pattern.test(lowerContent)) {
-      console.log('[detectAction] Matched DELETE pattern:', pattern);
-      return "delete";
-    }
-  }
-
-  // Then check update
-  for (const pattern of ACTION_PATTERNS.updated) {
-    if (pattern.test(lowerContent)) {
-      console.log('[detectAction] Matched UPDATE pattern:', pattern);
-      return "update";
-    }
-  }
-
-  // Finally check create
+  // Check CREATE patterns
   for (const pattern of ACTION_PATTERNS.created) {
-    if (pattern.test(lowerContent)) {
-      console.log('[detectAction] Matched CREATE pattern:', pattern);
+    const matches = pattern.test(lowerContent);
+    console.log('[detectAction] Testing CREATE pattern:', pattern, '→', matches ? '✅ MATCH' : '❌ no match');
+    if (matches) {
+      console.log('[detectAction] ✅ Detected CREATE action');
       return "create";
     }
   }
 
-  console.log('[detectAction] No pattern matched');
+  // Check DELETE patterns
+  for (const pattern of ACTION_PATTERNS.deleted) {
+    const matches = pattern.test(lowerContent);
+    console.log('[detectAction] Testing DELETE pattern:', pattern, '→', matches ? '✅ MATCH' : '❌ no match');
+    if (matches) {
+      console.log('[detectAction] ✅ Detected DELETE action');
+      return "delete";
+    }
+  }
+
+  // Check UPDATE patterns
+  for (const pattern of ACTION_PATTERNS.updated) {
+    const matches = pattern.test(lowerContent);
+    console.log('[detectAction] Testing UPDATE pattern:', pattern, '→', matches ? '✅ MATCH' : '❌ no match');
+    if (matches) {
+      console.log('[detectAction] ✅ Detected UPDATE action');
+      return "update";
+    }
+  }
+
+  console.log('[detectAction] ❌ No pattern matched - this is likely just a conversational response');
   return null;
 }
 

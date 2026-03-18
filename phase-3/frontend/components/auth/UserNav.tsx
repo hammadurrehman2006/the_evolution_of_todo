@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { LogOut, Settings, User as UserIcon } from "lucide-react"
+import { LogOut, Settings, User as UserIcon, LayoutDashboard } from "lucide-react"
 import { authClient } from "@/lib/auth-client"
 
 interface UserNavProps {
@@ -62,6 +62,14 @@ export function UserNav({ user }: UserNavProps) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
+          <DropdownMenuItem onClick={() => router.push('/dashboard')}>
+            <LayoutDashboard className="mr-2 h-4 w-4" />
+            <span>Dashboard</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push('/todos')}>
+            <UserIcon className="mr-2 h-4 w-4" />
+            <span>My Tasks</span>
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => router.push('/settings?tab=preferences')}>
             <Settings className="mr-2 h-4 w-4" />
             <span>Settings</span>

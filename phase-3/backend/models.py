@@ -189,3 +189,87 @@ class Jwks(SQLModel, table=True):
     publicKey: str
     privateKey: str
     createdAt: datetime
+
+
+class ConversationSession(SQLModel, table=True):
+    """
+    Conversation session for persistent chat history.
+    Stores conversation threads for AI chatbot.
+    """
+    __tablename__ = "conversation_sessions"
+
+    id: uuid.UUID = Field(
+        default_factory=uuid.uuid4,
+        sa_column=Column(PGUUID(as_uuid=True), primary_key=True)
+    )
+    user_id: str = Field(index=True, description="User who owns this conversation")
+    title: Optional[str] = Field(default=None, max_length=500, description="Conversation title")
+    status: str = Field(default="active", max_length=50, description="active, archived, deleted")
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        description="When conversation started"
+    )
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        description="Last message timestamp"
+    )
+
+
+class ConversationMessage(SQLModel, table=True):
+    """
+    Individual message in a conversation.
+    """
+    __tablename__ = "conversation_messages"
+
+    id: uuid.UUID = Field(
+        default_factory=uuid.uuid4,
+        sa_column=Column(PGUUID(as_uuid=True), primary_key=True)
+    )
+    session_id: uuid.UUID = Field(
+        foreign_key="conversation_sessions.id",
+        ondelete="CASCADE",
+        index=True,
+        description="Parent conversation session"
+    )
+    role: str = Field(max_length=50, description="user, assistant, system, or tool")
+    content: str = Field(sa_column=Column(sa.Text), description="Message content")
+    content_json: Optional[dict] = Field(default=None, sa_column=Column(SA_JSON), description="Structured content")
+    token_count: Optional[int] = Field(default=None, description="Token count for this message")
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        description="When message was created"
+    )
+
+
+class ToolCall(SQLModel, table=True):
+    """
+    Tool execution audit log for AI agent actions.
+    """
+    __tablename__ = "tool_calls"
+
+    id: uuid.UUID = Field(
+        default_factory=uuid.uuid4,
+        sa_column=Column(PGUUID(as_uuid=True), primary_key=True)
+    )
+    session_id: uuid.UUID = Field(
+        foreign_key="conversation_sessions.id",
+        ondelete="CASCADE",
+        index=True,
+        description="Parent conversation session"
+    )
+    message_id: Optional[uuid.UUID] = Field(
+        default=None,
+        foreign_key="conversation_messages.id",
+        ondelete="SET NULL",
+        description="Associated message"
+    )
+    tool_name: str = Field(max_length=255, description="Name of tool executed")
+    input_json: dict = Field(sa_column=Column(SA_JSON), description="Tool input parameters")
+    output_json: Optional[dict] = Field(default=None, sa_column=Column(SA_JSON), description="Tool output")
+    status: str = Field(default="pending", max_length=50, description="pending, success, failed")
+    error_message: Optional[str] = Field(default=None, description="Error message if failed")
+    duration_ms: Optional[int] = Field(default=None, description="Execution time in milliseconds")
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        description="When tool was called"
+    )

@@ -34,88 +34,133 @@ class OpenRouterModelProvider(ModelProvider):
 
 OPENROUTER_MODEL_PROVIDER = OpenRouterModelProvider()
 
-# Initialize Memori for per-user memory (SQLite in-memory, free)
-try:
-    from memori import Memori
-
-    def get_memory_system(user_id: str) -> Memori:
-        """
-        Get or create a memory system for a specific user.
-        Uses SQLite in-memory database (free, no external services).
-        Each user gets isolated memory namespace.
-        """
-        return Memori(
-            database_connect=":memory:",  # In-memory SQLite (free)
-            conscious_ingest=True,  # Short-term memory
-            auto_ingest=True,  # Long-term memory
-            namespace=f"user_{user_id}",  # Per-user isolation
-        )
-except ImportError:
-    # Memori not installed - memory features disabled but app still works
-    def get_memory_system(user_id: str):
-        """Fallback when Memori is not available."""
-        return None
+# Initialize conversation memory (PostgreSQL-backed, persistent)
+from .conversation_memory import get_conversation_memory
 
 
-# Define the chatbot agent with memory-aware instructions
+# Define the chatbot agent with enhanced NLU instructions
 chatbot = Agent[UserContext](
     name="TodoAssistant",
     instructions="""You are a precise Todo Assistant for "The Evolution of Todo" app. Your role is to help users manage tasks efficiently by following their instructions exactly.
 
-**CRITICAL RULES - FOLLOW EXACTLY:**
+## CRITICAL RULES - FOLLOW EXACTLY
 1. **Do ONLY what the user explicitly asks** - Do not add, assume, or infer information not provided
 2. **Do NOT add dates/times unless explicitly requested** - If user says "create a task", don't add due dates or reminders
 3. **Do NOT be over-helpful** - Only perform the exact action requested, nothing more
 4. **Use provided values only** - If user doesn't specify priority, use "Medium" as default (don't ask)
 5. **One action at a time** - Execute what was asked, report result concisely
-6. **Remember user context** - Use memory to recall user's preferences and previous conversations
+6. **Remember context** - Use conversation history to understand follow-up requests
 
-**Tools Usage:**
-- `create_task(title, description, priority, tags)`: 
-  - Use ONLY user-provided values
-  - Default priority to "Medium" if not specified
-  - Do NOT add due_date unless explicitly given
-  - Do NOT add description if not provided
-- `get_tasks(limit, offset)`: List tasks when user asks what they have
-- `update_task(task_id, ...)`: Modify tasks ONLY with user-specified changes
-- `delete_task(task_id, task_name)`: 
-  - PREFER `task_name` parameter (e.g., `task_name="buy milk"`)
-  - Confirm before deleting unless user was very explicit
+## INTENT RECOGNITION - MAP USER PHRASES TO ACTIONS
 
-**Response Style:**
-- Be concise and direct
-- State what you did in one sentence
-- Example: "Task 'Buy milk' created." or "Deleted task 'Buy milk'."
-- Do not add suggestions or extra information unless asked
+### CREATE TASKS (call create_task tool)
+User says → You do:
+- "Add/Make/Create task [X]" → create_task(title=X)
+- "Remind me to [X]" → create_task(title=X)
+- "I need to [X]" → create_task(title=X)
+- "Don't forget [X]" → create_task(title=X)
+- "[X] is due [date]" → create_task(title=X, due_date=date)
+- "Schedule [X]" → create_task(title=X)
+- "Put [X] on my list" → create_task(title=X)
 
-**Examples:**
-User: "Create task buy milk" → You: Call create_task(title="buy milk", priority="Medium") → Response: "Task 'buy milk' created."
-User: "Delete buy milk" → You: Call delete_task(task_name="buy milk") → Response: "Task 'buy milk' deleted."
-User: "What do I have to do?" → You: Call get_tasks() → Response: List tasks concisely
+Examples:
+- "Add buy milk" → create_task(title="buy milk", priority="Medium")
+- "Create task meeting tomorrow at 3pm" → create_task(title="meeting", due_date="2026-03-19T15:00:00Z")
+- "I need to finish the report" → create_task(title="finish the report", priority="Medium")
 
-**Out of Scope:**
-- Do not respond to non-task-related queries
-- Do not provide productivity advice unless asked
-- Do not suggest additional features or actions""",
+### LIST TASKS (call get_tasks tool)
+User says → You do:
+- "What do I have?" → get_tasks(status=False)
+- "Show my tasks" → get_tasks()
+- "What's pending?" → get_tasks(status=False)
+- "Completed tasks" → get_tasks(status=True)
+- "High priority tasks" → get_tasks(priority="High")
+- "Tasks due this week" → get_tasks()
+- "What did I add?" → get_tasks(limit=10)
+
+### COMPLETE TASKS (call get_tasks then update_task)
+User says → You do:
+1. First call get_tasks(q=X) to find the task
+2. Then call update_task(id, completed=True)
+- "Complete [X]" → find then complete
+- "Done with [X]" → find then complete
+- "Finished [X]" → find then complete
+- "Mark [X] done" → find then complete
+- "[X] is done" → find then complete
+
+### DELETE TASKS (call delete_task with task_name)
+User says → You do:
+- "Delete [X]" → delete_task(task_name=X)
+- "Remove [X]" → delete_task(task_name=X)
+- "Cancel [X]" → delete_task(task_name=X)
+- "Get rid of [X]" → delete_task(task_name=X)
+
+### UPDATE TASKS (call get_tasks then update_task)
+User says → You do:
+1. First call get_tasks(q=X) to find the task
+2. Then call update_task with changes
+- "Change [X] priority to high" → find then update priority
+- "Reschedule [X] to [date]" → find then update due_date
+- "Rename [X] to [Y]" → find then update title
+
+## RESPONSE FORMAT
+After tool execution, respond concisely in ONE sentence:
+- ✅ "Task 'buy milk' created."
+- ✅ "Deleted task 'meeting'."
+- ✅ "Marked 'report' as complete."
+- ✅ "Here are your 5 active tasks: [brief list]"
+- ✅ "Priority updated to High."
+
+## HANDLING AMBIGUITY
+If user request is unclear:
+1. Try to match closest intent from patterns above
+2. If multiple tasks match, ask: "Which task did you mean: [list options]?"
+3. Never guess - ask for specifics if truly ambiguous
+
+## CONVERSATION CONTEXT
+- Remember what tasks were discussed recently
+- If user says "delete it" refer to last mentioned task
+- Use conversation history to resolve pronouns (it, that, this)
+
+## OUT OF SCOPE
+- Non-task queries: "I can only help with task management."
+- Productivity advice: Only if explicitly asked
+- Personal questions: Redirect to task management
+- General chat: Keep focused on tasks""",
     tools=[create_task, get_tasks, update_task, delete_task]
 )
 
 
-async def process_message(message: str, user_id: str) -> str:
+async def process_message(message: str, user_id: str, session_id: Optional[str] = None) -> str:
     """
-    Process a user message using the chatbot agent with memory (non-streaming).
+    Process a user message using the chatbot agent with persistent memory.
 
     Args:
         message: The user's input message.
         user_id: The ID of the authenticated user.
+        session_id: Optional conversation session ID for continuity.
+
+    Returns:
+        str: AI response
     """
+    from models import ConversationMessage
+    import uuid as uuid_module
+    
     user_context = UserContext(user_id=user_id)
     
-    # Get user's memory system (may be None if Memori not installed)
-    memory_system = get_memory_system(user_id)
-    if memory_system:
-        memory_system.enable()
-
+    # Get conversation memory (PostgreSQL-backed)
+    conv_memory = get_conversation_memory(user_id, session_id)
+    await conv_memory.initialize()
+    
+    # Load recent conversation history for context (last 20 messages)
+    history = await conv_memory.get_items(limit=20)
+    
+    # Build context from history for the agent
+    # This gives the AI context of recent conversation
+    context_messages = []
+    for msg in history[-10:]:  # Last 10 messages for context window
+        context_messages.append(f"{msg['role']}: {msg['content']}")
+    
     # Run with OpenRouter model provider
     result = await Runner.run(
         chatbot,
@@ -125,38 +170,38 @@ async def process_message(message: str, user_id: str) -> str:
         run_config=RunConfig(model_provider=OPENROUTER_MODEL_PROVIDER)
     )
     
-    # Store conversation in memory if available
-    if memory_system and result.final_output:
-        memory_system.record_conversation(
-            user_input=message,
-            ai_output=result.final_output
-        )
+    # Store conversation in PostgreSQL
+    message_id = str(uuid_module.uuid4())
+    await conv_memory.add_items([
+        {"role": "user", "content": message, "content_json": {"id": message_id}},
+        {"role": "assistant", "content": result.final_output, "content_json": {"id": str(uuid_module.uuid4())}}
+    ])
     
     return result.final_output
 
 
-async def process_message_stream(message: str, user_id: str):
+async def process_message_stream(message: str, user_id: str, session_id: Optional[str] = None):
     """
-    Process a user message using the chatbot agent with streaming support and memory.
+    Process a user message using the chatbot agent with streaming support and persistent memory.
 
-    Yields chunks of the response as they are generated, keeping the connection
-    alive during long-running MCP tool executions.
+    Yields chunks of the response as they are generated.
 
     Args:
         message: The user's input message.
         user_id: The ID of the authenticated user.
+        session_id: Optional conversation session ID for continuity.
 
     Yields:
         str: Chunks of the response text as they become available.
     """
     from openai.types.responses import ResponseTextDeltaEvent
+    import uuid as uuid_module
 
     user_context = UserContext(user_id=user_id)
     
-    # Get user's memory system (may be None if Memori not installed)
-    memory_system = get_memory_system(user_id)
-    if memory_system:
-        memory_system.enable()
+    # Get conversation memory (PostgreSQL-backed)
+    conv_memory = get_conversation_memory(user_id, session_id)
+    await conv_memory.initialize()
 
     # Use streamed run for real-time chunk delivery
     result = Runner.run_streamed(
@@ -167,8 +212,9 @@ async def process_message_stream(message: str, user_id: str):
         run_config=RunConfig(model_provider=OPENROUTER_MODEL_PROVIDER)
     )
 
-    # Collect full response for memory storage
+    # Collect full response for storage
     full_response = ""
+    message_id = str(uuid_module.uuid4())
 
     # Stream events and yield text deltas
     async for event in result.stream_events():
@@ -178,9 +224,9 @@ async def process_message_stream(message: str, user_id: str):
             full_response += chunk
             yield chunk
     
-    # Store conversation in memory after streaming completes
-    if memory_system and full_response:
-        memory_system.record_conversation(
-            user_input=message,
-            ai_output=full_response
-        )
+    # Store conversation in PostgreSQL after streaming completes
+    if full_response:
+        await conv_memory.add_items([
+            {"role": "user", "content": message, "content_json": {"id": message_id}},
+            {"role": "assistant", "content": full_response, "content_json": {"id": str(uuid_module.uuid4())}}
+        ])

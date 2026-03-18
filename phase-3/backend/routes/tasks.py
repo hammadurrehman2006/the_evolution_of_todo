@@ -279,8 +279,7 @@ async def toggle_task_completion(
     session: Session = Depends(get_session)
 ):
     """
-    Toggle task completion status. For non-recurring tasks, just flip the completed flag.
-    For recurring tasks, mark as complete and create a new instance (future enhancement).
+    Toggle task completion status. For recurring tasks, creates next instance.
 
     Args:
         task_id: Task UUID
@@ -288,11 +287,13 @@ async def toggle_task_completion(
         session: Database session
 
     Returns:
-        ToggleResponse: Updated task and optionally new task for recurring
+        ToggleResponse: Updated task and new task for recurring (if applicable)
 
     Raises:
         HTTPException: 404 if task not found or doesn't belong to user
     """
+    from services.recurring_tasks import create_next_instance
+    
     task = session.get(Task, task_id)
 
     # Return 404 (not 403) to prevent information leakage
@@ -306,10 +307,31 @@ async def toggle_task_completion(
     task.completed = not task.completed
     task.updated_at = datetime.utcnow()
 
+    new_task = None
+
+    # For recurring tasks: create next instance when completing
+    if task.completed and task.is_recurring and task.recurrence_rule:
+        # Prepare task data for next instance
+        task_data = {
+            'user_id': task.user_id,
+            'title': task.title,
+            'description': task.description,
+            'priority': task.priority.value,
+            'tags': task.tags,
+            'due_date': task.due_date.isoformat() if task.due_date else None,
+            'recurrence_rule': task.recurrence_rule,
+            'is_recurring': True,
+        }
+        
+        next_instance_data = create_next_instance(task_data)
+        
+        if next_instance_data:
+            # Create new task instance
+            new_task = Task(**next_instance_data)
+            session.add(new_task)
+
     session.add(task)
     session.commit()
     session.refresh(task)
 
-    # For now, just return the toggled task
-    # Recurring logic will be implemented in Phase 7 (User Story 5)
-    return ToggleResponse(task=task, new_task=None)
+    return ToggleResponse(task=task, new_task=new_task)
