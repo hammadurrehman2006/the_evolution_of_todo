@@ -47,6 +47,8 @@ const ACTION_PATTERNS = {
     /task.*added successfully/i,
     /new task.*created/i,
     /created.*task.*successfully/i,
+    /task created successfully/i,
+    /created successfully.*id/i,
   ],
   deleted: [
     /task deleted/i,
@@ -61,6 +63,7 @@ const ACTION_PATTERNS = {
     /task.*deleted successfully/i,
     /task.*removed successfully/i,
     /deleted.*task.*successfully/i,
+    /task deleted successfully/i,
   ],
   updated: [
     /task updated/i,
@@ -78,6 +81,7 @@ const ACTION_PATTERNS = {
     /updated.*task.*successfully/i,
     /changed.*priority/i,
     /priority.*changed/i,
+    /task updated successfully/i,
   ],
 };
 
@@ -86,22 +90,34 @@ const ACTION_PATTERNS = {
  */
 function detectAction(content: string): "create" | "delete" | "update" | null {
   const lowerContent = content.toLowerCase();
+  
+  console.log('[detectAction] Analyzing content:', content.substring(0, 100));
 
   // Check delete first (more specific)
   for (const pattern of ACTION_PATTERNS.deleted) {
-    if (pattern.test(lowerContent)) return "delete";
+    if (pattern.test(lowerContent)) {
+      console.log('[detectAction] Matched DELETE pattern:', pattern);
+      return "delete";
+    }
   }
 
   // Then check update
   for (const pattern of ACTION_PATTERNS.updated) {
-    if (pattern.test(lowerContent)) return "update";
+    if (pattern.test(lowerContent)) {
+      console.log('[detectAction] Matched UPDATE pattern:', pattern);
+      return "update";
+    }
   }
 
   // Finally check create
   for (const pattern of ACTION_PATTERNS.created) {
-    if (pattern.test(lowerContent)) return "create";
+    if (pattern.test(lowerContent)) {
+      console.log('[detectAction] Matched CREATE pattern:', pattern);
+      return "create";
+    }
   }
 
+  console.log('[detectAction] No pattern matched');
   return null;
 }
 

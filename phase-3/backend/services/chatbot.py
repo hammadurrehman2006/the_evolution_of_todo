@@ -34,7 +34,24 @@ class OpenRouterModelProvider(ModelProvider):
 
 OPENROUTER_MODEL_PROVIDER = OpenRouterModelProvider()
 
-# Define the chatbot agent
+# Initialize Memori for per-user memory (SQLite in-memory, free)
+from memori import Memori
+
+def get_memory_system(user_id: str) -> Memori:
+    """
+    Get or create a memory system for a specific user.
+    Uses SQLite in-memory database (free, no external services).
+    Each user gets isolated memory namespace.
+    """
+    return Memori(
+        database_connect="sqlite:///::memory:",  # In-memory SQLite (free)
+        conscious_ingest=True,  # Short-term memory
+        auto_ingest=True,  # Long-term memory
+        namespace=f"user_{user_id}",  # Per-user isolation
+    )
+
+
+# Define the chatbot agent with memory-aware instructions
 chatbot = Agent[UserContext](
     name="TodoAssistant",
     instructions="""You are a precise Todo Assistant for "The Evolution of Todo" app. Your role is to help users manage tasks efficiently by following their instructions exactly.
@@ -45,6 +62,7 @@ chatbot = Agent[UserContext](
 3. **Do NOT be over-helpful** - Only perform the exact action requested, nothing more
 4. **Use provided values only** - If user doesn't specify priority, use "Medium" as default (don't ask)
 5. **One action at a time** - Execute what was asked, report result concisely
+6. **Remember user context** - Use memory to recall user's preferences and previous conversations
 
 **Tools Usage:**
 - `create_task(title, description, priority, tags)`: 
@@ -79,15 +97,19 @@ User: "What do I have to do?" → You: Call get_tasks() → Response: List tasks
 
 async def process_message(message: str, user_id: str) -> str:
     """
-    Process a user message using the chatbot agent (non-streaming).
+    Process a user message using the chatbot agent with memory (non-streaming).
 
     Args:
         message: The user's input message.
         user_id: The ID of the authenticated user.
     """
     user_context = UserContext(user_id=user_id)
+    
+    # Get user's memory system
+    memory_system = get_memory_system(user_id)
+    memory_system.enable()
 
-    # Run with OpenRouter model provider
+    # Run with OpenRouter model provider and memory session
     result = await Runner.run(
         chatbot,
         message,
@@ -95,27 +117,38 @@ async def process_message(message: str, user_id: str) -> str:
         max_turns=20,
         run_config=RunConfig(model_provider=OPENROUTER_MODEL_PROVIDER)
     )
+    
+    # Store conversation in memory
+    memory_system.record_conversation(
+        user_input=message,
+        ai_output=result.final_output
+    )
+    
     return result.final_output
 
 
 async def process_message_stream(message: str, user_id: str):
     """
-    Process a user message using the chatbot agent with streaming support.
-    
+    Process a user message using the chatbot agent with streaming support and memory.
+
     Yields chunks of the response as they are generated, keeping the connection
     alive during long-running MCP tool executions.
-    
+
     Args:
         message: The user's input message.
         user_id: The ID of the authenticated user.
-        
+
     Yields:
         str: Chunks of the response text as they become available.
     """
     from openai.types.responses import ResponseTextDeltaEvent
-    
+
     user_context = UserContext(user_id=user_id)
     
+    # Get user's memory system
+    memory_system = get_memory_system(user_id)
+    memory_system.enable()
+
     # Use streamed run for real-time chunk delivery
     result = Runner.run_streamed(
         chatbot,
@@ -124,9 +157,21 @@ async def process_message_stream(message: str, user_id: str):
         max_turns=20,
         run_config=RunConfig(model_provider=OPENROUTER_MODEL_PROVIDER)
     )
-    
+
+    # Collect full response for memory storage
+    full_response = ""
+
     # Stream events and yield text deltas
     async for event in result.stream_events():
         # Extract text deltas from raw response events
         if event.type == "raw_response_event" and isinstance(event.data, ResponseTextDeltaEvent):
-            yield event.data.delta
+            chunk = event.data.delta
+            full_response += chunk
+            yield chunk
+    
+    # Store conversation in memory after streaming completes
+    if full_response:
+        memory_system.record_conversation(
+            user_input=message,
+            ai_output=full_response
+        )

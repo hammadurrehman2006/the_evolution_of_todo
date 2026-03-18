@@ -15,8 +15,16 @@ import {
 } from "lucide-react"
 import { ChatInterface } from "@/components/ai/ChatInterface"
 import { Hero } from "@/components/Hero"
+import { useTodoStore } from "@/lib/store"
 
 export default function Home() {
+  const fetchTodos = useTodoStore((state) => state.fetchTodos)
+
+  const handleActionComplete = async () => {
+    console.log('[HomePage] AI action completed, refreshing todos...')
+    await fetchTodos()
+  }
+
   const features = [
     {
       icon: CheckCircle2,
@@ -66,7 +74,7 @@ export default function Home() {
                 Just ask and it gets done. Create, update, and organize tasks using natural language.
               </p>
            </div>
-           <ChatInterface />
+           <ChatInterface onActionComplete={handleActionComplete} />
         </div>
       </section>
 
