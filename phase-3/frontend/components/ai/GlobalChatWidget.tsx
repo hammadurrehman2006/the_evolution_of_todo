@@ -4,14 +4,34 @@ import { useState } from "react";
 import { FaRobot, FaTimes } from "react-icons/fa";
 import { ChatInterface } from "./ChatInterface";
 import { useTodoStore } from "@/lib/store";
+import { useChatStore } from "@/lib/store/chat-store";
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Trash2 } from "lucide-react";
 
 export default function GlobalChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const fetchTodos = useTodoStore((state) => state.fetchTodos);
+  const { clearMessages } = useChatStore();
 
   const handleActionComplete = async () => {
     // Refresh todos when AI performs an action
     await fetchTodos();
+  };
+
+  const handleClearChat = () => {
+    clearMessages();
+    console.log('[GlobalChatWidget] Chat history cleared');
   };
 
   return (
@@ -33,12 +53,43 @@ export default function GlobalChatWidget() {
               <FaRobot size={20} />
               <h3 className="font-semibold text-lg">AI Assistant</h3>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="hover:bg-primary-foreground/20 p-1 rounded transition-colors"
-            >
-              <FaTimes size={18} />
-            </button>
+            <div className="flex items-center gap-1">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-primary-foreground hover:bg-primary-foreground/20"
+                    title="Clear chat history"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Clear Chat History?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will permanently delete all chat messages. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleClearChat}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Clear Chat
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="hover:bg-primary-foreground/20 p-1 rounded transition-colors"
+              >
+                <FaTimes size={18} />
+              </button>
+            </div>
           </div>
 
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-background">

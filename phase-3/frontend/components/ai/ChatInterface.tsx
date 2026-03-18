@@ -231,6 +231,7 @@ export function ChatInterface({
         const decoder = new TextDecoder();
         let assistantMessageId = `assistant-${Date.now()}`;
         let assistantContent = "";
+        let streamTimeout: NodeJS.Timeout | null = null;
 
         // Add empty assistant message that will be filled incrementally
         addMessage({
@@ -240,31 +241,55 @@ export function ChatInterface({
           timestamp: toTimestamp(new Date()),
         });
 
-        if (reader) {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
+        // Create a timeout to prevent infinite loading
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          streamTimeout = setTimeout(() => {
+            reject(new Error("Response timeout - please try again"));
+          }, 60000); // 60 second timeout
+        });
 
-            const chunk = decoder.decode(value);
-            // Parse SSE lines (format: "data: {...}\n\n")
-            const lines = chunk.split("\n");
-            for (const line of lines) {
-              if (line.startsWith("data: ")) {
-                try {
-                  const data = JSON.parse(line.slice(6));
-                  if (data.type === "chunk" && data.content) {
-                    assistantContent += data.content;
-                    // Update the message with accumulated content
-                    updateMessage(assistantMessageId, assistantContent);
-                  } else if (data.type === "error") {
-                    throw new Error(data.message);
+        // Create stream reading promise
+        const streamPromise = (async () => {
+          if (reader) {
+            try {
+              while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value);
+                // Parse SSE lines (format: "data: {...}\n\n")
+                const lines = chunk.split("\n");
+                for (const line of lines) {
+                  if (line.startsWith("data: ")) {
+                    try {
+                      const data = JSON.parse(line.slice(6));
+                      if (data.type === "chunk" && data.content) {
+                        assistantContent += data.content;
+                        // Update the message with accumulated content
+                        updateMessage(assistantMessageId, assistantContent);
+                      } else if (data.type === "error") {
+                        throw new Error(data.message);
+                      }
+                    } catch (parseError) {
+                      // Skip malformed JSON lines
+                      console.warn("Failed to parse SSE chunk:", parseError);
+                    }
                   }
-                } catch (parseError) {
-                  // Skip malformed JSON lines
-                  console.warn("Failed to parse SSE chunk:", parseError);
                 }
               }
+            } finally {
+              reader.releaseLock();
             }
+          }
+          return assistantContent;
+        })();
+
+        // Race between stream and timeout
+        try {
+          await Promise.race([streamPromise, timeoutPromise]);
+        } finally {
+          if (streamTimeout) {
+            clearTimeout(streamTimeout);
           }
         }
 
