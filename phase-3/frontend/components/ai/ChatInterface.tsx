@@ -201,6 +201,7 @@ export function ChatInterface({
   const refreshTodos = useCallback(async () => {
     console.log('[ChatInterface] Refreshing todos after AI action...');
     await fetchTodos();
+    console.log('[ChatInterface] Todos refreshed, calling onActionComplete');
     onActionComplete?.();
   }, [fetchTodos, onActionComplete]);
 

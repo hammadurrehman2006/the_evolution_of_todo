@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaRobot, FaTimes } from "react-icons/fa";
 import { ChatInterface } from "./ChatInterface";
 import { useTodoStore } from "@/lib/store";
@@ -22,17 +22,44 @@ import { Trash2 } from "lucide-react";
 export default function GlobalChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const fetchTodos = useTodoStore((state) => state.fetchTodos);
-  const { clearMessages } = useChatStore();
+  const { clearMessages, addMessage } = useChatStore();
 
   const handleActionComplete = async () => {
-    // Refresh todos when AI performs an action
+    console.log('[GlobalChatWidget] handleActionComplete called, refreshing todos...');
     await fetchTodos();
+    console.log('[GlobalChatWidget] Todos refreshed');
   };
 
   const handleClearChat = () => {
     clearMessages();
     console.log('[GlobalChatWidget] Chat history cleared');
   };
+
+  // Listen for "Create with AI" button clicks from other pages
+  useEffect(() => {
+    const handleOpenChat = (event: CustomEvent<{ message?: string }>) => {
+      console.log('[GlobalChatWidget] Received open-ai-chat event');
+      setIsOpen(true);
+      
+      // If there's a pre-filled message, add it to the chat
+      if (event.detail?.message) {
+        // Give the chat time to open, then add the message
+        setTimeout(() => {
+          addMessage({
+            id: `user-${Date.now()}`,
+            role: 'user',
+            content: event.detail.message || '',
+            timestamp: new Date().toISOString(),
+          });
+        }, 300);
+      }
+    };
+
+    window.addEventListener('open-ai-chat', handleOpenChat as EventListener);
+    return () => {
+      window.removeEventListener('open-ai-chat', handleOpenChat as EventListener);
+    };
+  }, [addMessage]);
 
   return (
     <>
